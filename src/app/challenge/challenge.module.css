@@ -1,0 +1,233 @@
+.page {
+  min-height: 100dvh;
+  background: #000;
+  color: #e8e8e8;
+  font-family: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
+  overflow-x: hidden;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.6vw;
+  background: linear-gradient(#000 60%, transparent);
+}
+
+.back,
+.stamp {
+  margin: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: clamp(11px, 1.2vw, 13px);
+  text-decoration: none;
+  color: #84898e;
+}
+
+.back:hover {
+  color: #fff;
+}
+
+.stamp {
+  color: #f00007;
+  border: 2px solid #f00007;
+  padding: 0.25em 0.55em;
+  transform: rotate(-3deg);
+  font-family: Anton, Impact, "Arial Black", sans-serif;
+  letter-spacing: 0.08em;
+  font-size: clamp(14px, 1.8vw, 18px);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: end;
+  min-height: calc(100dvh - 4rem);
+  padding: 2rem 1.6vw 0;
+}
+
+.copy {
+  padding-bottom: clamp(2rem, 6vw, 5rem);
+  animation: rise 0.7s ease-out both;
+}
+
+.kicker {
+  margin: 0 0 0.75rem;
+  color: #e8a317;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: clamp(11px, 1.2vw, 13px);
+}
+
+.title {
+  margin: 0;
+  font-family: Anton, Impact, "Arial Black", sans-serif;
+  font-size: clamp(48px, 9vw, 112px);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.lead {
+  max-width: 34ch;
+  margin: 1.25rem 0 0;
+  color: #84898e;
+  font-size: clamp(13px, 1.4vw, 16px);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7em 1.15em;
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.primary {
+  background: #ffc700;
+  color: #000;
+  border: 1px solid #ffc700;
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  border-color: #fff;
+}
+
+.secondary {
+  color: #fff;
+  border: 1px solid #ffffff40;
+}
+
+.secondary:hover {
+  border-color: #fff;
+}
+
+.visual {
+  position: relative;
+  min-height: min(78vh, 820px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: float-in 0.9s ease-out both;
+}
+
+.glow {
+  position: absolute;
+  inset: 12% 8% 0;
+  background:
+    radial-gradient(circle at 50% 30%, #3d8b4066, transparent 55%),
+    radial-gradient(circle at 60% 70%, #ffc70033, transparent 50%);
+  filter: blur(18px);
+}
+
+.frog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 40px #000c);
+  animation: bob 5.5s ease-in-out infinite;
+}
+
+.hands {
+  margin-top: -4vw;
+  padding: 0 1.6vw 3rem;
+  animation: rise 0.9s 0.15s ease-out both;
+}
+
+.handsImg {
+  display: block;
+  width: min(920px, 100%);
+  height: auto;
+  margin: 0 auto;
+  opacity: 0.92;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: 1rem;
+  }
+
+  .visual {
+    order: -1;
+    min-height: 52vh;
+  }
+
+  .frog {
+    width: min(78vw, 420px);
+  }
+
+  .copy {
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy,
+  .visual,
+  .hands,
+  .frog {
+    animation: none;
+  }
+}
