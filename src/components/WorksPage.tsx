@@ -89,10 +89,7 @@ export default function WorksPage() {
                 data-works-row="true"
                 role="listitem"
                 onClick={() => {
-                  if (
-                    (row.kind === "link" && row.latest) ||
-                    (row.kind === "upcoming" && row.next)
-                  ) {
+                  if (row.kind === "upcoming" && row.next) {
                     setTappedRow((current) =>
                       current === row.index ? null : row.index,
                     );
