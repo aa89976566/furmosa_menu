@@ -4,7 +4,7 @@ export type WorksRow =
       index: number;
       label: string;
       href: string;
-      color: "red" | "yellow";
+      color: "red" | "yellow" | "green" | "blue";
       latest?: boolean;
       hoverText?: string;
       external?: boolean;
@@ -29,22 +29,30 @@ export const WORKS_ROWS: WorksRow[] = [
   {
     kind: "link",
     index: 2,
-    label: "嗷嗚計劃：青蛙誰在怕",
-    href: "/challenge",
+    label: "嚎大大雞霸",
+    href: "https://aa89976566.github.io/haodada/",
     color: "yellow",
     latest: true,
     hoverText: "活動↗",
+    external: true,
+  },
+  {
+    kind: "link",
+    index: 3,
+    label: "嗷嗚計劃：青蛙誰在怕",
+    href: "/challenge",
+    color: "green",
   },
   {
     kind: "upcoming",
-    index: 3,
+    index: 4,
     mystery: "????????????????????????????????",
     next: true,
     hoverText: "下一包",
   },
   {
     kind: "upcoming",
-    index: 4,
+    index: 5,
     mystery: "????????????????????????????????",
   },
 ];
