@@ -66,26 +66,21 @@ export default function WorksPage() {
       <main className="works-index">
         <div className="works-index__list" role="list">
           {WORKS_ROWS.map((row) => {
-            const colorClass =
-              row.kind === "link"
-                ? ` works-row--link-${row.color}`
-                : "";
-            const latestClass = row.kind === "link" && row.latest
-              ? " works-row--latest"
-              : "";
+            const latestClass =
+              row.kind === "link" && row.latest ? " works-row--latest" : "";
             const nextClass =
               row.kind === "upcoming" && row.next ? " works-row--next" : "";
             const projectClass =
               row.kind === "link"
                 ? " works-row--project works-row--campaign"
                 : " works-row--upcoming";
-            const tappedClass =
-              tappedRow === row.index ? " is-tapped" : "";
+            const tappedClass = tappedRow === row.index ? " is-tapped" : "";
+            const label = row.kind === "link" ? row.label : "下一包";
 
             return (
               <div
                 key={row.index}
-                className={`works-row${projectClass}${colorClass}${latestClass}${nextClass}${tappedClass}`}
+                className={`works-row${projectClass}${latestClass}${nextClass}${tappedClass}`}
                 data-works-row="true"
                 role="listitem"
                 onClick={() => {
@@ -98,7 +93,8 @@ export default function WorksPage() {
               >
                 <div className="works-row__inner">
                   <div className="works-row__left" aria-hidden="true">
-                    <span className="works-row__index"># {row.index}</span>
+                    <span className="works-row__hash">#</span>
+                    <span className="works-row__num">{row.index}</span>
                   </div>
                   <div className="works-row__right">
                     {row.kind === "link" ? (
@@ -122,14 +118,14 @@ export default function WorksPage() {
                   </div>
                 </div>
                 <span className="works-row__tile-overlay" aria-hidden="true" />
-                {row.hoverText && row.kind === "link" && row.latest && (
-                  <span className="works-hover-text works-hover-text--latest">
-                    {row.hoverText}
+                {row.kind === "link" && (
+                  <span className="works-hover-text works-hover-text--label">
+                    {label}
                   </span>
                 )}
-                {row.hoverText && row.kind === "upcoming" && row.next && (
+                {row.kind === "upcoming" && row.next && (
                   <span className="works-hover-text works-hover-text--next">
-                    {row.hoverText}
+                    {row.hoverText ?? "下一包"}
                   </span>
                 )}
               </div>

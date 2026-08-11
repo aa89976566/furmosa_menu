@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./works-ui.css";
 
 export const metadata: Metadata = {
   title: "匠寵凍乾目錄｜Furmosa",
