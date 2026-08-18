@@ -17,7 +17,6 @@ export default function WorksPage() {
   return (
     <div className="works-page">
       <header className="works-header">
-        <p className="works-header__catalog">匠寵凍乾目錄</p>
         <div className="works-header__actions">
           <button
             type="button"
