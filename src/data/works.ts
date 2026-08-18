@@ -30,7 +30,7 @@ export const WORKS_ROWS: WorksRow[] = [
     kind: "link",
     index: 2,
     label: "嚎大大雞霸",
-    href: "https://aa89976566.github.io/haodada/",
+    href: "/haodada",
     color: "yellow",
     latest: true,
     hoverText: "活動↗",

@@ -97,12 +97,16 @@ export default function WorksPage() {
                   </div>
                   <div className="works-row__right">
                     {row.kind === "link" ? (
-                      row.href.startsWith("http") ? (
+                      row.external ? (
                         <a
                           href={row.href}
                           className="works-row__link"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          target={row.href.startsWith("http") ? "_blank" : undefined}
+                          rel={
+                            row.href.startsWith("http")
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
                         >
                           {row.label}
                         </a>
