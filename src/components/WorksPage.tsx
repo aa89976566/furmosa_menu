@@ -67,6 +67,10 @@ export default function WorksPage() {
           {WORKS_ROWS.map((row) => {
             const latestClass =
               row.kind === "link" && row.latest ? " works-row--latest" : "";
+            const highlightClass =
+              row.kind === "link" && row.highlight
+                ? " works-row--highlight"
+                : "";
             const nextClass =
               row.kind === "upcoming" && row.next ? " works-row--next" : "";
             const projectClass =
@@ -85,7 +89,7 @@ export default function WorksPage() {
             return (
               <div
                 key={row.index}
-                className={`works-row${projectClass}${latestClass}${nextClass}${tappedClass}`}
+                className={`works-row${projectClass}${latestClass}${highlightClass}${nextClass}${tappedClass}`}
                 data-works-row="true"
                 role="listitem"
                 onClick={() => {

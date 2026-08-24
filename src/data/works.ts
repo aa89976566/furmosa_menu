@@ -6,6 +6,7 @@ export type WorksRow =
       href: string;
       color: "red" | "yellow" | "green" | "blue";
       latest?: boolean;
+      highlight?: boolean;
       hoverText?: string;
       external?: boolean;
     }
@@ -41,7 +42,8 @@ export const WORKS_ROWS: WorksRow[] = [
     index: 3,
     label: "浪浪交易所｜中秋限定盤",
     href: "https://them-stock-moon.furmosa.com/",
-    color: "green",
+    color: "red",
+    highlight: true,
     hoverText: "月餅成交 浪浪被看見",
     external: true,
   },
