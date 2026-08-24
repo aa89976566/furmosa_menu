@@ -4,6 +4,7 @@
   --ed-text: #8a8a8a;
   --ed-text-dim: #5c5c5c;
   --ed-paper: #fff;
+  --ed-red: #f00007;
   --ed-chip: #c8c8c8;
   --ed-list-size: clamp(22px, 2.8vw, 40px);
   --ed-list-leading: 0.95;
@@ -212,6 +213,21 @@
 .works-row--link-blue:focus-within .works-row__link,
 .works-row--link-red:focus-within .works-row__link {
   color: inherit;
+}
+
+/* #3 campaign only: brand red at rest, same white hover/focus as other rows */
+.works-row--highlight,
+.works-row--highlight .works-row__left {
+  color: var(--ed-red);
+}
+
+.works-row--highlight:hover,
+.works-row--highlight:focus-within,
+.works-row--highlight.is-tapped,
+.works-row--highlight:hover .works-row__left,
+.works-row--highlight:focus-within .works-row__left,
+.works-row--highlight.is-tapped .works-row__left {
+  color: var(--ed-paper);
 }
 
 .works-row__tile-overlay {

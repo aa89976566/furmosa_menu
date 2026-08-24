@@ -67,6 +67,10 @@ export default function WorksPage() {
           {WORKS_ROWS.map((row) => {
             const latestClass =
               row.kind === "link" && row.latest ? " works-row--latest" : "";
+            const highlightClass =
+              row.kind === "link" && row.highlight
+                ? " works-row--highlight"
+                : "";
             const nextClass =
               row.kind === "upcoming" && row.next ? " works-row--next" : "";
             const projectClass =
@@ -74,12 +78,18 @@ export default function WorksPage() {
                 ? " works-row--project works-row--campaign"
                 : " works-row--upcoming";
             const tappedClass = tappedRow === row.index ? " is-tapped" : "";
-            const label = row.kind === "link" ? row.label : "下一包";
+            // Keep #2 (latest) chip as the item name; other links may use hoverText.
+            const hoverChipText =
+              row.kind === "link"
+                ? row.latest
+                  ? row.label
+                  : (row.hoverText ?? row.label)
+                : (row.hoverText ?? "下一包");
 
             return (
               <div
                 key={row.index}
-                className={`works-row${projectClass}${latestClass}${nextClass}${tappedClass}`}
+                className={`works-row${projectClass}${latestClass}${highlightClass}${nextClass}${tappedClass}`}
                 data-works-row="true"
                 role="listitem"
                 onClick={() => {
@@ -123,7 +133,7 @@ export default function WorksPage() {
                 <span className="works-row__tile-overlay" aria-hidden="true" />
                 {row.kind === "link" && (
                   <span className="works-hover-text works-hover-text--label">
-                    {label}
+                    {hoverChipText}
                   </span>
                 )}
                 {row.kind === "upcoming" && row.next && (

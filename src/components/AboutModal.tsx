@@ -21,11 +21,13 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
     "north",
   );
 
+  const handleClose = () => {
+    setPanel(null);
+    onClose();
+  };
+
   useEffect(() => {
-    if (!open) {
-      setPanel(null);
-      return;
-    }
+    if (!open) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -62,7 +64,7 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
               type="button"
               className="furmosa-about__close"
               aria-label="關閉"
-              onClick={onClose}
+              onClick={handleClose}
             >
               ×
             </button>
