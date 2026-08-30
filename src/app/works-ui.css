@@ -14,6 +14,9 @@
   --ed-header-size: clamp(12px, 1.2vw, 16px);
   --ed-header-bar-height: calc(0.9vw + clamp(40px, 3.6vw, 52px));
   --ed-tracking: 0.06em;
+  /* CJK-first stack so Latin in titles matches #1–#3, not IBM Plex Mono */
+  --ed-title-font: "PingFang TC", "Hiragino Sans CNS", "Noto Sans TC",
+    "Microsoft JhengHei", sans-serif;
 }
 
 .works-page {
@@ -164,10 +167,12 @@
 .works-row__mystery {
   color: inherit;
   white-space: nowrap;
+  font-family: var(--ed-title-font);
   font-size: inherit;
   line-height: inherit;
   font-weight: 700;
-  letter-spacing: inherit;
+  letter-spacing: 0.02em;
+  word-spacing: 0.12em;
   text-decoration: none;
   display: inline-block;
   max-width: 100%;
@@ -255,7 +260,7 @@
   left: var(--ed-page-pad);
   z-index: 400;
   pointer-events: none;
-  font-family: inherit;
+  font-family: var(--ed-title-font);
   font-size: clamp(11px, 1.05vw, 14px);
   font-weight: 700;
   letter-spacing: 0.08em;
