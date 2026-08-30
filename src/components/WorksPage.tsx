@@ -78,7 +78,7 @@ export default function WorksPage() {
                 ? " works-row--project works-row--campaign"
                 : " works-row--upcoming";
             const tappedClass = tappedRow === row.index ? " is-tapped" : "";
-            // Keep #2 (latest) chip as the item name; other links may use hoverText.
+            // Keep the latest chip as the item name; other links may use hoverText.
             const hoverChipText =
               row.kind === "link"
                 ? row.latest
