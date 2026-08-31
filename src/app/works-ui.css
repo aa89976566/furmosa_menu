@@ -1,31 +1,33 @@
 /* Edits-style works index — overrides furmosa.css list chrome */
 :root {
   --ed-ink: #000;
-  --ed-text: #8a8a8a;
+  --ed-text: #84898e;
   --ed-text-dim: #5c5c5c;
   --ed-paper: #fff;
   --ed-red: #f00007;
   --ed-chip: #c8c8c8;
-  --ed-list-size: clamp(22px, 2.8vw, 40px);
-  --ed-list-leading: 0.95;
-  --ed-rail-width: 2.4em;
-  --ed-row-gap: 1.1vw;
+  --ed-list-size: clamp(28px, 3.6vw, 52px);
+  --ed-list-leading: 0.86;
+  --ed-rail-width: 3.8em;
+  --ed-row-gap: 0.972222vw;
   --ed-page-pad: 1.6vw;
-  --ed-header-size: clamp(12px, 1.2vw, 16px);
-  --ed-header-bar-height: calc(0.9vw + clamp(40px, 3.6vw, 52px));
-  --ed-tracking: 0.06em;
-  /* CJK-first stack so Latin in titles matches #1–#3, not IBM Plex Mono */
-  --ed-title-font: "PingFang TC", "Hiragino Sans CNS", "Noto Sans TC",
-    "Microsoft JhengHei", sans-serif;
+  --ed-header-size: clamp(13px, 1.45vw, 20px);
+  --ed-header-bar-height: calc(0.694444vw + clamp(36px, 3.2vw, 44px) + 0.4vw);
+  --ed-tracking: 0;
+  --ed-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
+  /* Latin stays mono (reference); CJK uses the Plex sibling so mixed titles stay one family */
+  --ed-title-font: "IBM Plex Mono", "IBM Plex Sans TC", "Noto Sans TC",
+    "PingFang TC", "Microsoft JhengHei", monospace;
+  --ed-chip-font: "Anton", "Impact", "Arial Black", sans-serif;
 }
 
 .works-page {
   background: var(--ed-ink);
   min-height: 100dvh;
   color: var(--ed-text);
-  font-family: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
+  font-family: var(--ed-mono);
   font-size: var(--ed-list-size);
-  font-weight: 700;
+  font-weight: 400;
   line-height: var(--ed-list-leading);
   letter-spacing: var(--ed-tracking);
   text-transform: uppercase;
@@ -41,10 +43,10 @@
   pointer-events: none;
   display: flex;
   justify-content: flex-end;
-  align-items: center;
+  align-items: baseline;
   gap: 1rem;
   position: fixed;
-  top: 0.9vw;
+  top: 0.694444vw;
   left: auto;
   right: var(--ed-page-pad);
 }
@@ -62,9 +64,9 @@
   color: var(--ed-text);
   font-family: inherit;
   font-size: var(--ed-header-size);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: var(--ed-list-leading);
   text-decoration: none;
   text-transform: uppercase;
   background: none;
@@ -108,7 +110,7 @@
 .works-index__list {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.55rem, 1.1vw, 1rem);
+  gap: 0;
   margin: 0;
   padding: 0;
 }
@@ -125,6 +127,7 @@
 .works-row__inner {
   display: flex;
   align-items: flex-start;
+  flex-wrap: nowrap;
   gap: var(--ed-row-gap);
   width: 100%;
   margin: 0;
@@ -148,8 +151,9 @@
 .works-row__hash,
 .works-row__num {
   display: block;
+  font-family: var(--ed-mono);
   font-size: inherit;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 0.9;
   color: inherit;
@@ -170,9 +174,9 @@
   font-family: var(--ed-title-font);
   font-size: inherit;
   line-height: inherit;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  word-spacing: 0.12em;
+  font-weight: 400;
+  letter-spacing: 0;
+  word-spacing: 0;
   text-decoration: none;
   display: inline-block;
   max-width: 100%;
@@ -256,22 +260,22 @@
 .works-hover-text {
   display: none;
   position: fixed;
-  top: 0.9vw;
+  top: 0.694444vw;
   left: var(--ed-page-pad);
   z-index: 400;
   pointer-events: none;
-  font-family: var(--ed-title-font);
-  font-size: clamp(11px, 1.05vw, 14px);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--ed-chip-font);
+  font-size: clamp(16px, 1.8vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
   line-height: 1;
   text-transform: uppercase;
-  color: #111;
+  color: var(--ed-ink);
   background: var(--ed-chip);
-  border: none;
-  box-shadow: none;
-  border-radius: 2px;
-  padding: 0.45em 0.7em;
+  border: 3px solid var(--ed-paper);
+  box-shadow: 4px 4px 0 var(--ed-paper);
+  border-radius: 0;
+  padding: 0.45em 0.65em;
 }
 
 .works-row--project:hover .works-hover-text--label,
@@ -283,6 +287,10 @@
 .works-hover-text--next {
   background: transparent;
   color: var(--ed-text);
+  font-family: var(--ed-mono);
+  letter-spacing: 0;
+  box-shadow: none;
+  border: none;
   padding: 0;
   border-radius: 0;
 }
@@ -305,10 +313,10 @@
 
 @media (max-width: 500px) {
   .works-page {
-    --ed-list-size: clamp(20px, 5.8vw, 28px);
-    --ed-rail-width: 2.1em;
-    --ed-tracking: 0.03em;
-    padding-top: 18vw;
+    --ed-list-size: clamp(24px, 6.8vw, 30px);
+    --ed-rail-width: 3.6em;
+    --ed-tracking: -0.02em;
+    padding-top: 17.0944vw;
   }
 
   .works-header__shop {
@@ -332,7 +340,7 @@
     color: var(--ed-text);
     font: inherit;
     font-size: var(--ed-header-size);
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-decoration: none;
   }
 
