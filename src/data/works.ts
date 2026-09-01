@@ -18,6 +18,13 @@ export type WorksRow =
       hoverText?: string;
     };
 
+export const SHOP_URL = "https://furmosa.com/collections/all";
+
+/** Campaign host on furmosa.com — same pattern as them-stock-moon.furmosa.com */
+export const CATNIP_HOST = "catnip-chick.furmosa.com";
+export const CATNIP_URL = `https://${CATNIP_HOST}`;
+export const CATNIP_ORIGIN = "https://catnip-chick.vercel.app";
+
 export const WORKS_ROWS: WorksRow[] = [
   {
     kind: "link",
@@ -50,7 +57,7 @@ export const WORKS_ROWS: WorksRow[] = [
     kind: "link",
     index: 4,
     label: "◈ 草上飛 ◈ 貓草雞肉乾薄片",
-    href: "https://catnip-chick.vercel.app",
+    href: CATNIP_URL,
     color: "green",
     latest: true,
     external: true,
@@ -63,5 +70,3 @@ export const WORKS_ROWS: WorksRow[] = [
     hoverText: "下一包",
   },
 ];
-
-export const SHOP_URL = "https://furmosa.com/collections/all";
