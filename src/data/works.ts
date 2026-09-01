@@ -49,7 +49,7 @@ export const WORKS_ROWS: WorksRow[] = [
   {
     kind: "link",
     index: 4,
-    label: "chill 嗨嗨の貓",
+    label: "◈ 草上飛 ◈ 貓草雞肉乾薄片",
     href: "https://catnip-chick.vercel.app",
     color: "green",
     latest: true,
