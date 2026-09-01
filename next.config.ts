@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
-import { CATNIP_HOST, CATNIP_ORIGIN } from "./src/data/works";
 
 const HAODADA_ORIGIN = "https://aa89976566.github.io/haodada";
+const CATNIP_HOST = "catnip-chick.furmosa.com";
+const CATNIP_ORIGIN = "https://catnip-chick.vercel.app";
 
 const catnipHost = {
   type: "host" as const,
