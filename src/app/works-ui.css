@@ -14,6 +14,7 @@
   --ed-rail-width: 4ch;
   --ed-row-gap: 0.972222vw;
   --ed-page-pad: 0.694444vw;
+  --ed-header-size: 1.805555vw;
   --ed-header-inset: 0.694444vw;
   --ed-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace, Arial,
     Helvetica, sans-serif;
@@ -86,10 +87,10 @@
   outline: none;
 }
 
-.works-header__logo-btn {
+.works-page .works-header__logo-btn {
   aspect-ratio: 1;
   cursor: pointer;
-  background-color: var(--ed-yellow);
+  background: var(--ed-yellow);
   border: none;
   display: flex;
   justify-content: center;
@@ -100,9 +101,9 @@
   padding: 0.694444vw 0.833333vw;
 }
 
-.works-header__logo-btn:hover,
-.works-header__logo-btn:focus-visible {
-  background-color: transparent;
+.works-page .works-header__logo-btn:hover,
+.works-page .works-header__logo-btn:focus-visible {
+  background: transparent;
   outline: none;
 }
 
@@ -296,9 +297,12 @@
   background: transparent;
 }
 
-.works-row--next .works-row__tile-overlay {
-  pointer-events: auto;
+.works-row--next {
   cursor: pointer;
+}
+
+.works-row--next .works-row__tile-overlay {
+  pointer-events: none;
 }
 
 .works-row--latest .works-row__tile-overlay {
@@ -333,16 +337,19 @@
   color: var(--ed-red);
 }
 
-.works-hover-text--next {
-  background: transparent;
+.works-page .works-hover-text--next {
+  background: var(--ed-yellow);
   color: var(--ed-red);
 }
 
-.works-row--next:hover .works-hover-text--next,
-.works-row--next.is-tapped .works-hover-text--next {
+.works-page .works-row--next:hover .works-hover-text--next,
+.works-page .works-row--next.is-tapped .works-hover-text--next {
   display: block;
   color: var(--ed-red);
-  background: transparent;
+  background: var(--ed-yellow);
+  font-size: var(--ed-index-size);
+  line-height: var(--ed-index-leading);
+  padding: 0.069444vw 0.138888vw 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -369,16 +376,22 @@
     --ed-list-leading: 7.466666vw;
     --ed-index-size: 4vw;
     --ed-index-leading: 3.733333vw;
+    --ed-header-size: 4vw;
     --ed-header-inset: 2.133333vw;
     letter-spacing: -0.232vw;
     padding: 0 0 22vw 0;
+  }
+
+  .works-header__about {
+    font-size: var(--ed-index-size);
+    line-height: var(--ed-index-leading);
   }
 
   .works-header__shop {
     display: none;
   }
 
-  .works-header__logo-btn {
+  .works-page .works-header__logo-btn {
     width: 16vw;
     height: 16vw;
     padding: 2.666666vw 3.2vw;

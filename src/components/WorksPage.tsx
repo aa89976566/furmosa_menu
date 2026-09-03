@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import {
   useEffect,
@@ -55,14 +54,16 @@ export default function WorksPage() {
             aria-label="Scroll to top"
             onClick={scrollToTop}
           >
-            <Image
-              src="/brand/furmosa-mark.svg"
-              alt=""
-              width={48}
-              height={48}
+            <svg
               className="works-header__logo-mark"
-              priority
-            />
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            >
+              <path
+                d="M24 40C23.35 40 22.74 39.67 22.34 39.12L7.4 17.2C6.78 16.3 7.42 15 8.56 15H39.44C40.58 15 41.22 16.3 40.6 17.2L25.66 39.12C25.26 39.67 24.65 40 24 40Z"
+                fill="#F00007"
+              />
+            </svg>
           </button>
         </div>
       </header>
@@ -106,6 +107,7 @@ export default function WorksPage() {
                 className={`works-row${projectClass}${latestClass}${highlightClass}${nextClass}${tappedClass}`}
                 data-works-row="true"
                 role="listitem"
+                onMouseEnter={tracksCursor ? trackCursor : undefined}
                 onMouseMove={tracksCursor ? trackCursor : undefined}
                 onClick={() => {
                   if (row.kind === "upcoming" && row.next) {
