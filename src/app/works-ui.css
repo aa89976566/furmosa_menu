@@ -1,24 +1,24 @@
-/* Edits-style works index — overrides furmosa.css list chrome */
+/* Catalog index — measurements copied from https://mschf.com/ (Aug 2025 CSS) */
+
 :root {
   --ed-ink: #000;
   --ed-text: #84898e;
-  --ed-text-dim: #5c5c5c;
+  --ed-text-dim: #84898e;
   --ed-paper: #fff;
+  --ed-yellow: #ffc700;
   --ed-red: #f00007;
-  --ed-chip: #c8c8c8;
-  --ed-list-size: clamp(28px, 3.6vw, 52px);
-  --ed-list-leading: 0.86;
-  --ed-rail-width: 3.8em;
+  --ed-list-size: 4.513888vw;
+  --ed-list-leading: 3.88888vw;
+  --ed-index-size: 1.805555vw;
+  --ed-index-leading: 1.94444vw;
+  --ed-rail-width: 4ch;
   --ed-row-gap: 0.972222vw;
-  --ed-page-pad: 1.6vw;
-  --ed-header-size: clamp(13px, 1.45vw, 20px);
-  --ed-header-bar-height: calc(0.694444vw + clamp(36px, 3.2vw, 44px) + 0.4vw);
-  --ed-tracking: 0;
-  --ed-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
-  /* Latin stays mono (reference); CJK uses the Plex sibling so mixed titles stay one family */
+  --ed-page-pad: 0.694444vw;
+  --ed-header-inset: 0.694444vw;
+  --ed-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace, Arial,
+    Helvetica, sans-serif;
   --ed-title-font: "IBM Plex Mono", "IBM Plex Sans TC", "Noto Sans TC",
-    "PingFang TC", "Microsoft JhengHei", monospace;
-  --ed-chip-font: "Anton", "Impact", "Arial Black", sans-serif;
+    "PingFang TC", "Microsoft JhengHei", monospace, Arial, Helvetica, sans-serif;
 }
 
 .works-page {
@@ -29,13 +29,15 @@
   font-size: var(--ed-list-size);
   font-weight: 400;
   line-height: var(--ed-list-leading);
-  letter-spacing: var(--ed-tracking);
+  letter-spacing: 0;
   text-transform: uppercase;
-  padding: var(--ed-header-bar-height) var(--ed-page-pad) 4rem;
+  padding: 0 0 4rem var(--ed-page-pad);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   margin: 0;
   overflow-x: hidden;
+  width: 100vw;
+  max-width: 100vw;
 }
 
 .works-header {
@@ -43,12 +45,12 @@
   pointer-events: none;
   display: flex;
   justify-content: flex-end;
-  align-items: baseline;
-  gap: 1rem;
+  align-items: center;
+  gap: var(--ed-row-gap);
   position: fixed;
-  top: 0.694444vw;
+  top: var(--ed-header-inset);
+  right: var(--ed-header-inset);
   left: auto;
-  right: var(--ed-page-pad);
 }
 
 .works-header__actions {
@@ -56,14 +58,14 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 1vw;
+  gap: var(--ed-row-gap);
 }
 
 .works-header__about,
 .works-header__shop {
   color: var(--ed-text);
   font-family: inherit;
-  font-size: var(--ed-header-size);
+  font-size: inherit;
   font-weight: 400;
   letter-spacing: 0;
   line-height: var(--ed-list-leading);
@@ -73,6 +75,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .works-header__about:hover,
@@ -86,25 +89,37 @@
 .works-header__logo-btn {
   aspect-ratio: 1;
   cursor: pointer;
-  background: transparent;
+  background-color: var(--ed-yellow);
   border: none;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: clamp(36px, 4.2vw, 48px);
-  min-width: 36px;
-  max-width: 48px;
-  padding: 0;
+  width: 4.513888vw;
+  min-width: 0;
+  max-width: none;
+  padding: 0.694444vw 0.833333vw;
+}
+
+.works-header__logo-btn:hover,
+.works-header__logo-btn:focus-visible {
+  background-color: transparent;
+  outline: none;
 }
 
 .works-header__logo-mark {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
 }
 
 .works-mobile-shop {
   display: none;
+}
+
+.works-index {
+  max-width: 100vw;
+  width: 100%;
 }
 
 .works-index__list {
@@ -112,59 +127,58 @@
   flex-direction: column;
   gap: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 1.776666vw 0 0.694444vw;
 }
 
 .works-row {
   margin: 0;
   padding: 0;
-  display: block;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: var(--ed-row-gap);
   position: relative;
   overflow: visible;
   color: var(--ed-text);
+  white-space: nowrap;
 }
 
 .works-row__inner {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: nowrap;
-  gap: var(--ed-row-gap);
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: visible;
+  display: contents;
 }
 
 .works-row__left {
   width: var(--ed-rail-width);
   min-width: var(--ed-rail-width);
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
-  color: var(--ed-text);
-  line-height: 0.9;
+  font-size: var(--ed-index-size);
+  line-height: var(--ed-index-leading);
+  letter-spacing: 0 !important;
+  color: inherit;
   user-select: none;
+  text-align: left;
+  font-family: var(--ed-mono);
+  font-weight: 400;
 }
 
 .works-row__hash,
 .works-row__num {
-  display: block;
-  font-family: var(--ed-mono);
-  font-size: inherit;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 0.9;
+  display: contents;
+  font: inherit;
   color: inherit;
+  letter-spacing: 0;
 }
 
 .works-row__right {
   min-width: 0;
-  flex: 1;
+  flex-grow: 1;
+  flex-shrink: 1;
   position: relative;
-  overflow: visible;
-  padding-top: 0.02em;
+  overflow: hidden;
+  width: 33ch;
+  white-space: nowrap;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .works-row__link,
@@ -178,34 +192,69 @@
   letter-spacing: 0;
   word-spacing: 0;
   text-decoration: none;
-  display: inline-block;
+  display: flex;
   max-width: 100%;
   overflow: hidden;
   text-overflow: clip;
 }
 
-.works-row__link::after {
+.works-row__link span,
+.works-row__mystery span {
+  display: inline-flex;
+}
+
+.works-row__marquee {
+  padding-right: calc(var(--overflow-amount, 0) * 1ch);
+  animation: works-marquee var(--animation-duration, 0s)
+    steps(var(--overflow-amount, 0)) infinite alternate;
+}
+
+@keyframes works-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(var(--overflow-amount, 0) * -1ch));
+  }
+}
+
+.works-page .works-row__link::after {
   content: "";
   margin-left: 0.15em;
 }
 
-.works-row--project:hover,
-.works-row--project:focus-within,
-.works-row--project.is-tapped {
-  color: var(--ed-paper);
+/* MSCHF only paints the title white on the <a>:hover, not the # index */
+.works-page .works-row--project:hover .works-row__link,
+.works-page .works-row--project:focus-within .works-row__link,
+.works-page .works-row--external:hover .works-row__link,
+.works-page .works-row--external:focus-within .works-row__link {
+  color: inherit;
 }
 
-.works-row--project:hover .works-row__link::after,
-.works-row--project:focus-within .works-row__link::after,
-.works-row--project.is-tapped .works-row__link::after {
+.works-page .works-row--project:hover .works-row__link::after,
+.works-page .works-row--project:focus-within .works-row__link::after,
+.works-page .works-row--external:hover .works-row__link::after,
+.works-page .works-row--external:focus-within .works-row__link::after {
+  content: "";
+}
+
+.works-page .works-row--project .works-row__link:hover,
+.works-page .works-row--project .works-row__link:focus-visible,
+.works-page .works-row--project.is-tapped .works-row__link {
+  color: var(--ed-paper);
+  outline: none;
+}
+
+.works-page .works-row--project:not(.works-row--latest) .works-row__link:hover::after,
+.works-page .works-row--project:not(.works-row--latest) .works-row__link:focus-visible::after,
+.works-page .works-row--project:not(.works-row--latest).is-tapped .works-row__link::after {
   content: "↗";
 }
 
 .works-row__mystery {
-  color: var(--ed-text-dim);
+  color: inherit;
 }
 
-/* Neutralize previous accent colors — match reference grayscale */
 .works-row--link-yellow .works-row__link,
 .works-row--link-green .works-row__link,
 .works-row--link-blue .works-row__link,
@@ -224,18 +273,18 @@
   color: inherit;
 }
 
-/* #3 campaign only: brand red at rest, same white hover/focus as other rows */
-.works-row--highlight,
-.works-row--highlight .works-row__left {
+.works-page .works-row--highlight {
   color: var(--ed-red);
 }
 
-.works-row--highlight:hover,
-.works-row--highlight:focus-within,
-.works-row--highlight.is-tapped,
-.works-row--highlight:hover .works-row__left,
-.works-row--highlight:focus-within .works-row__left,
-.works-row--highlight.is-tapped .works-row__left {
+.works-page .works-row--highlight:hover .works-row__link,
+.works-page .works-row--highlight:focus-within .works-row__link {
+  color: inherit;
+}
+
+.works-page .works-row--highlight .works-row__link:hover,
+.works-page .works-row--highlight .works-row__link:focus-visible,
+.works-page .works-row--highlight.is-tapped .works-row__link {
   color: var(--ed-paper);
 }
 
@@ -256,67 +305,73 @@
   pointer-events: none;
 }
 
-/* Top-left chip: item name on hover (reference style) */
 .works-hover-text {
   display: none;
   position: fixed;
-  top: 0.694444vw;
-  left: var(--ed-page-pad);
-  z-index: 400;
+  left: 0;
+  top: 0;
+  z-index: 9999;
   pointer-events: none;
-  font-family: var(--ed-chip-font);
-  font-size: clamp(16px, 1.8vw, 22px);
+  font-family: var(--ed-mono);
+  font-size: var(--ed-index-size);
   font-weight: 400;
-  letter-spacing: 0.06em;
-  line-height: 1;
+  letter-spacing: 0;
+  line-height: var(--ed-index-leading);
   text-transform: uppercase;
-  color: var(--ed-ink);
-  background: var(--ed-chip);
-  border: 3px solid var(--ed-paper);
-  box-shadow: 4px 4px 0 var(--ed-paper);
+  padding: 0.069444vw 0.138888vw 0;
+  transform: translateY(-150%);
+  border: none;
+  box-shadow: none;
   border-radius: 0;
-  padding: 0.45em 0.65em;
 }
 
-.works-row--project:hover .works-hover-text--label,
-.works-row--project:focus-within .works-hover-text--label,
-.works-row--project.is-tapped .works-hover-text--label {
+.works-row--latest:hover .works-hover-text--label,
+.works-row--latest:focus-within .works-hover-text--label,
+.works-row--latest.is-tapped .works-hover-text--label {
   display: block;
+  background-color: var(--ed-yellow);
+  color: var(--ed-red);
 }
 
 .works-hover-text--next {
   background: transparent;
-  color: var(--ed-text);
-  font-family: var(--ed-mono);
-  letter-spacing: 0;
-  box-shadow: none;
-  border: none;
-  padding: 0;
-  border-radius: 0;
+  color: var(--ed-red);
 }
 
 .works-row--next:hover .works-hover-text--next,
 .works-row--next.is-tapped .works-hover-text--next {
   display: block;
-  color: #f00007;
-  font-size: var(--ed-header-size);
+  color: var(--ed-red);
+  background: transparent;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .works-row--project .works-row__link,
-  .works-row--project .works-row__left,
   .works-header__about,
   .works-header__shop {
     transition: color 0.18s ease;
+  }
+
+  .works-header__logo-btn {
+    transition: background-color 0.18s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .works-row__marquee {
+    animation: none;
   }
 }
 
 @media (max-width: 500px) {
   .works-page {
-    --ed-list-size: clamp(24px, 6.8vw, 30px);
-    --ed-rail-width: 3.6em;
-    --ed-tracking: -0.02em;
-    padding-top: 17.0944vw;
+    --ed-list-size: 7.733333vw;
+    --ed-list-leading: 7.466666vw;
+    --ed-index-size: 4vw;
+    --ed-index-leading: 3.733333vw;
+    --ed-header-inset: 2.133333vw;
+    letter-spacing: -0.232vw;
+    padding: 0 0 22vw 0;
   }
 
   .works-header__shop {
@@ -324,24 +379,56 @@
   }
 
   .works-header__logo-btn {
-    width: 14vw;
-    max-width: none;
+    width: 16vw;
+    height: 16vw;
+    padding: 2.666666vw 3.2vw;
+  }
+
+  .works-index__list {
+    padding: 0 1.116vw 0 1.6vw;
+  }
+
+  .works-row__right {
+    max-width: 19ch;
+    width: 100%;
+    letter-spacing: -0.232vw;
+  }
+
+  .works-row__marquee {
+    padding-right: calc(var(--overflow-amount, 0) * 0.95ch);
+    animation-name: works-marquee-mobile;
+  }
+
+  @keyframes works-marquee-mobile {
+    0% {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(var(--overflow-amount, 0) * -0.95ch));
+    }
+  }
+
+  .works-hover-text {
+    display: none !important;
   }
 
   .works-mobile-shop {
-    display: block;
+    display: flex;
+    align-items: center;
     position: fixed;
-    right: var(--ed-page-pad);
-    bottom: calc(var(--ed-page-pad) + env(safe-area-inset-bottom, 0px));
-    z-index: 300;
+    right: 1.6vw;
+    bottom: 1.333333vw;
+    z-index: 10;
   }
 
   .works-mobile-shop__link {
-    color: var(--ed-text);
+    color: var(--ed-paper);
     font: inherit;
-    font-size: var(--ed-header-size);
-    letter-spacing: 0;
+    font-size: var(--ed-list-size);
+    letter-spacing: inherit;
+    line-height: var(--ed-list-leading);
     text-decoration: none;
+    text-transform: uppercase;
   }
 
   .works-mobile-shop__link:hover {
