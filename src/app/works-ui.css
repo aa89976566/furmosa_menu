@@ -1,4 +1,4 @@
-/* Catalog index — measurements copied from https://mschf.com/ (Aug 2025 CSS) */
+/* Catalog index — same MSCHF measurements as furmosa.css, loaded last so they win. */
 
 :root {
   --ed-ink: #000;
