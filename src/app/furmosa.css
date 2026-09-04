@@ -320,13 +320,13 @@
   top: 0;
   z-index: 9999;
   pointer-events: none;
-  font-family: var(--ed-mono);
+  font-family: var(--ed-title-font);
   font-size: var(--ed-index-size);
   font-weight: 400;
   letter-spacing: 0;
   line-height: var(--ed-index-leading);
-  text-transform: uppercase;
-  padding: 0.069444vw 0.138888vw 0;
+  text-transform: none;
+  padding: 0.12vw 0.28vw 0.08vw;
   transform: translateY(-150%);
   border: none;
   box-shadow: none;
@@ -353,7 +353,7 @@
   background: var(--ed-yellow);
   font-size: var(--ed-index-size);
   line-height: var(--ed-index-leading);
-  padding: 0.069444vw 0.138888vw 0;
+  padding: 0.12vw 0.28vw 0.08vw;
 }
 
 @media (prefers-reduced-motion: no-preference) {

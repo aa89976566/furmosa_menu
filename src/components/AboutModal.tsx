@@ -59,7 +59,7 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       >
         <div className="furmosa-about__hub-panel">
           <div className="furmosa-about__hub-masthead">
-            <span className="furmosa-about__hub-word">Explore</span>
+            <span className="furmosa-about__hub-word">探索</span>
             <button
               type="button"
               className="furmosa-about__close"
@@ -68,7 +68,7 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
             >
               ×
             </button>
-            <span className="furmosa-about__hub-word">Furmosa</span>
+            <span className="furmosa-about__hub-word">匠寵</span>
           </div>
           <h2 className="furmosa-about__hub-title visually-hidden">關於匠寵</h2>
           <div className="furmosa-about__grid">
@@ -91,9 +91,9 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       </div>
 
       {panel === "crew" && (
-        <DetailShell stamp="EYES ONLY" onBack={() => setPanel(null)}>
-          <p className="furmosa-about__detail-kicker">THE CREW · 團隊介紹</p>
-          <h3 className="furmosa-about__detail-title">Active Personnel</h3>
+        <DetailShell stamp="內部文件" onBack={() => setPanel(null)}>
+          <p className="furmosa-about__detail-kicker">團隊介紹</p>
+          <h3 className="furmosa-about__detail-title">現役人員</h3>
           <p className="about-detail__lead">五個怪胎。零廣告話術。</p>
           <ul className="about-detail__crew-list">
             {CREW_MEMBERS.map((member) => (
@@ -106,7 +106,7 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    IG↗
+                    追蹤↗
                   </a>
                 </div>
                 <p className="about-detail__crew-name">{member.name}</p>
@@ -120,15 +120,15 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       )}
 
       {panel === "swap" && (
-        <DetailShell stamp="FIELD MAP" onBack={() => setPanel(null)}>
+        <DetailShell stamp="現場地圖" onBack={() => setPanel(null)}>
           <p className="furmosa-about__detail-kicker">
-            CAN SWAP · 換罐計畫參與店家
+            換罐計畫參與店家
           </p>
-          <h3 className="furmosa-about__detail-title">Swap Network</h3>
+          <h3 className="furmosa-about__detail-title">換罐網絡</h3>
           <p className="about-detail__lead">帶罐來。別帶藉口。</p>
           <p className="about-detail__live">
             <span className="about-detail__live-dot" aria-hidden="true" />
-            47 ACTIVE NODES
+            47 個據點
           </p>
           <div className="about-detail__map" aria-hidden="true">
             <div className="about-detail__map-grid" />
@@ -161,9 +161,9 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       )}
 
       {panel === "dogma" && (
-        <DetailShell stamp="CLASSIFIED" onBack={() => setPanel(null)}>
-          <p className="furmosa-about__detail-kicker">DOGMA · 理念</p>
-          <h3 className="furmosa-about__detail-title">Manifesto 01</h3>
+        <DetailShell stamp="機密檔" onBack={() => setPanel(null)}>
+          <p className="furmosa-about__detail-kicker">理念</p>
+          <h3 className="furmosa-about__detail-title">宣言 01</h3>
           <p className="about-detail__lead">
             不是教你怎麼養狗。是教你怎麼讀標籤。
           </p>
@@ -187,9 +187,9 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       )}
 
       {panel === "services" && (
-        <DetailShell stamp="OPERATIONS" onBack={() => setPanel(null)}>
-          <p className="furmosa-about__detail-kicker">WHAT WE DO · 服務範圍</p>
-          <h3 className="furmosa-about__detail-title">Service Scope</h3>
+        <DetailShell stamp="作業中" onBack={() => setPanel(null)}>
+          <p className="furmosa-about__detail-kicker">服務範圍</p>
+          <h3 className="furmosa-about__detail-title">業務範圍</h3>
           <p className="about-detail__lead">我們不做寵物店。我們做證據。</p>
           <ul className="about-detail__services">
             {SERVICE_LINES.map((service) => (
@@ -213,22 +213,22 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       )}
 
       {panel === "returned" && (
-        <DetailShell stamp="LIVE COUNT" onBack={() => setPanel(null)}>
+        <DetailShell stamp="即時計數" onBack={() => setPanel(null)}>
           <p className="furmosa-about__detail-kicker">
-            HEAD COUNT · 換罐計畫參與人數
+            換罐計畫參與人數
           </p>
-          <h3 className="furmosa-about__detail-title">Participant Log</h3>
+          <h3 className="furmosa-about__detail-title">參與紀錄</h3>
           <p className="about-detail__lead">你換了。我們數了。</p>
           <p className="about-detail__mega-count">333</p>
-          <p className="about-detail__mega-label">SWAP PARTICIPANTS</p>
+          <p className="about-detail__mega-label">換罐人數</p>
           <div className="about-detail__stats">
             <div className="about-detail__stat">
-              <span className="about-detail__stat-val">LIVE</span>
-              <span className="about-detail__stat-label">DATA SOURCE</span>
+              <span className="about-detail__stat-val">即時</span>
+              <span className="about-detail__stat-label">資料來源</span>
             </div>
             <div className="about-detail__stat">
               <span className="about-detail__stat-val">333</span>
-              <span className="about-detail__stat-label">BASE LINE</span>
+              <span className="about-detail__stat-label">基準</span>
             </div>
           </div>
           <p className="about-detail__footer">還在漲。你換了沒？</p>

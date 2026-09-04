@@ -46,12 +46,12 @@ export default function WorksPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Shop↗
+            商店↗
           </a>
           <button
             type="button"
             className="works-header__logo-btn"
-            aria-label="Scroll to top"
+            aria-label="回到頂端"
             onClick={scrollToTop}
           >
             <svg
@@ -75,7 +75,7 @@ export default function WorksPage() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Shop↗
+          商店↗
         </a>
       </footer>
 
@@ -158,7 +158,7 @@ export default function WorksPage() {
                     className="works-hover-text works-hover-text--label"
                     style={hoverStyle}
                   >
-                    Latest↗
+                    {row.hoverText ?? "最新↗"}
                   </span>
                 )}
                 {row.kind === "upcoming" && row.next && (

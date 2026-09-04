@@ -15,7 +15,7 @@ export default function ChallengePage() {
         <Link href="/" className={styles.back}>
           ← 凍乾目錄
         </Link>
-        <p className={styles.stamp}>CHALLENGE</p>
+        <p className={styles.stamp}>挑戰</p>
       </header>
 
       <section className={styles.hero}>
@@ -32,7 +32,7 @@ export default function ChallengePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              SHOP↗
+              商店↗
             </a>
             <Link className={styles.secondary} href="/">
               回目錄

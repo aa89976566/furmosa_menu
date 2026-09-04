@@ -60,6 +60,7 @@ export const WORKS_ROWS: WorksRow[] = [
     href: CATNIP_URL,
     color: "green",
     latest: true,
+    hoverText: "最新↗",
     external: true,
   },
   {
