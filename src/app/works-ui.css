@@ -8,11 +8,11 @@
   --ed-yellow: #ffc700;
   --ed-red: #f00007;
   /* CJK fills the em square. MSCHF 4.51vw / 3.89vw (lh < size) overlaps 漢字. */
-  --ed-list-size: 2.85vw;
-  --ed-list-leading: 3.85vw;
-  --ed-index-size: 1.14vw;
-  --ed-index-leading: 1.925vw;
-  --ed-stack-gap: 0.55vw;
+  --ed-list-size: 2.55vw;
+  --ed-list-leading: 4.2vw;
+  --ed-index-size: 1.02vw;
+  --ed-index-leading: 2.1vw;
+  --ed-stack-gap: 1.05vw;
   --ed-rail-width: 4ch;
   --ed-row-gap: 0.972222vw;
   --ed-page-pad: 0.694444vw;
@@ -136,6 +136,7 @@
 .works-row {
   margin: 0;
   padding: 0;
+  min-height: var(--ed-list-leading);
   display: flex;
   flex-wrap: nowrap;
   align-items: flex-start;
@@ -375,11 +376,11 @@
 
 @media (max-width: 500px) {
   .works-page {
-    --ed-list-size: 4.6vw;
-    --ed-list-leading: 6.2vw;
-    --ed-index-size: 1.95vw;
-    --ed-index-leading: 3.1vw;
-    --ed-stack-gap: 1.1vw;
+    --ed-list-size: 6.2vw;
+    --ed-list-leading: 9.6vw;
+    --ed-index-size: 2.4vw;
+    --ed-index-leading: 4.8vw;
+    --ed-stack-gap: 1.8vw;
     --ed-header-size: 3.2vw;
     --ed-header-inset: 2.133333vw;
     letter-spacing: -0.232vw;
