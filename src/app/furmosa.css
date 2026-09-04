@@ -7,14 +7,16 @@
   --ed-paper: #fff;
   --ed-yellow: #ffc700;
   --ed-red: #f00007;
-  --ed-list-size: 4.513888vw;
-  --ed-list-leading: 3.88888vw;
-  --ed-index-size: 1.805555vw;
-  --ed-index-leading: 1.94444vw;
+  /* CJK fills the em square. MSCHF 4.51vw / 3.89vw (lh < size) overlaps 漢字. */
+  --ed-list-size: 2.85vw;
+  --ed-list-leading: 3.85vw;
+  --ed-index-size: 1.14vw;
+  --ed-index-leading: 1.925vw;
+  --ed-stack-gap: 0.55vw;
   --ed-rail-width: 4ch;
   --ed-row-gap: 0.972222vw;
   --ed-page-pad: 0.694444vw;
-  --ed-header-size: 1.805555vw;
+  --ed-header-size: 1.26vw;
   --ed-header-inset: 0.694444vw;
   --ed-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace, Arial,
     Helvetica, sans-serif;
@@ -66,10 +68,10 @@
 .works-header__shop {
   color: var(--ed-text);
   font-family: inherit;
-  font-size: inherit;
+  font-size: var(--ed-header-size);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: var(--ed-list-leading);
+  line-height: var(--ed-index-leading);
   text-decoration: none;
   text-transform: uppercase;
   background: none;
@@ -95,10 +97,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 4.513888vw;
+  width: var(--ed-list-size);
   min-width: 0;
   max-width: none;
-  padding: 0.694444vw 0.833333vw;
+  padding: 0.48vw 0.58vw;
 }
 
 .works-page .works-header__logo-btn:hover,
@@ -126,7 +128,7 @@
 .works-index__list {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--ed-stack-gap);
   margin: 0;
   padding: 0 1.776666vw 0 0.694444vw;
 }
@@ -194,6 +196,7 @@
   word-spacing: 0;
   text-decoration: none;
   display: flex;
+  align-items: center;
   max-width: 100%;
   overflow: hidden;
   text-overflow: clip;
@@ -372,11 +375,12 @@
 
 @media (max-width: 500px) {
   .works-page {
-    --ed-list-size: 7.733333vw;
-    --ed-list-leading: 7.466666vw;
-    --ed-index-size: 4vw;
-    --ed-index-leading: 3.733333vw;
-    --ed-header-size: 4vw;
+    --ed-list-size: 4.6vw;
+    --ed-list-leading: 6.2vw;
+    --ed-index-size: 1.95vw;
+    --ed-index-leading: 3.1vw;
+    --ed-stack-gap: 1.1vw;
+    --ed-header-size: 3.2vw;
     --ed-header-inset: 2.133333vw;
     letter-spacing: -0.232vw;
     padding: 0 0 22vw 0;
@@ -392,9 +396,9 @@
   }
 
   .works-page .works-header__logo-btn {
-    width: 16vw;
-    height: 16vw;
-    padding: 2.666666vw 3.2vw;
+    width: 12vw;
+    height: 12vw;
+    padding: 1.8vw 2.2vw;
   }
 
   .works-index__list {
@@ -437,9 +441,9 @@
   .works-mobile-shop__link {
     color: var(--ed-paper);
     font: inherit;
-    font-size: var(--ed-list-size);
+    font-size: var(--ed-header-size);
     letter-spacing: inherit;
-    line-height: var(--ed-list-leading);
+    line-height: var(--ed-index-leading);
     text-decoration: none;
     text-transform: uppercase;
   }
