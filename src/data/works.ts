@@ -74,7 +74,7 @@ export const WORKS_ROWS: WorksRow[] = [
   {
     kind: "link",
     index: 6,
-    label: "預購！背景很硬的碗",
+    label: "chill嗨嗨ㄟ貓",
     href: "https://furmosa.com/pages/found-object-001",
     color: "yellow",
     latest: true,
