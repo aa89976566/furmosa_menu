@@ -56,7 +56,7 @@ export const WORKS_ROWS: WorksRow[] = [
   {
     kind: "link",
     index: 4,
-    label: "◈ 草上飛 ◈ 貓草雞肉乾薄片",
+    label: "chill嗨嗨ㄟ貓",
     href: CATNIP_URL,
     color: "green",
     hoverText: "活動↗",
@@ -74,7 +74,7 @@ export const WORKS_ROWS: WorksRow[] = [
   {
     kind: "link",
     index: 6,
-    label: "chill嗨嗨ㄟ貓",
+    label: "預購！背景很硬的碗",
     href: "https://furmosa.com/pages/found-object-001",
     color: "yellow",
     latest: true,
