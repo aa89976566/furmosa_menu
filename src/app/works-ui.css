@@ -278,6 +278,10 @@
   color: inherit;
 }
 
+.works-page .works-row--latest {
+  color: var(--ed-yellow);
+}
+
 .works-page .works-row--highlight {
   color: var(--ed-red);
 }
