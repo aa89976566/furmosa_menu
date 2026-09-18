@@ -401,9 +401,13 @@
   }
 
   .works-page .works-header__logo-btn {
-    width: 12vw;
-    height: 12vw;
-    padding: 1.8vw 2.2vw;
+    width: 8.4vw;
+    height: 8.4vw;
+    padding: 0;
+  }
+
+  .works-header__logo-mark {
+    display: none;
   }
 
   .works-index__list {
