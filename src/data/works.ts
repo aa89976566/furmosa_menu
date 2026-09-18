@@ -68,8 +68,17 @@ export const WORKS_ROWS: WorksRow[] = [
     label: "再來一包｜毛孩人格抽驗",
     href: "https://furmosa-one-more-street.aa89976566.chatgpt.site/",
     color: "blue",
-    latest: true,
     hoverText: "抽一張↗",
+    external: true,
+  },
+  {
+    kind: "link",
+    index: 6,
+    label: "預購！背景很硬的碗",
+    href: "https://furmosa.com/pages/found-object-001",
+    color: "yellow",
+    latest: true,
+    hoverText: "立即預購↗",
     external: true,
   },
 ];
