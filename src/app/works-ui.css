@@ -65,7 +65,6 @@
 }
 
 .works-header__about,
-.works-header__partner,
 .works-header__shop {
   color: var(--ed-text);
   font-family: inherit;
@@ -84,8 +83,6 @@
 
 .works-header__about:hover,
 .works-header__about:focus-visible,
-.works-header__partner:hover,
-.works-header__partner:focus-visible,
 .works-header__shop:hover,
 .works-header__shop:focus-visible {
   color: var(--ed-paper);
@@ -366,7 +363,6 @@
 @media (prefers-reduced-motion: no-preference) {
   .works-row--project .works-row__link,
   .works-header__about,
-  .works-header__partner,
   .works-header__shop {
     transition: color 0.18s ease;
   }
@@ -400,7 +396,6 @@
     line-height: var(--ed-index-leading);
   }
 
-  .works-header__partner,
   .works-header__shop {
     display: none;
   }
@@ -442,7 +437,6 @@
   .works-mobile-shop {
     display: flex;
     align-items: center;
-    gap: 3.2vw;
     position: fixed;
     right: 1.6vw;
     bottom: 1.333333vw;
@@ -468,27 +462,4 @@
   .works-mobile-shop {
     display: none !important;
   }
-}
-
-/* 店家合作入口：桌機在 header、手機在右下 footer，與「商店↗」共用同一條搬遷規則。 */
-.works-header__partner:focus-visible,
-.works-mobile-shop__link--partner:focus-visible {
-  outline: 1px solid var(--ed-yellow);
-  outline-offset: 0.2em;
-}
-
-.works-header__partner:active,
-.works-mobile-shop__link--partner:active {
-  color: var(--ed-yellow);
-}
-
-/* 右下 footer 的字級偏小，用 ::after 放大觸控範圍且不影響版面。 */
-.works-mobile-shop__link {
-  position: relative;
-}
-
-.works-mobile-shop__link::after {
-  content: "";
-  position: absolute;
-  inset: -1.6vw -0.8vw;
 }

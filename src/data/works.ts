@@ -84,4 +84,12 @@ export const WORKS_ROWS: WorksRow[] = [
     hoverText: "立即預購↗",
     external: true,
   },
+  {
+    kind: "link",
+    index: 7,
+    label: "店家合作",
+    href: PARTNER_URL,
+    color: "red",
+    external: true,
+  },
 ];
