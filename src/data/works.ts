@@ -20,6 +20,9 @@ export type WorksRow =
 
 export const SHOP_URL = "https://furmosa.com/collections/all";
 
+/** 店家合作計畫的公開入口。只能連公開頁，不放 HQ 待審核、任務或內部管理網址。 */
+export const PARTNER_URL = "https://furmosa-collab.vercel.app/pages/partner/";
+
 /** Campaign host on furmosa.com — same pattern as them-stock-moon.furmosa.com */
 export const CATNIP_HOST = "catnip-chick.furmosa.com";
 export const CATNIP_URL = `https://${CATNIP_HOST}`;

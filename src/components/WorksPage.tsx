@@ -9,7 +9,7 @@ import {
   type MouseEvent,
 } from "react";
 import AboutModal from "@/components/AboutModal";
-import { SHOP_URL, WORKS_ROWS } from "@/data/works";
+import { PARTNER_URL, SHOP_URL, WORKS_ROWS } from "@/data/works";
 
 export default function WorksPage() {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -41,6 +41,15 @@ export default function WorksPage() {
             關於匠寵
           </button>
           <a
+            href={PARTNER_URL}
+            className="works-header__partner"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="店家合作（另開新視窗）"
+          >
+            店家合作↗
+          </a>
+          <a
             href={SHOP_URL}
             className="works-header__shop"
             target="_blank"
@@ -69,6 +78,15 @@ export default function WorksPage() {
       </header>
 
       <footer className="works-mobile-shop">
+        <a
+          href={PARTNER_URL}
+          className="works-mobile-shop__link works-mobile-shop__link--partner"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="店家合作（另開新視窗）"
+        >
+          店家合作↗
+        </a>
         <a
           href={SHOP_URL}
           className="works-mobile-shop__link"
