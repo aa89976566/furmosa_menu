@@ -33,6 +33,9 @@ export default function WorksPage() {
     <div className="works-page">
       <header className="works-header">
         <div className="works-header__actions">
+          <Link href="/real-food" className="works-header__about">
+            真食堂
+          </Link>
           <button
             type="button"
             className="works-header__about"
