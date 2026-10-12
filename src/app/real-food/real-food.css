@@ -17,6 +17,8 @@
   --rf-rule: 2px;
   --rf-gutter: clamp(1rem, 3.2vw, 3rem);
   --rf-stack: clamp(2.5rem, 6vw, 5.5rem);
+  /* 左緣標語條佔掉的寬度，由 .rf-sheet 的左內距讓位。 */
+  --rf-rail-space: 0rem;
 
   --rf-halftone: radial-gradient(
     var(--rf-blue-bright) 1.05px,
@@ -87,6 +89,10 @@ body:has(.rf-page) {
 }
 
 @media (min-width: 1180px) {
+  :root {
+    --rf-rail-space: clamp(6rem, 7.5vw, 8rem);
+  }
+
   .rf-rail {
     display: block;
     position: fixed;
@@ -116,21 +122,26 @@ body:has(.rf-page) {
     paint-order: stroke fill;
     text-shadow: 0.05em 0.05em 0 var(--rf-navy);
   }
+}
 
-  .rf-sheet {
-    padding-left: clamp(4.5rem, 6vw, 6.5rem);
+/* 版面一旦被置中就自然閃開標語條，不必再多留左內距。 */
+@media (min-width: 1600px) {
+  :root {
+    --rf-rail-space: 0rem;
   }
 }
 
 /* ---------- 版面容器 ---------- */
 
+/* 海報是直式開本，整頁就維持一張紙的寬度，頁框與標語條留在視窗邊緣當版面家具。 */
 .rf-sheet {
   position: relative;
   z-index: 2;
-  max-width: 1360px;
+  max-width: 61rem;
   margin: 0 auto;
   padding: clamp(1.6rem, 3vw, 2.6rem) var(--rf-gutter)
     clamp(2rem, 4vw, 3.2rem);
+  padding-left: max(var(--rf-gutter), var(--rf-rail-space));
 }
 
 /* ---------- 報頭 ---------- */
@@ -231,22 +242,22 @@ body:has(.rf-page) {
   align-items: stretch;
   gap: var(--rf-gutter);
   margin-top: clamp(1rem, 2.4vw, 2rem);
+  /* 高度交給書脊決定，這裡只設下限，避免矮視窗把開場壓扁。 */
+  min-height: clamp(16rem, 44svh, 30rem);
 }
 
 .rf-opening__intro {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: clamp(1.2rem, 3vw, 2.4rem);
-  padding-bottom: clamp(0.5rem, 2vw, 1.6rem);
+  gap: clamp(1.4rem, 3.2vw, 2.6rem);
+  padding: clamp(0.8rem, 2vw, 1.4rem) 0 clamp(0.5rem, 2vw, 1.6rem);
   border-top: var(--rf-rule) solid var(--rf-blue);
-  padding-top: clamp(0.8rem, 2vw, 1.4rem);
 }
 
 .rf-opening__lede {
-  max-width: 24em;
+  max-width: 30em;
   margin: 0;
-  font-size: clamp(1rem, 1.45vw, 1.3rem);
+  font-size: clamp(1.02rem, 1.55vw, 1.4rem);
   font-weight: 500;
   line-height: 2;
   letter-spacing: 0.03em;
@@ -254,11 +265,55 @@ body:has(.rf-page) {
 }
 
 .rf-opening__cue {
-  margin: 0;
+  margin: auto 0 0;
   color: var(--rf-blue);
   font-size: clamp(0.8rem, 1.1vw, 0.95rem);
   font-weight: 700;
   letter-spacing: 0.28em;
+}
+
+/* 規格欄：功能性資訊一律橫書，讀起來像食品標籤。 */
+.rf-specs {
+  /* 書脊決定開場高度，規格欄把剩下的高度吃掉，
+     讓橫線攤成一張表格而不是在欄底留一塊空洞。 */
+  flex: 1;
+  display: grid;
+  /* 上限避免高視窗把三條橫線拉得過開。 */
+  grid-auto-rows: minmax(min-content, 8.5rem);
+  align-content: start;
+  margin: 0;
+  border-top: var(--rf-rule) solid var(--rf-blue);
+}
+
+.rf-specs__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  align-items: baseline;
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  padding: clamp(0.5rem, 1.2vw, 0.85rem) 0;
+  border-bottom: var(--rf-rule) solid var(--rf-blue);
+}
+
+.rf-specs__label {
+  margin: 0;
+  padding: 0.1em 0.45em;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+  font-size: clamp(0.78rem, 1vw, 0.92rem);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+}
+
+.rf-specs__value {
+  margin: 0;
+  color: var(--rf-ink);
+  font-size: clamp(0.92rem, 1.25vw, 1.15rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  text-wrap: pretty;
 }
 
 .rf-opening__band {
@@ -279,12 +334,16 @@ body:has(.rf-page) {
   margin: 0;
 }
 
+/*
+ * 書脊是一整欄直書，字級由視窗高度決定而非寬度，
+ * 否則 9 個字在寬螢幕上會長得比視窗高。
+ */
 .rf-spine {
   display: block;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-family: var(--rf-font-latin), var(--rf-font-serif), serif;
-  font-size: clamp(3.4rem, 9.5vw, 8.5rem);
+  font-size: clamp(2.6rem, 9.4svh, 6.6rem);
   font-weight: 900;
   line-height: 0.96;
   letter-spacing: 0.005em;
@@ -304,7 +363,7 @@ body:has(.rf-page) {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   color: var(--rf-yellow);
-  font-size: clamp(1.1rem, 2.1vw, 1.9rem);
+  font-size: clamp(1rem, 2.6svh, 1.7rem);
   font-weight: 900;
   letter-spacing: 0.04em;
   line-height: 1.15;
@@ -322,6 +381,11 @@ body:has(.rf-page) {
 
 /* ---------- 章節 ---------- */
 
+/*
+ * 章節走一欄 52rem 的編排寬度，而不是攤滿整張紙：
+ * 照片欄因此有固定寬度，格與格之間不會出現忽寬忽窄的空隙。
+ * 寬度限制必須下在容器上——下在 grid item 上會觸發 shrink-to-fit。
+ */
 .rf-chapters {
   display: grid;
   gap: var(--rf-stack);
@@ -372,7 +436,7 @@ body:has(.rf-page) {
   padding: 0.6em 0.22em;
   background: var(--rf-yellow);
   color: var(--rf-navy);
-  font-size: clamp(1.1rem, 2vw, 1.7rem);
+  font-size: clamp(1.3rem, 2.4vw, 1.95rem);
   font-weight: 900;
   letter-spacing: 0.07em;
   line-height: 1.1;
@@ -386,16 +450,17 @@ body:has(.rf-page) {
   justify-content: flex-end;
 }
 
+/* 直書時 height 控制的是行長，字數少所以每句自成一欄。 */
 .rf-chapter__lines {
   margin: 0;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  height: clamp(13rem, 30vh, 20rem);
+  height: clamp(14rem, 34svh, 22rem);
   color: var(--rf-ink);
-  font-size: clamp(0.92rem, 1.08vw, 1.05rem);
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
   font-weight: 500;
-  letter-spacing: 0.08em;
-  line-height: 2.15;
+  letter-spacing: 0.1em;
+  line-height: 2.2;
 }
 
 .rf-chapter__media {
@@ -416,6 +481,7 @@ body:has(.rf-page) {
 .rf-photo {
   position: relative;
   display: block;
+  width: 100%;
   border: var(--rf-rule) solid var(--rf-blue);
   background: var(--rf-paper-deep);
 }
@@ -451,7 +517,7 @@ body:has(.rf-page) {
 .rf-closing {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
+  align-items: stretch;
   gap: var(--rf-gutter);
   margin-top: var(--rf-stack);
   padding-top: clamp(0.8rem, 2vw, 1.4rem);
@@ -462,20 +528,22 @@ body:has(.rf-page) {
   grid-column: 2;
   margin: 0;
   justify-self: end;
+  align-self: end;
 }
 
 .rf-closing__slogan-text {
   display: block;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  max-height: 80vh;
+  /* 收尾標語只需讀得出氣勢；放到滿版高度會在左欄挖出一塊空洞。 */
+  max-height: clamp(19rem, 46svh, 30rem);
   padding: 1rem 0.45rem;
   background-color: var(--rf-blue);
   background-image: var(--rf-halftone);
   background-size: var(--rf-halftone-size);
   border: var(--rf-rule) solid var(--rf-navy);
   color: var(--rf-paper);
-  font-size: clamp(1.6rem, 4vw, 3.2rem);
+  font-size: clamp(1.25rem, 3svh, 1.95rem);
   font-weight: 900;
   letter-spacing: 0.04em;
   line-height: 1.1;
@@ -490,7 +558,9 @@ body:has(.rf-page) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   gap: clamp(1.2rem, 2.6vw, 2rem);
+  height: 100%;
   padding-bottom: clamp(1rem, 3vw, 2.5rem);
 }
 
@@ -707,6 +777,31 @@ body:has(.rf-page) {
   .rf-opening {
     grid-template-columns: minmax(0, 1fr) auto;
   }
+
+  /* 雙欄的收尾在這個寬度會把左欄挖空，改成海報下緣的橫幅帶。 */
+  .rf-closing {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rf-closing__slogan {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: stretch;
+  }
+
+  .rf-closing__slogan-text {
+    writing-mode: horizontal-tb;
+    max-height: none;
+    padding: 0.7rem 0.9rem;
+    font-size: clamp(1.6rem, 4.6vw, 2.5rem);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .rf-closing__aside {
+    grid-row: 2;
+    padding-bottom: 0;
+  }
 }
 
 /* ---------- 手機：功能性內容全部回到橫書，只留大標的直書氣勢 ---------- */
@@ -775,14 +870,13 @@ body:has(.rf-page) {
 
   /* 直書在窄螢幕上閱讀成本太高，標籤與本文一併回到橫書。 */
   .rf-chapter__tag-inner,
-  .rf-chapter__lines,
-  .rf-closing__slogan-text {
+  .rf-chapter__lines {
     writing-mode: horizontal-tb;
   }
 
   .rf-chapter__tag-inner {
-    padding: 0.3em 0.6em;
-    font-size: 1.15rem;
+    padding: 0.28em 0.6em;
+    font-size: 1.3rem;
     letter-spacing: 0.04em;
   }
 
@@ -807,26 +901,11 @@ body:has(.rf-page) {
   }
 
   .rf-closing {
-    grid-template-columns: minmax(0, 1fr);
     border-top-width: 4px;
   }
 
-  .rf-closing__slogan {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: stretch;
-  }
-
   .rf-closing__slogan-text {
-    max-height: none;
-    padding: 0.7rem 0.9rem;
     font-size: clamp(1.5rem, 7.5vw, 2.4rem);
-    text-align: center;
-  }
-
-  .rf-closing__aside {
-    grid-row: 2;
-    padding-bottom: 0;
   }
 
   .rf-footer {

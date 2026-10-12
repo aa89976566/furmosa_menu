@@ -43,6 +43,16 @@ export default function RealFoodPage() {
         <section className="rf-opening" aria-labelledby="rf-opening-title">
           <div className="rf-opening__intro">
             <p className="rf-opening__lede">{OPENING.lede}</p>
+
+            <dl className="rf-specs">
+              {OPENING.specs.map((spec) => (
+                <div className="rf-specs__row" key={spec.label}>
+                  <dt className="rf-specs__label">{spec.label}</dt>
+                  <dd className="rf-specs__value">{spec.value}</dd>
+                </div>
+              ))}
+            </dl>
+
             <p className="rf-opening__cue" aria-hidden="true">
               往下讀 ↓
             </p>
@@ -59,8 +69,12 @@ export default function RealFoodPage() {
         </section>
 
         <main className="rf-chapters">
-          {CHAPTERS.map((chapter) => (
-            <Chapter key={chapter.id} chapter={chapter} />
+          {CHAPTERS.map((chapter, index) => (
+            <Chapter
+              key={chapter.id}
+              chapter={chapter}
+              priority={index === 0}
+            />
           ))}
         </main>
 

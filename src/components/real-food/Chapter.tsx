@@ -3,10 +3,16 @@ import { Fragment } from "react";
 
 import type { Chapter as ChapterData } from "@/data/real-food";
 
-const LEAD_SIZES = "(max-width: 640px) 92vw, (max-width: 1024px) 62vw, 40vw";
-const ASIDE_SIZES = "(max-width: 640px) 44vw, (max-width: 1024px) 26vw, 15vw";
+const LEAD_SIZES = "(max-width: 680px) 92vw, 36rem";
+const ASIDE_SIZES = "(max-width: 680px) 68vw, 14rem";
 
-export default function Chapter({ chapter }: { chapter: ChapterData }) {
+type ChapterProps = {
+  chapter: ChapterData;
+  /** 首章的主圖是 LCP，不走 lazy load。 */
+  priority?: boolean;
+};
+
+export default function Chapter({ chapter, priority = false }: ChapterProps) {
   const [lead, aside] = chapter.photos;
   const headingId = `rf-chapter-${chapter.id}`;
 
@@ -43,6 +49,7 @@ export default function Chapter({ chapter }: { chapter: ChapterData }) {
             alt={lead.alt}
             sizes={LEAD_SIZES}
             placeholder="blur"
+            priority={priority}
           />
         </span>
         {lead.caption ? (
