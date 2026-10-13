@@ -1,0 +1,1008 @@
+/*
+ * 匠寵市場報 — 台式傳統市場 DM 的版面語彙。
+ *
+ * 色票取自參考稿：報紙米白 #e7e3da、市場綠 #0c8947、
+ * 朱紅爆炸章 #bd3424、直書內文暗紅 #852b22。
+ *
+ * 三個承重裝置：粗明體直書報頭、黑色產地小標籤、以及大字數字欄位。
+ * 所有類別以 pp- 前綴，沿用 works- / rf- 的命名慣例。
+ */
+
+:root {
+  --pp-paper: #e7e3da;
+  --pp-paper-warm: #efece3;
+  --pp-paper-deep: #dbd5c7;
+  --pp-green: #0c8947;
+  --pp-green-deep: #046632;
+  --pp-red: #bd3424;
+  --pp-red-deep: #8d2217;
+  --pp-maroon: #852b22;
+  --pp-ink: #231f1c;
+
+  --pp-rule: 1.5px;
+  --pp-gutter: clamp(0.7rem, 1.6vw, 1.4rem);
+  --pp-band: clamp(1.1rem, 2.4vw, 2rem);
+
+  --pp-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* globals.css 讓全站是黑底，這頁是一張報紙，必須把底色換回來。 */
+html:has(.pp-page),
+body:has(.pp-page) {
+  background: #d9d4c7;
+  color: #231f1c;
+}
+
+.pp-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding: clamp(0.5rem, 1.6vw, 1.6rem);
+  background: #d9d4c7;
+  color: var(--pp-ink);
+  font-family: var(--pp-font-serif), "Noto Serif TC", "Songti TC", serif;
+  font-weight: 500;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pp-page ::selection {
+  background: var(--pp-red);
+  color: var(--pp-paper);
+}
+
+/* 紙張雜訊壓在所有內容之上，讓油墨看起來是印在纖維上的。 */
+.pp-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.34;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+}
+
+/* ---------- 報紙本體 ---------- */
+
+.pp-sheet {
+  position: relative;
+  z-index: 2;
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: var(--pp-band);
+  background: var(--pp-paper);
+  border: var(--pp-rule) solid var(--pp-ink);
+  box-shadow: 0 0.4rem 1.6rem #0000001f;
+}
+
+/* 版與版之間用一條細墨線隔開，是 DM 唯一的分隔裝置。 */
+.pp-sheet > * + * {
+  margin-top: var(--pp-band);
+  padding-top: var(--pp-band);
+  border-top: var(--pp-rule) solid var(--pp-ink);
+}
+
+/* ---------- 共用：照片版塊 ---------- */
+
+.pp-plate {
+  position: relative;
+  margin: 0;
+  background: var(--pp-paper-deep);
+}
+
+.pp-plate__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* DM 的照片都重壓過一次，對比硬、彩度高。 */
+  filter: saturate(1.14) contrast(1.07);
+}
+
+/* 黑色小標籤：產地、現場、來源，壓在照片上緣。 */
+.pp-plate__tag {
+  position: absolute;
+  top: -0.55em;
+  left: 0.6em;
+  max-width: calc(100% - 1.2em);
+  padding: 0.22em 0.5em;
+  background: var(--pp-ink);
+  color: var(--pp-paper);
+  font-size: clamp(0.58rem, 0.82vw, 0.72rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+/* ---------- 共用：大字數字欄位 ---------- */
+
+/* 數字與單位必須咬在一起，中間不能被說明文撐開。 */
+.pp-figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.14em;
+  margin: 0;
+}
+
+.pp-figure__value {
+  font-family: var(--pp-font-num), "Baloo 2", system-ui, sans-serif;
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--pp-red);
+  -webkit-text-stroke: 0.035em var(--pp-red-deep);
+  paint-order: stroke fill;
+  text-shadow: 0.035em 0.04em 0 var(--pp-red-deep);
+}
+
+.pp-figure__unit {
+  font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--pp-red-deep);
+}
+
+.pp-figure__label {
+  flex: 1 1 100%;
+  margin-top: 0.35em;
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  color: var(--pp-ink);
+}
+
+/* ---------- 共用：爆炸章 ---------- */
+
+.pp-burst {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(6.5rem, 11vw, 9rem);
+  aspect-ratio: 1;
+  rotate: -7deg;
+}
+
+.pp-burst__shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pp-burst__edge {
+  fill: var(--pp-red-deep);
+}
+
+.pp-burst__face {
+  fill: var(--pp-red);
+}
+
+.pp-burst__body {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: 74%;
+  color: var(--pp-paper);
+  text-align: center;
+}
+
+.pp-burst__value {
+  font-family: var(--pp-font-num), "Baloo 2", system-ui, sans-serif;
+  font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+
+.pp-burst__unit {
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.pp-burst__label {
+  margin-top: 0.2em;
+  font-size: clamp(0.56rem, 0.78vw, 0.68rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.pp-burst__shout {
+  font-size: clamp(0.7rem, 1vw, 0.86rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+/* ---------- 頭版 ---------- */
+
+.pp-lead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "cutout plates story masthead";
+  align-items: start;
+  column-gap: var(--pp-gutter);
+}
+
+.pp-lead__masthead {
+  grid-area: masthead;
+  display: grid;
+  justify-items: end;
+  gap: calc(var(--pp-gutter) * 0.7);
+}
+
+/* 報頭字標：粗明體的「匠寵」加上拉丁小字，框在一個墨線方塊裡。 */
+.pp-logo {
+  display: grid;
+  justify-items: center;
+  gap: 0.1em;
+  margin: 0;
+  padding: 0.45em 0.7em;
+  border: 2.5px solid var(--pp-ink);
+  background: var(--pp-paper-warm);
+}
+
+.pp-logo__brand {
+  color: var(--pp-maroon);
+  font-size: clamp(1.1rem, 2vw, 1.7rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+.pp-logo__latin {
+  color: var(--pp-red);
+  font-size: clamp(0.62rem, 0.95vw, 0.82rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.pp-logo__sub {
+  color: var(--pp-ink);
+  font-size: clamp(0.44rem, 0.62vw, 0.56rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* 直書報頭，整頁最大的一塊油墨。
+   直書是右起左行，所以前綴必須排在主標右邊才讀得順；
+   writing-mode 掛在子元素上，父層維持橫向 flex，排列方向才可預測。 */
+.pp-title {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 0.15em;
+  margin: 0;
+  color: var(--pp-maroon);
+}
+
+.pp-title__kicker,
+.pp-title__headline {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.pp-title__kicker {
+  font-size: clamp(0.9rem, 1.5vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding-top: 0.6em;
+}
+
+.pp-title__headline {
+  font-size: clamp(2.2rem, 7.4svh, 4.6rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.04;
+  /* 老 DM 的套色永遠差一點，標題的紅版往右下偏一格。 */
+  text-shadow: 0.035em 0.03em 0 #bd342438;
+}
+
+.pp-lead__cutout {
+  grid-area: cutout;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "photo  label"
+    "figure label";
+  /* 撐滿版高並把大字推到底，左欄才不會在照片下方開一個洞。 */
+  align-self: stretch;
+  align-content: space-between;
+  gap: var(--pp-gutter);
+  width: clamp(14rem, 26vw, 22rem);
+}
+
+.pp-plate--cutout {
+  grid-area: photo;
+  /* 去背感：讓主商品照從版面左上角切出來。 */
+  outline: var(--pp-rule) solid var(--pp-ink);
+  outline-offset: -1px;
+}
+
+/* 商品照裁成直式，左欄高度才接得上右邊兩張疊起來的紀實照。 */
+.pp-plate--cutout .pp-plate__img {
+  aspect-ratio: 5 / 9;
+  object-fit: cover;
+}
+
+.pp-lead__label {
+  grid-area: label;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 0.3em;
+}
+
+.pp-lead__product {
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--pp-maroon);
+  font-size: clamp(1.15rem, 2.1vw, 1.75rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.pp-lead__points {
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--pp-maroon);
+  font-size: clamp(0.72rem, 1.05vw, 0.92rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.9;
+}
+
+.pp-lead__plates {
+  grid-area: plates;
+  display: grid;
+  gap: calc(var(--pp-gutter) * 1.2);
+  min-width: 0;
+}
+
+.pp-figure--lead {
+  grid-area: figure;
+  align-content: start;
+}
+
+.pp-lead__story {
+  grid-area: story;
+}
+
+/* 直書內文：DM 的說明文一律是密排暗紅小字。 */
+.pp-lead__text {
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: clamp(13rem, 42svh, 24rem);
+  color: var(--pp-maroon);
+  font-size: clamp(0.7rem, 0.98vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.95;
+}
+
+/* ---------- 二版：換罐計畫 ---------- */
+
+.pp-second {
+  display: grid;
+  grid-template-columns: auto auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "burst editorial title plates"
+    "burst editorial title regions";
+  align-items: start;
+  column-gap: var(--pp-gutter);
+  row-gap: calc(var(--pp-gutter) * 1.1);
+}
+
+.pp-burst--second {
+  grid-area: burst;
+  align-self: center;
+}
+
+.pp-second__title {
+  grid-area: title;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 0.2em;
+  margin: 0;
+}
+
+.pp-second__kicker {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding-top: 0.5em;
+  color: var(--pp-maroon);
+  font-size: clamp(0.85rem, 1.35vw, 1.1rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* 縦中横：兩位數在直書行裡站成一個字身，而不是躺著讀。 */
+.pp-upright {
+  text-combine-upright: all;
+  font-family: var(--pp-font-num), "Baloo 2", system-ui, sans-serif;
+  font-weight: 800;
+}
+
+/* 直書標題一定要給定高度；交給格列高度決定會在中途斷成第二欄。 */
+.pp-second__headline {
+  display: block;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: clamp(14rem, 42svh, 24rem);
+  color: var(--pp-maroon);
+  font-size: clamp(1.25rem, 3svh, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.pp-second__editorial {
+  grid-area: editorial;
+}
+
+/* 信條當社論，六條密排成直書欄。 */
+.pp-second__rules {
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: clamp(11rem, 34svh, 19rem);
+  color: var(--pp-maroon);
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 2.1;
+}
+
+.pp-second__plates {
+  grid-area: plates;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--pp-gutter);
+  min-width: 0;
+}
+
+/* 北中南三區：家數橫書，像 DM 上的規格表。 */
+.pp-regions {
+  grid-area: regions;
+  margin: 0;
+  border-top: var(--pp-rule) solid var(--pp-ink);
+}
+
+.pp-regions__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0.4em 0;
+  border-bottom: var(--pp-rule) solid var(--pp-ink);
+}
+
+.pp-regions__label {
+  margin: 0;
+  padding: 0.1em 0.4em;
+  background: var(--pp-maroon);
+  color: var(--pp-paper);
+  font-size: clamp(0.62rem, 0.88vw, 0.74rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+.pp-regions__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.3em;
+  margin: 0;
+}
+
+.pp-regions__count {
+  font-family: var(--pp-font-num), "Baloo 2", system-ui, sans-serif;
+  color: var(--pp-red);
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.pp-regions__unit {
+  font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+  font-weight: 900;
+  color: var(--pp-red-deep);
+}
+
+.pp-regions__spots {
+  flex: 1 1 100%;
+  font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: var(--pp-ink);
+}
+
+/* ---------- 綠底：上架清單 ---------- */
+
+.pp-listings {
+  /* 綠版要出血到紙的邊緣，所以用負邊距吃掉報紙內距。 */
+  margin-inline: calc(var(--pp-band) * -1);
+  padding: var(--pp-band);
+  background-color: var(--pp-green);
+  background-image: radial-gradient(#ffffff14 1px, transparent 1.1px);
+  background-size: 5px 5px;
+  color: var(--pp-paper);
+  border-top-color: var(--pp-ink);
+}
+
+.pp-listings__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding-bottom: calc(var(--pp-gutter) * 0.9);
+  border-bottom: 2px solid var(--pp-paper);
+}
+
+.pp-listings__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6em;
+  margin: 0;
+  font-size: clamp(1.05rem, 2.1vw, 1.65rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+.pp-listings__kicker {
+  padding: 0.18em 0.5em;
+  background: var(--pp-paper);
+  color: var(--pp-green-deep);
+  font-size: clamp(0.68rem, 1vw, 0.85rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.pp-listings__note {
+  margin: 0;
+  font-size: clamp(0.66rem, 0.92vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffffc4;
+}
+
+/* 固定四欄：七筆加上一個跨欄格剛好是八格，兩列填滿不留空格。 */
+.pp-listings__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--pp-rule);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--pp-paper);
+}
+
+/* 一格一筆。格線靠 gap 露出底下的紙色，省掉 border 疊線的麻煩。 */
+.pp-cell {
+  position: relative;
+  background-color: var(--pp-green);
+  background-image: radial-gradient(#ffffff14 1px, transparent 1.1px);
+  background-size: 5px 5px;
+}
+
+.pp-cell--wide {
+  grid-column: span 2;
+}
+
+/* 店名獨佔一列，否則大字編號會把它擠到詞中間斷行。 */
+.pp-cell__link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name name"
+    "note figure";
+  align-content: space-between;
+  align-items: end;
+  gap: 0.5em 0.6em;
+  min-height: clamp(6rem, 9vw, 7.5rem);
+  height: 100%;
+  padding: calc(var(--pp-gutter) * 0.85);
+  color: inherit;
+  text-decoration: none;
+}
+
+.pp-cell__name {
+  grid-area: name;
+  align-self: start;
+  font-size: clamp(0.92rem, 1.5vw, 1.18rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.pp-cell__note {
+  grid-area: note;
+  align-self: end;
+  font-size: clamp(0.64rem, 0.9vw, 0.76rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  color: #ffffffc4;
+}
+
+/* 編號就是這格的「價格」：大字、白油墨、綠色描邊。 */
+.pp-cell__figure {
+  grid-area: figure;
+  display: flex;
+  align-items: baseline;
+  gap: 0.1em;
+  align-self: end;
+}
+
+.pp-cell__index {
+  font-family: var(--pp-font-num), "Baloo 2", system-ui, sans-serif;
+  font-size: clamp(2rem, 3.6vw, 2.9rem);
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--pp-paper);
+  -webkit-text-stroke: 0.035em var(--pp-green-deep);
+  paint-order: stroke fill;
+  text-shadow: 0.04em 0.045em 0 var(--pp-green-deep);
+}
+
+.pp-cell__unit {
+  font-size: clamp(0.64rem, 0.9vw, 0.76rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.pp-cell__link:hover .pp-cell__name,
+.pp-cell__link:focus-visible .pp-cell__name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* 掛了爆炸章的格子要讓出右上角，店名不能被章蓋住。 */
+.pp-cell--burst .pp-cell__name {
+  padding-right: clamp(3rem, 4.4vw, 3.8rem);
+}
+
+/* 爆炸章壓在格子右上角的空處，不蓋到店名也不蓋到編號。 */
+.pp-burst--cell {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  z-index: 3;
+  width: clamp(4.6rem, 6.6vw, 5.8rem);
+  pointer-events: none;
+}
+
+/* ---------- 底版：服務一覽 ---------- */
+
+.pp-services__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6em;
+  margin: 0 0 calc(var(--pp-gutter) * 0.9);
+  color: var(--pp-maroon);
+  font-size: clamp(1.05rem, 2.1vw, 1.55rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.pp-services__kicker {
+  padding: 0.18em 0.5em;
+  background: var(--pp-maroon);
+  color: var(--pp-paper);
+  font-size: clamp(0.66rem, 0.95vw, 0.8rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.pp-services__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--pp-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-service {
+  display: grid;
+  align-content: start;
+  gap: 0.25em;
+  padding: calc(var(--pp-gutter) * 0.8);
+  background: var(--pp-paper-warm);
+  border: var(--pp-rule) solid var(--pp-ink);
+}
+
+.pp-service__code {
+  margin: 0;
+  color: var(--pp-ink);
+  font-size: clamp(0.58rem, 0.82vw, 0.7rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.pp-service__name {
+  margin: 0;
+  color: var(--pp-maroon);
+  font-size: clamp(0.92rem, 1.45vw, 1.12rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.pp-service__tagline {
+  margin: 0 0 0.35em;
+  font-size: clamp(0.64rem, 0.9vw, 0.76rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.65;
+}
+
+.pp-figure--service {
+  margin-top: auto;
+}
+
+.pp-figure--service .pp-figure__value {
+  font-size: clamp(1.9rem, 3.2vw, 2.7rem);
+}
+
+/* ---------- 報尾 ---------- */
+
+.pp-closing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--pp-gutter);
+}
+
+.pp-closing__plates {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--pp-gutter);
+  min-width: 0;
+}
+
+.pp-closing__slogan {
+  margin: 0;
+  max-width: 12em;
+  color: var(--pp-maroon);
+  font-size: clamp(1.05rem, 2.2vw, 1.7rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+
+.pp-colophon {
+  display: grid;
+  gap: 0.5em;
+}
+
+.pp-colophon__issue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1em;
+  margin: 0;
+  color: var(--pp-maroon);
+  font-size: clamp(0.64rem, 0.9vw, 0.76rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.pp-colophon__note {
+  margin: 0;
+  font-size: clamp(0.62rem, 0.88vw, 0.74rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+.pp-colophon__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.2em;
+  margin-top: 0.3em;
+}
+
+.pp-colophon__nav a {
+  color: var(--pp-ink);
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-bottom: 2px solid var(--pp-red);
+}
+
+.pp-colophon__nav a:hover,
+.pp-colophon__nav a:focus-visible {
+  color: var(--pp-red);
+}
+
+.pp-colophon__publisher {
+  margin: 0;
+  font-size: clamp(0.58rem, 0.82vw, 0.7rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #231f1cab;
+}
+
+.pp-page :focus-visible {
+  outline: 3px solid var(--pp-red);
+  outline-offset: 3px;
+}
+
+/* ---------- 中型螢幕：四欄的頭版撐不住，拆成兩段 ---------- */
+
+@media (max-width: 1080px) {
+  /* 四欄排不下，改成「商品／內文／報頭」一列，紀實照整列擺下方。 */
+  .pp-lead {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "cutout story masthead"
+      "plates plates plates";
+    row-gap: calc(var(--pp-gutter) * 1.4);
+  }
+
+  .pp-lead__cutout {
+    align-self: start;
+    align-content: start;
+    width: clamp(13rem, 32vw, 18rem);
+  }
+
+  .pp-lead__text {
+    height: clamp(10rem, 30svh, 16rem);
+  }
+
+  .pp-lead__plates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  /* 三區家數改成跨欄的底帶，右側才不會空一塊。 */
+  .pp-second {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "editorial title   plates"
+      "burst     regions regions";
+  }
+
+  .pp-second__headline {
+    height: clamp(11rem, 26svh, 16rem);
+  }
+
+  .pp-burst--second {
+    justify-self: start;
+    align-self: start;
+  }
+
+  /* 兩欄時跨欄格剛好吃掉一整列，八個格位仍然填滿。 */
+  .pp-listings__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- 手機：直書只留報頭，其餘全部回到橫書 ---------- */
+
+@media (max-width: 680px) {
+  .pp-sheet > * + * {
+    margin-top: calc(var(--pp-band) * 1.2);
+    padding-top: calc(var(--pp-band) * 1.2);
+  }
+
+  .pp-lead {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "masthead"
+      "cutout"
+      "plates"
+      "story";
+    row-gap: var(--pp-band);
+  }
+
+  .pp-lead__masthead {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: 0.7rem;
+  }
+
+  .pp-title {
+    writing-mode: horizontal-tb;
+    /* 橫書時前綴回到主標左邊。 */
+    flex-direction: row;
+    align-items: baseline;
+  }
+
+  .pp-title__headline {
+    font-size: clamp(2.1rem, 13vw, 3.4rem);
+  }
+
+  .pp-title__kicker {
+    padding-top: 0;
+  }
+
+  .pp-lead__cutout {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* 內文回到橫書後，直書的欄高限制必須解掉，否則會被切斷。 */
+  .pp-lead__text,
+  .pp-second__rules {
+    writing-mode: horizontal-tb;
+    height: auto;
+    font-size: 0.86rem;
+    line-height: 2;
+  }
+
+  .pp-second {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "plates"
+      "editorial"
+      "regions"
+      "burst";
+    row-gap: var(--pp-band);
+  }
+
+  .pp-second__title {
+    writing-mode: horizontal-tb;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3em;
+  }
+
+  .pp-second__kicker,
+  .pp-second__headline {
+    writing-mode: horizontal-tb;
+    height: auto;
+    padding-top: 0;
+  }
+
+  .pp-second__headline {
+    font-size: clamp(1.4rem, 7.5vw, 2rem);
+    line-height: 1.5;
+  }
+
+  .pp-listings__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pp-cell--wide {
+    grid-column: span 1;
+  }
+
+  .pp-burst--second {
+    justify-self: center;
+  }
+
+  .pp-closing {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pp-burst--cell {
+    right: -0.3rem;
+    bottom: -0.6rem;
+  }
+}
