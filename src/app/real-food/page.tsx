@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import Chapter from "@/components/real-food/Chapter";
+import Panel from "@/components/real-food/Panel";
+import Photo from "@/components/real-food/Photo";
 import RegisterOnScroll from "@/components/real-food/RegisterOnScroll";
 import Wordmark from "@/components/real-food/Wordmark";
 import {
@@ -15,100 +16,149 @@ import {
 /** 無 JS 時直接還原所有待揭露的元素，避免內容被樣式鎖在不可見狀態。 */
 const NOSCRIPT_FALLBACK = `<style>[data-rf-reveal]{opacity:1;transform:none;clip-path:none}</style>`;
 
+/* 各格位佔整張紙的寬度比例，直接取自海報量測值。 */
+const SIZES = {
+  band1: "(max-width: 860px) 92vw, 29vw",
+  band2: "(max-width: 860px) 92vw, 37vw",
+  plate: "(max-width: 860px) 92vw, 13vw",
+  band3: "(max-width: 860px) 92vw, 34vw",
+  band4: "(max-width: 860px) 92vw, 24vw",
+  aside: "(max-width: 860px) 92vw, 23vw",
+} as const;
+
+const [INGREDIENT, CRAFT, JOY, MADE_IN_TAIWAN, COMPANION] = CHAPTERS;
+
 export default function RealFoodPage() {
+  /* 第二帶右格是碗那張單圖，在海報上自成一格，不屬於任何一段文案。 */
+  const plate = JOY.photos[1];
+  const lineWork = MADE_IN_TAIWAN.photos[0];
+
   return (
     <div className="rf-page">
       <noscript dangerouslySetInnerHTML={{ __html: NOSCRIPT_FALLBACK }} />
 
       <span className="rf-grain" aria-hidden="true" />
-      <span className="rf-frame" aria-hidden="true" />
-      <span className="rf-rail" aria-hidden="true">
-        <span className="rf-rail__text">{RAIL_SLOGAN}</span>
-      </span>
 
       <div className="rf-sheet">
-        <header className="rf-masthead">
-          <p className="rf-ribbon">
-            <span className="rf-ribbon__text">{MASTHEAD.ribbon}</span>
-          </p>
-          <Link href="/" className="rf-mark" aria-label="匠寵 FURMOSA — 回到目錄">
-            <Wordmark className="rf-mark__word" />
-            <span className="rf-mark__line" aria-hidden="true">
-              <span className="rf-mark__brand">{MASTHEAD.brand}</span>
-              <span className="rf-mark__category">{MASTHEAD.category}</span>
-            </span>
-          </Link>
-        </header>
+        <div className="rf-frame">
+          {/* 整張紙的寬度就是版面單位：以下所有尺寸都用 cqw 寫，縮放時比例不變。 */}
+          <div className="rf-sheet__body">
+            <header className="rf-masthead">
+              <p className="rf-ribbon">
+                <span className="rf-ribbon__text">{MASTHEAD.ribbon}</span>
+              </p>
+              <Link href="/" className="rf-mark" aria-label="匠寵 FURMOSA — 回到目錄">
+                <Wordmark className="rf-mark__word" />
+                <span className="rf-mark__line" aria-hidden="true">
+                  <span className="rf-mark__brand">{MASTHEAD.brand}</span>
+                  <span className="rf-mark__category">{MASTHEAD.category}</span>
+                </span>
+              </Link>
+            </header>
 
-        <section className="rf-opening" aria-labelledby="rf-opening-title">
-          <div className="rf-opening__intro">
-            <p className="rf-opening__lede">{OPENING.lede}</p>
+            <div className="rf-collage">
+              <div className="rf-band rf-band--one">
+                <Panel
+                  chapter={INGREDIENT}
+                  variant="stack"
+                  sizes={SIZES.band1}
+                  priority
+                />
+                <Panel
+                  chapter={CRAFT}
+                  variant="stack"
+                  sizes={SIZES.band1}
+                  priority
+                />
+              </div>
 
-            <dl className="rf-specs">
-              {OPENING.specs.map((spec) => (
-                <div className="rf-specs__row" key={spec.label}>
-                  <dt className="rf-specs__label">{spec.label}</dt>
-                  <dd className="rf-specs__value">{spec.value}</dd>
+              <div className="rf-band rf-band--two">
+                <Panel chapter={JOY} variant="row" sizes={SIZES.band2} />
+                {plate ? (
+                  <div className="rf-cell rf-cell--plate">
+                    <Photo photo={plate} sizes={SIZES.plate} />
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="rf-band rf-band--three">
+                <div className="rf-cell rf-cell--photo">
+                  <Photo photo={lineWork} sizes={SIZES.band3} />
                 </div>
-              ))}
-            </dl>
+                <Panel chapter={MADE_IN_TAIWAN} variant="copy" />
+              </div>
 
-            <p className="rf-opening__cue" aria-hidden="true">
-              往下讀 ↓
-            </p>
+              <Panel
+                chapter={COMPANION}
+                variant="wide"
+                className="rf-band--four"
+                sizes={SIZES.band4}
+                asideSizes={SIZES.aside}
+              />
+
+              {/* 海報上唯一刻意破框的元素，壓在左下角跨過最後兩條帶。 */}
+              <aside className="rf-rail">
+                <p className="rf-rail__text">{RAIL_SLOGAN}</p>
+              </aside>
+
+              <div className="rf-spine-panel">
+                <div className="rf-spine-panel__inner">
+                  <h1 className="rf-spine-panel__title">
+                    <span className="rf-spine">{OPENING.spine}</span>
+                  </h1>
+                  <p className="rf-claim">
+                    <span className="rf-claim__text">{OPENING.claim}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className="rf-opening__band">
-            <h1 className="rf-opening__title" id="rf-opening-title">
-              <span className="rf-spine">{OPENING.spine}</span>
-            </h1>
-            <p className="rf-opening__claim">
-              <span className="rf-opening__claim-text">{OPENING.claim}</span>
-            </p>
-          </div>
-        </section>
-
-        <main className="rf-chapters">
-          {CHAPTERS.map((chapter, index) => (
-            <Chapter
-              key={chapter.id}
-              chapter={chapter}
-              priority={index === 0}
-            />
-          ))}
-        </main>
-
-        <section className="rf-closing" data-rf-reveal="out">
-          <h2 className="rf-closing__slogan">
-            <span className="rf-closing__slogan-text">{CLOSING.slogan}</span>
-          </h2>
-          <div className="rf-closing__aside">
-            <p className="rf-closing__body">{CLOSING.body}</p>
-            <a
-              className="rf-cta"
-              href={SHOP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {CLOSING.cta}
-              <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </section>
-
-        <footer className="rf-footer">
-          <p className="rf-footer__brand">
-            <Wordmark className="rf-footer__word" />
-            <span>{MASTHEAD.category}</span>
-          </p>
-          <nav className="rf-footer__nav" aria-label="其他頁面">
-            <Link href="/">凍乾目錄</Link>
-            <a href={SHOP_URL} target="_blank" rel="noopener noreferrer">
-              商店 ↗
-            </a>
-          </nav>
-        </footer>
+        </div>
       </div>
+
+      {/* 海報本身沒有這一段。導覽與事實交代放在紙的背面，不去動正面的編排。 */}
+      <section className="rf-backside" aria-labelledby="rf-backside-title">
+        <h2 className="rf-backside__title" id="rf-backside-title">
+          {CLOSING.title}
+        </h2>
+
+        <p className="rf-backside__lede">{OPENING.lede}</p>
+
+        <dl className="rf-specs">
+          {OPENING.specs.map((spec) => (
+            <div className="rf-specs__row" key={spec.label}>
+              <dt className="rf-specs__label">{spec.label}</dt>
+              <dd className="rf-specs__value">{spec.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <p className="rf-backside__body">{CLOSING.body}</p>
+
+        <a
+          className="rf-cta"
+          href={SHOP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {CLOSING.cta}
+          <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+
+      <footer className="rf-footer">
+        <p className="rf-footer__brand">
+          <Wordmark className="rf-footer__word" />
+          <span>{MASTHEAD.category}</span>
+        </p>
+        <nav className="rf-footer__nav" aria-label="其他頁面">
+          <Link href="/">凍乾目錄</Link>
+          <Link href="/paper">市場報</Link>
+          <a href={SHOP_URL} target="_blank" rel="noopener noreferrer">
+            商店 ↗
+          </a>
+        </nav>
+      </footer>
 
       <RegisterOnScroll />
     </div>

@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
-import { Baloo_2, Noto_Serif_TC } from "next/font/google";
+import { Baloo_2, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 
 import "./real-food.css";
 
 /**
- * 全站中文只用一套 Noto Serif TC，由字重承擔招牌字與本文的差異；
- * CJK 字檔龐大，關閉 preload 讓瀏覽器依 unicode-range 按需取用。
+ * 海報分工明確：本文是明體，招牌字（報頭、黃標籤、書脊、標語條）是黑體。
+ * CJK 字檔龐大，兩套都關掉 preload，讓瀏覽器依 unicode-range 按需取用。
  */
 const serifTC = Noto_Serif_TC({
   display: "swap",
   preload: false,
   variable: "--rf-font-serif",
+});
+
+const sansTC = Noto_Sans_TC({
+  weight: ["700", "900"],
+  display: "swap",
+  preload: false,
+  variable: "--rf-font-sans",
 });
 
 /** 只替 FURMOSA 字標服務，拉丁子集很小，值得 preload。 */
@@ -37,7 +44,9 @@ export default function RealFoodLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className={`${serifTC.variable} ${latinDisplay.variable}`}>
+    <div
+      className={`${serifTC.variable} ${sansTC.variable} ${latinDisplay.variable}`}
+    >
       {children}
     </div>
   );

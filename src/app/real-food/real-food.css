@@ -1,6 +1,13 @@
 /*
- * 毛孩的真食堂 — 以台式老派食品印刷為語彙的品牌敘事頁。
- * 三個承重裝置：常駐藍色頁框、直書大標書脊、以及左緣的直書標語條。
+ * 毛孩的真食堂 — 直接照海報稿排的一張紙。
+ *
+ * 版面的量測單位是「紙寬」而不是視窗：海報上的本文只有紙寬的 1.6%，
+ * 所以整張紙包成一個 container，所有尺寸與字級都寫成 cqw，
+ * 縮放時比例完全不變，像印刷品被等比縮小一樣。
+ *
+ * 藍色格線不是 border，而是 .rf-collage 的藍底從格與格之間的 gap 透出來；
+ * 每一格自己鋪紙色並留內距，格線因此一律同寬，也不會在轉角疊成兩倍。
+ *
  * 所有類別以 rf- 前綴，沿用 works-/furmosa- 的命名慣例。
  */
 
@@ -14,11 +21,10 @@
   --rf-ink: #123a56;
   --rf-red: #e2231a;
 
-  --rf-rule: 2px;
-  --rf-gutter: clamp(1rem, 3.2vw, 3rem);
-  --rf-stack: clamp(2.5rem, 6vw, 5.5rem);
-  /* 左緣標語條佔掉的寬度，由 .rf-sheet 的左內距讓位。 */
-  --rf-rail-space: 0rem;
+  /* 紙寬。海報是直式開本，寬度封頂後整張紙置中。 */
+  --rf-sheet-w: min(95vw, 66rem);
+  /* 外框在海報上是紙寬的 0.83%，border 吃不到百分比，只好自己算。 */
+  --rf-frame-rule: calc(var(--rf-sheet-w) * 0.0083);
 
   --rf-halftone: radial-gradient(
     var(--rf-blue-bright) 1.05px,
@@ -32,7 +38,7 @@
 /* globals.css 讓全站是黑底，這頁是一張紙，必須把底色換回來。 */
 html:has(.rf-page),
 body:has(.rf-page) {
-  background: #f4f1ea;
+  background: #e4ded2;
   color: #123a56;
 }
 
@@ -40,12 +46,12 @@ body:has(.rf-page) {
   position: relative;
   isolation: isolate;
   min-height: 100svh;
-  background: var(--rf-paper);
+  padding: clamp(0.8rem, 2.4vw, 2.4rem) 0 clamp(2rem, 5vw, 4rem);
+  background: #e4ded2;
   color: var(--rf-ink);
   font-family: var(--rf-font-serif), "Noto Serif TC", "Songti TC", serif;
   font-weight: 500;
   overflow-x: clip;
-  overscroll-behavior-y: none;
   color-scheme: light;
   -webkit-font-smoothing: antialiased;
 }
@@ -54,8 +60,6 @@ body:has(.rf-page) {
   background: var(--rf-yellow);
   color: var(--rf-navy);
 }
-
-/* ---------- 紙張與頁框 ---------- */
 
 .rf-grain {
   position: fixed;
@@ -67,116 +71,87 @@ body:has(.rf-page) {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
 }
 
-.rf-frame {
-  position: fixed;
-  inset: 10px;
-  z-index: 40;
-  pointer-events: none;
-  border: var(--rf-rule) solid var(--rf-blue);
-}
+/* ---------- 紙張與外框 ---------- */
 
-.rf-frame::before {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 6px solid var(--rf-blue);
-}
-
-/* ---------- 左緣直書標語條（寬螢幕才出現） ---------- */
-
-.rf-rail {
-  display: none;
-}
-
-@media (min-width: 1180px) {
-  :root {
-    --rf-rail-space: clamp(6rem, 7.5vw, 8rem);
-  }
-
-  .rf-rail {
-    display: block;
-    position: fixed;
-    top: 50%;
-    left: 26px;
-    z-index: 35;
-    transform: translateY(-50%);
-    pointer-events: none;
-  }
-
-  .rf-rail__text {
-    display: block;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    max-height: 74vh;
-    padding: 1.1rem 0.42rem;
-    background-color: var(--rf-blue);
-    background-image: var(--rf-halftone);
-    background-size: var(--rf-halftone-size);
-    border: var(--rf-rule) solid var(--rf-navy);
-    color: var(--rf-paper);
-    font-size: clamp(1.5rem, 1.9vw, 2.1rem);
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    line-height: 1.1;
-    -webkit-text-stroke: 0.07em var(--rf-navy);
-    paint-order: stroke fill;
-    text-shadow: 0.05em 0.05em 0 var(--rf-navy);
-  }
-}
-
-/* 版面一旦被置中就自然閃開標語條，不必再多留左內距。 */
-@media (min-width: 1600px) {
-  :root {
-    --rf-rail-space: 0rem;
-  }
-}
-
-/* ---------- 版面容器 ---------- */
-
-/* 海報是直式開本，整頁就維持一張紙的寬度，頁框與標語條留在視窗邊緣當版面家具。 */
 .rf-sheet {
   position: relative;
   z-index: 2;
-  max-width: 61rem;
+  width: var(--rf-sheet-w);
   margin: 0 auto;
-  padding: clamp(1.6rem, 3vw, 2.6rem) var(--rf-gutter)
-    clamp(2rem, 4vw, 3.2rem);
-  padding-left: max(var(--rf-gutter), var(--rf-rail-space));
+}
+
+.rf-frame {
+  /* 左緣標語條要破框出去，所以這裡不能設 overflow。 */
+  padding-top: calc(var(--rf-sheet-w) * 0.0052);
+  background: var(--rf-paper);
+  border: var(--rf-frame-rule) solid var(--rf-blue);
+  box-shadow: 0 1.2rem 3rem rgb(18 58 86 / 0.18);
+}
+
+/*
+ * 版面容器。以下所有 cqw 都以這一塊的內容寬為 100。
+ * 注意：自己的屬性不能用 cqw（容器不能查詢自己），邊框與上內距因此留在 .rf-frame。
+ */
+.rf-sheet__body {
+  container-type: inline-size;
+
+  /* 字級與間距一律走變數，窄螢幕只要換掉這一組就能整頁改制。 */
+  --rf-copy: 1.6cqw;
+  --rf-copy-leading: 1.62;
+  --rf-tag: 3.3cqw;
+  --rf-tag-leading: 1.26;
+  --rf-ribbon: 4cqw;
+  --rf-spine: 16.3cqw;
+  --rf-claim: 4.25cqw;
+  --rf-rail: 4.6cqw;
+
+  /* 格內留白、格線寬、格內元素間距。 */
+  --rf-pad: 0.62cqw;
+  --rf-rule: 0.26cqw;
+  --rf-inner-gap: 0.95cqw;
 }
 
 /* ---------- 報頭 ---------- */
 
 .rf-masthead {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
-  gap: clamp(0.5rem, 1.4vw, 1rem);
+  grid-template-columns: minmax(0, 1fr) 23.5cqw;
+  gap: 0.52cqw;
+  height: 7.28cqw;
 }
 
 .rf-ribbon {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5em;
   margin: 0;
-  padding: 0.5em 1.2em;
   background-color: var(--rf-blue);
   background-image: var(--rf-halftone);
   background-size: var(--rf-halftone-size);
-  border: var(--rf-rule) solid var(--rf-navy);
-  outline: var(--rf-rule) solid var(--rf-blue);
-  outline-offset: 3px;
+  border: 0.21cqw solid var(--rf-navy);
+}
+
+/* 報頭兩端的 ※ 是海報上的裝飾，不是內容，所以交給樣式。 */
+.rf-ribbon::before,
+.rf-ribbon::after {
+  content: "※";
+  color: var(--rf-paper);
+  font-size: calc(var(--rf-ribbon) * 0.62);
+  opacity: 0.9;
 }
 
 .rf-ribbon__text {
   color: var(--rf-paper);
-  font-size: clamp(1rem, 2.2vw, 1.85rem);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-ribbon);
   font-weight: 900;
-  letter-spacing: 0.06em;
-  line-height: 1.3;
-  text-align: center;
-  -webkit-text-stroke: 0.045em var(--rf-navy);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.05em var(--rf-navy);
   paint-order: stroke fill;
-  text-shadow: 0.045em 0.045em 0 var(--rf-navy);
+  text-shadow: 0.05em 0.05em 0 var(--rf-navy);
 }
 
 .rf-mark {
@@ -184,35 +159,34 @@ body:has(.rf-page) {
   gap: 0.2em;
   align-content: center;
   justify-items: center;
-  padding: 0.45em 0.75em;
-  border: var(--rf-rule) solid var(--rf-blue);
+  border: 0.26cqw solid var(--rf-blue);
   color: var(--rf-blue);
   text-decoration: none;
 }
 
 .rf-mark__word {
-  font-size: clamp(1.05rem, 2.5vw, 2.05rem);
+  font-size: 3.9cqw;
 }
 
 .rf-mark__line {
   display: flex;
   align-items: baseline;
-  gap: 0.45em;
+  gap: 0.5em;
   white-space: nowrap;
 }
 
 .rf-mark__brand {
   color: var(--rf-red);
-  font-size: clamp(0.72rem, 1.5vw, 1.1rem);
+  font-size: 1.75cqw;
   font-weight: 900;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.26em;
 }
 
 .rf-mark__category {
   color: var(--rf-navy);
-  font-size: clamp(0.5rem, 0.95vw, 0.72rem);
+  font-size: 1.1cqw;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
 /* ---------- FURMOSA 字標 ---------- */
@@ -234,65 +208,341 @@ body:has(.rf-page) {
   flex: none;
 }
 
-/* ---------- 開場 ---------- */
+/* ---------- 拼貼：四條帶、右側書脊、左下標語條 ---------- */
 
-.rf-opening {
+/*
+ * 列高取自海報的實測像素（438 / 295 / 291 / 274），用 fr 寫成比例；
+ * 整塊高度也鎖成紙寬的倍數，所以放大縮小都還是同一張海報。
+ */
+.rf-collage {
+  box-sizing: border-box;
   display: grid;
+  grid-template-columns: 6.14cqw minmax(0, 1fr) 25.1cqw;
+  grid-template-rows: 438fr 295fr 291fr 274fr;
+  grid-template-areas:
+    "one   one   spine"
+    "two   two   spine"
+    "rail  three spine"
+    "rail  four  four";
+  gap: var(--rf-rule);
+  height: 136.22cqw;
+  margin-top: 0.31cqw;
+  /* 上內距就是報頭下那條較粗的藍線——藍底透出來即是格線。 */
+  padding-top: 0.42cqw;
+  background: var(--rf-blue);
+}
+
+.rf-band {
+  display: grid;
+  gap: var(--rf-rule);
+}
+
+.rf-band--one {
+  grid-area: one;
+  grid-template-columns: 367fr 348fr;
+}
+
+.rf-band--two {
+  grid-area: two;
+  grid-template-columns: minmax(0, 1fr) 18.3cqw;
+}
+
+.rf-band--three {
+  grid-area: three;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
-  gap: var(--rf-gutter);
-  margin-top: clamp(1rem, 2.4vw, 2rem);
-  /* 高度交給書脊決定，這裡只設下限，避免矮視窗把開場壓扁。 */
-  min-height: clamp(16rem, 44svh, 30rem);
 }
 
-.rf-opening__intro {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.4rem, 3.2vw, 2.6rem);
-  padding: clamp(0.8rem, 2vw, 1.4rem) 0 clamp(0.5rem, 2vw, 1.6rem);
-  border-top: var(--rf-rule) solid var(--rf-blue);
+.rf-band--four {
+  grid-area: four;
 }
 
-.rf-opening__lede {
-  max-width: 30em;
+/* 每一格都自己鋪紙並留內距，格線才會只來自 gap。 */
+.rf-cell,
+.rf-panel {
+  min-width: 0;
+  background: var(--rf-paper);
+  padding: var(--rf-pad);
+}
+
+/* 碗那張單圖只占格子上半，底下是刻意留白的紙。 */
+.rf-cell--plate {
+  display: grid;
+  align-content: start;
+}
+
+.rf-cell--plate .rf-photo {
+  height: auto;
+  aspect-ratio: 169 / 192;
+}
+
+/* ---------- 格位的四種編排 ---------- */
+
+.rf-panel {
+  display: grid;
+  column-gap: var(--rf-inner-gap);
+  row-gap: var(--rf-pad);
+}
+
+/* 照片與標籤並排，直書本文落在照片下方。 */
+.rf-panel--stack {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 211fr 208fr;
+  grid-template-areas:
+    "lead  tag"
+    "lines tag";
+}
+
+/* 照片｜本文｜標籤。 */
+.rf-panel--row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "lead lines tag";
+}
+
+/* 只有本文與標籤，照片是同一條帶裡的另一格。 */
+.rf-panel--copy {
+  grid-template-columns: auto auto;
+  grid-template-areas: "lines tag";
+}
+
+/* 照片｜本文｜標籤｜小照片，吃掉整條帶。 */
+.rf-panel--wide {
+  grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 0.96fr);
+  grid-template-areas: "lead lines tag aside";
+  --rf-tag: 2.5cqw;
+  --rf-copy-leading: 1.52;
+}
+
+/* 第一條帶的本文排得比別處鬆，照海報留著。 */
+.rf-panel--stack {
+  --rf-copy-leading: 2.35;
+}
+
+.rf-photo--lead {
+  grid-area: lead;
+}
+
+.rf-photo--aside {
+  grid-area: aside;
+}
+
+/*
+ * 直書區塊一律 align-self: start：高度交給內容，
+ * 被格列拉伸的話行長會被截短，斷行就跑掉了。
+ */
+.rf-tag {
+  grid-area: tag;
+  align-self: start;
+  justify-self: end;
+  width: fit-content;
   margin: 0;
-  font-size: clamp(1.02rem, 1.55vw, 1.4rem);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-tag);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: var(--rf-tag-leading);
+}
+
+/* 黃底跟著每一欄各自斷開，長短欄因此各有自己的色塊，和海報一樣。 */
+.rf-tag__inner {
+  padding: 0.18em 0.2em;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.rf-lines {
+  grid-area: lines;
+  align-self: start;
+  justify-self: start;
+  width: fit-content;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--rf-ink);
+  font-size: var(--rf-copy);
   font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: var(--rf-copy-leading);
+}
+
+/* ---------- 照片 ---------- */
+
+/*
+ * 海報上的照片都被裁進格位而不是依原比例流動——
+ * 這正是整張紙看起來緊實的原因。所以一律填滿格高並裁切。
+ */
+.rf-photo {
+  position: relative;
+  display: block;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--rf-paper-deep);
+}
+
+.rf-photo__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.03);
+}
+
+/* ---------- 書脊：匠寵FURMOSA 與黃色標語 ---------- */
+
+.rf-spine-panel {
+  grid-area: spine;
+  /* 左側較寬的留白是海報上書脊與拼貼之間那道紙白。 */
+  padding: var(--rf-pad) var(--rf-pad) var(--rf-pad) 2.2cqw;
+  background: var(--rf-paper);
+}
+
+.rf-spine-panel__inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0.6cqw 0.4cqw;
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.26cqw solid var(--rf-navy);
+  outline: 0.36cqw solid var(--rf-blue);
+  outline-offset: 0.42cqw;
+}
+
+.rf-spine-panel__title {
+  margin: 0;
+}
+
+/* 直書大標。拉丁字母由 writing-mode 自然側倒，不另外旋轉。 */
+.rf-spine {
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-spine);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--rf-paper);
+  -webkit-text-stroke: 0.08em var(--rf-navy);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.05em 0 var(--rf-navy);
+}
+
+.rf-claim {
+  margin: 0;
+  align-self: flex-start;
+}
+
+.rf-claim__text {
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-claim);
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  line-height: 1.05;
+  color: var(--rf-yellow);
+  -webkit-text-stroke: 0.07em var(--rf-navy);
+  paint-order: stroke fill;
+}
+
+.rf-claim__text::before {
+  content: "「";
+}
+
+.rf-claim__text::after {
+  content: "」";
+}
+
+/* ---------- 左下標語條：海報上唯一刻意破框的元素 ---------- */
+
+.rf-rail {
+  grid-area: rail;
+  align-self: start;
+  /* 往左凸出外框，往下壓過紙緣。 */
+  width: 9.3cqw;
+  height: 61cqw;
+  margin: 1cqw 0 0 -2.3cqw;
+}
+
+.rf-rail__text {
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  padding: 0.9cqw 0.5cqw;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.26cqw solid var(--rf-navy);
+  outline: 0.3cqw solid var(--rf-blue);
+  outline-offset: 0.36cqw;
+  color: var(--rf-paper);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-rail);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.12;
+  -webkit-text-stroke: 0.075em var(--rf-navy);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.05em 0 var(--rf-navy);
+}
+
+/* ---------- 紙的背面：海報沒有的事實交代與導覽 ---------- */
+
+.rf-backside {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(1.1rem, 2.4vw, 1.9rem);
+  width: min(95vw, 46rem);
+  margin: clamp(2.4rem, 6vw, 5rem) auto 0;
+  padding-top: clamp(1rem, 2.4vw, 1.6rem);
+  border-top: 4px solid var(--rf-blue);
+}
+
+.rf-backside__title {
+  margin: 0;
+  color: var(--rf-blue);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.rf-backside__lede {
+  max-width: 32em;
+  margin: 0;
+  font-size: clamp(1rem, 1.5vw, 1.22rem);
   line-height: 2;
   letter-spacing: 0.03em;
   text-wrap: pretty;
 }
 
-.rf-opening__cue {
-  margin: auto 0 0;
-  color: var(--rf-blue);
-  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
-  font-weight: 700;
-  letter-spacing: 0.28em;
-}
-
 /* 規格欄：功能性資訊一律橫書，讀起來像食品標籤。 */
 .rf-specs {
-  /* 書脊決定開場高度，規格欄把剩下的高度吃掉，
-     讓橫線攤成一張表格而不是在欄底留一塊空洞。 */
-  flex: 1;
   display: grid;
-  /* 上限避免高視窗把三條橫線拉得過開。 */
-  grid-auto-rows: minmax(min-content, 8.5rem);
-  align-content: start;
   margin: 0;
-  border-top: var(--rf-rule) solid var(--rf-blue);
+  border-top: 2px solid var(--rf-blue);
 }
 
 .rf-specs__row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-content: start;
   align-items: baseline;
   gap: clamp(0.8rem, 2vw, 1.6rem);
   padding: clamp(0.5rem, 1.2vw, 0.85rem) 0;
-  border-bottom: var(--rf-rule) solid var(--rf-blue);
+  border-bottom: 2px solid var(--rf-blue);
 }
 
 .rf-specs__label {
@@ -309,265 +559,16 @@ body:has(.rf-page) {
 .rf-specs__value {
   margin: 0;
   color: var(--rf-ink);
-  font-size: clamp(0.92rem, 1.25vw, 1.15rem);
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: clamp(0.92rem, 1.25vw, 1.12rem);
   line-height: 1.7;
+  letter-spacing: 0.04em;
   text-wrap: pretty;
 }
 
-.rf-opening__band {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: start;
-  gap: clamp(0.4rem, 1.2vw, 1rem);
-  padding: clamp(0.9rem, 2vw, 1.6rem) clamp(0.7rem, 1.6vw, 1.2rem);
-  background-color: var(--rf-blue);
-  background-image: var(--rf-halftone);
-  background-size: var(--rf-halftone-size);
-  border: var(--rf-rule) solid var(--rf-navy);
-  outline: var(--rf-rule) solid var(--rf-blue);
-  outline-offset: 4px;
-}
-
-.rf-opening__title {
+.rf-backside__body {
+  max-width: 30em;
   margin: 0;
-}
-
-/*
- * 書脊是一整欄直書，字級由視窗高度決定而非寬度，
- * 否則 9 個字在寬螢幕上會長得比視窗高。
- */
-.rf-spine {
-  display: block;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--rf-font-latin), var(--rf-font-serif), serif;
-  font-size: clamp(2.6rem, 9.4svh, 6.6rem);
-  font-weight: 900;
-  line-height: 0.96;
-  letter-spacing: 0.005em;
-  color: var(--rf-paper);
-  -webkit-text-stroke: 0.075em var(--rf-navy);
-  paint-order: stroke fill;
-  text-shadow: 0.045em 0.05em 0 var(--rf-navy);
-}
-
-.rf-opening__claim {
-  margin: 0;
-  align-self: start;
-}
-
-.rf-opening__claim-text {
-  display: block;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  color: var(--rf-yellow);
-  font-size: clamp(1rem, 2.6svh, 1.7rem);
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
-  -webkit-text-stroke: 0.075em var(--rf-navy);
-  paint-order: stroke fill;
-}
-
-.rf-opening__claim-text::before {
-  content: "「";
-}
-
-.rf-opening__claim-text::after {
-  content: "」";
-}
-
-/* ---------- 章節 ---------- */
-
-/*
- * 章節走一欄 52rem 的編排寬度，而不是攤滿整張紙：
- * 照片欄因此有固定寬度，格與格之間不會出現忽寬忽窄的空隙。
- * 寬度限制必須下在容器上——下在 grid item 上會觸發 shrink-to-fit。
- */
-.rf-chapters {
-  display: grid;
-  gap: var(--rf-stack);
-  margin-top: var(--rf-stack);
-}
-
-.rf-chapter {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  grid-template-areas:
-    "index index tag"
-    "media copy  tag";
-  align-items: start;
-  column-gap: clamp(0.6rem, 1.8vw, 1.5rem);
-  row-gap: clamp(0.5rem, 1.2vw, 0.9rem);
-  padding-top: clamp(0.6rem, 1.5vw, 1.1rem);
-  border-top: var(--rf-rule) solid var(--rf-blue);
-}
-
-.rf-chapter--pair {
-  grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 0.46fr);
-  grid-template-areas:
-    "index index tag aside"
-    "media copy  tag aside";
-}
-
-.rf-chapter__index {
-  grid-area: index;
-  margin: 0;
-  color: var(--rf-blue);
-  font-family: var(--rf-font-latin), var(--rf-font-serif), serif;
-  font-size: clamp(0.85rem, 1.15vw, 1rem);
-  font-weight: 800;
-  letter-spacing: 0.16em;
-}
-
-/* 黃色貼紙標籤：直書、微微歪斜，像後來才貼上去的。 */
-.rf-chapter__tag {
-  grid-area: tag;
-  margin: 0;
-  justify-self: end;
-}
-
-.rf-chapter__tag-inner {
-  display: block;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  padding: 0.6em 0.22em;
-  background: var(--rf-yellow);
-  color: var(--rf-navy);
-  font-size: clamp(1.3rem, 2.4vw, 1.95rem);
-  font-weight: 900;
-  letter-spacing: 0.07em;
-  line-height: 1.1;
-  box-shadow: 0.1em 0.12em 0 rgba(4, 73, 126, 0.22);
-  transform: rotate(0.6deg);
-}
-
-.rf-chapter__copy {
-  grid-area: copy;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* 直書時 height 控制的是行長，字數少所以每句自成一欄。 */
-.rf-chapter__lines {
-  margin: 0;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  height: clamp(14rem, 34svh, 22rem);
-  color: var(--rf-ink);
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  line-height: 2.2;
-}
-
-.rf-chapter__media {
-  margin: 0;
-}
-
-.rf-chapter__media--lead {
-  grid-area: media;
-}
-
-.rf-chapter__media--aside {
-  grid-area: aside;
-  align-self: end;
-}
-
-/* ---------- 照片 ---------- */
-
-.rf-photo {
-  position: relative;
-  display: block;
-  width: 100%;
-  border: var(--rf-rule) solid var(--rf-blue);
-  background: var(--rf-paper-deep);
-}
-
-/* 第二道偏移的框線 = 印刷套印未對準，揭露時歸位。 */
-.rf-photo::after {
-  content: "";
-  position: absolute;
-  inset: -7px;
-  border: var(--rf-rule) solid var(--rf-blue-bright);
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.rf-photo__img {
-  display: block;
-  width: 100%;
-  height: auto;
-  filter: saturate(1.05) contrast(1.03);
-}
-
-.rf-photo__caption {
-  margin-top: 0.7em;
-  color: var(--rf-navy);
-  font-size: clamp(0.72rem, 0.92vw, 0.85rem);
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  line-height: 1.7;
-}
-
-/* ---------- 收尾 ---------- */
-
-.rf-closing {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
-  gap: var(--rf-gutter);
-  margin-top: var(--rf-stack);
-  padding-top: clamp(0.8rem, 2vw, 1.4rem);
-  border-top: 6px solid var(--rf-blue);
-}
-
-.rf-closing__slogan {
-  grid-column: 2;
-  margin: 0;
-  justify-self: end;
-  align-self: end;
-}
-
-.rf-closing__slogan-text {
-  display: block;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  /* 收尾標語只需讀得出氣勢；放到滿版高度會在左欄挖出一塊空洞。 */
-  max-height: clamp(19rem, 46svh, 30rem);
-  padding: 1rem 0.45rem;
-  background-color: var(--rf-blue);
-  background-image: var(--rf-halftone);
-  background-size: var(--rf-halftone-size);
-  border: var(--rf-rule) solid var(--rf-navy);
-  color: var(--rf-paper);
-  font-size: clamp(1.25rem, 3svh, 1.95rem);
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  line-height: 1.1;
-  -webkit-text-stroke: 0.07em var(--rf-navy);
-  paint-order: stroke fill;
-  text-shadow: 0.045em 0.05em 0 var(--rf-navy);
-}
-
-.rf-closing__aside {
-  grid-column: 1;
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: clamp(1.2rem, 2.6vw, 2rem);
-  height: 100%;
-  padding-bottom: clamp(1rem, 3vw, 2.5rem);
-}
-
-.rf-closing__body {
-  max-width: 26em;
-  margin: 0;
-  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-size: clamp(0.95rem, 1.3vw, 1.12rem);
   line-height: 2;
   letter-spacing: 0.03em;
   text-wrap: pretty;
@@ -576,13 +577,14 @@ body:has(.rf-page) {
 .rf-cta {
   display: inline-flex;
   align-items: center;
+  justify-self: start;
   gap: 0.5em;
   padding: 0.7em 1.3em;
   background: var(--rf-yellow);
-  border: var(--rf-rule) solid var(--rf-navy);
+  border: 2px solid var(--rf-navy);
   box-shadow: 0.22em 0.26em 0 var(--rf-navy);
   color: var(--rf-navy);
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
   font-weight: 900;
   letter-spacing: 0.12em;
   text-decoration: none;
@@ -595,17 +597,20 @@ body:has(.rf-page) {
   transform: translate(0.14em, 0.16em);
 }
 
-/* ---------- 頁尾（功能性文字一律橫書） ---------- */
+/* ---------- 頁尾 ---------- */
 
 .rf-footer {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem clamp(1rem, 3vw, 2rem);
-  margin-top: var(--rf-stack);
+  width: min(95vw, 46rem);
+  margin: clamp(2rem, 5vw, 3.5rem) auto 0;
   padding-top: clamp(0.8rem, 1.8vw, 1.2rem);
-  border-top: var(--rf-rule) solid var(--rf-blue);
+  border-top: 2px solid var(--rf-blue);
 }
 
 .rf-footer__brand {
@@ -635,7 +640,7 @@ body:has(.rf-page) {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-decoration: none;
-  border-bottom: var(--rf-rule) solid transparent;
+  border-bottom: 2px solid transparent;
 }
 
 .rf-footer__nav a:hover,
@@ -654,26 +659,12 @@ body:has(.rf-page) {
   clip-path: inset(0 100% 0 0);
 }
 
-[data-rf-reveal="out"] .rf-photo::after {
-  transform: translate(7px, 7px);
+[data-rf-reveal="out"] .rf-lines {
   opacity: 0;
+  transform: translateX(0.6cqw);
 }
 
-[data-rf-reveal="out"] .rf-chapter__lines,
-[data-rf-reveal="out"] .rf-closing__body,
-[data-rf-reveal="out"] .rf-cta {
-  opacity: 0;
-  transform: translateX(14px);
-}
-
-[data-rf-reveal="out"] .rf-chapter__tag-inner,
-[data-rf-reveal="out"] .rf-closing__slogan-text {
-  opacity: 0;
-  transform: rotate(-1.4deg) translateY(12px);
-}
-
-[data-rf-reveal="out"] .rf-photo__caption,
-[data-rf-reveal="out"] .rf-chapter__index {
+[data-rf-reveal="out"] .rf-tag__inner {
   opacity: 0;
 }
 
@@ -683,17 +674,7 @@ body:has(.rf-page) {
     transition: clip-path 0.66s var(--rf-ease);
   }
 
-  [data-rf-reveal="in"] .rf-photo::after {
-    transform: none;
-    opacity: 0.6;
-    transition:
-      transform 0.72s var(--rf-ease) 0.06s,
-      opacity 0.4s ease 0.06s;
-  }
-
-  [data-rf-reveal="in"] .rf-chapter__lines,
-  [data-rf-reveal="in"] .rf-closing__body,
-  [data-rf-reveal="in"] .rf-cta {
+  [data-rf-reveal="in"] .rf-lines {
     opacity: 1;
     transform: none;
     transition:
@@ -701,26 +682,9 @@ body:has(.rf-page) {
       transform 0.7s var(--rf-ease) 0.14s;
   }
 
-  [data-rf-reveal="in"] .rf-chapter__tag-inner {
+  [data-rf-reveal="in"] .rf-tag__inner {
     opacity: 1;
-    transform: rotate(0.6deg);
-    transition:
-      opacity 0.45s ease 0.2s,
-      transform 0.6s var(--rf-ease) 0.2s;
-  }
-
-  [data-rf-reveal="in"] .rf-closing__slogan-text {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 0.45s ease 0.1s,
-      transform 0.6s var(--rf-ease) 0.1s;
-  }
-
-  [data-rf-reveal="in"] .rf-photo__caption,
-  [data-rf-reveal="in"] .rf-chapter__index {
-    opacity: 1;
-    transition: opacity 0.5s ease 0.28s;
+    transition: opacity 0.45s ease 0.2s;
   }
 
   .rf-cta {
@@ -734,181 +698,191 @@ body:has(.rf-page) {
 /* 使用者要求減少動態時，直接給最終狀態，連 hydration 前也不藏內容。 */
 @media (prefers-reduced-motion: reduce) {
   [data-rf-reveal] .rf-photo__img,
-  [data-rf-reveal] .rf-photo::after,
-  [data-rf-reveal] .rf-chapter__lines,
-  [data-rf-reveal] .rf-closing__body,
-  [data-rf-reveal] .rf-cta,
-  [data-rf-reveal] .rf-chapter__tag-inner,
-  [data-rf-reveal] .rf-closing__slogan-text,
-  [data-rf-reveal] .rf-photo__caption,
-  [data-rf-reveal] .rf-chapter__index {
+  [data-rf-reveal] .rf-lines,
+  [data-rf-reveal] .rf-tag__inner {
     opacity: 1;
     clip-path: none;
     transform: none;
     transition: none;
   }
-
-  [data-rf-reveal] .rf-chapter__tag-inner {
-    transform: rotate(0.6deg);
-  }
 }
 
-/* ---------- 中型螢幕：鬆開網格，直書本文改為雙欄高度 ---------- */
+/* ---------- 窄螢幕：紙寬不夠，海報改成一條一條往下讀 ---------- */
 
-@media (max-width: 1024px) {
-  /* 小圖從第四欄移到主圖底下，直書本文保持在右側。 */
-  .rf-chapter--pair {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    grid-template-areas:
-      "index index tag"
-      "media copy  tag"
-      "aside copy  tag";
-  }
-
-  .rf-chapter__media--aside {
-    align-self: start;
-    max-width: 56%;
-  }
-
-  .rf-chapter__lines {
-    height: clamp(12rem, 42vh, 22rem);
-  }
-
-  .rf-opening {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  /* 雙欄的收尾在這個寬度會把左欄挖空，改成海報下緣的橫幅帶。 */
-  .rf-closing {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .rf-closing__slogan {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: stretch;
-  }
-
-  .rf-closing__slogan-text {
-    writing-mode: horizontal-tb;
-    max-height: none;
-    padding: 0.7rem 0.9rem;
-    font-size: clamp(1.6rem, 4.6vw, 2.5rem);
-    text-align: center;
-    text-wrap: balance;
-  }
-
-  .rf-closing__aside {
-    grid-row: 2;
-    padding-bottom: 0;
-  }
-}
-
-/* ---------- 手機：功能性內容全部回到橫書，只留大標的直書氣勢 ---------- */
-
-@media (max-width: 680px) {
+/*
+ * 1.6% 的本文在 820px 以下會掉到 13px 以下，再縮就讀不了了。
+ * 所以這裡換掉整組字級變數並把拼貼攤成單欄，直書也回到橫書。
+ */
+@media (max-width: 820px) {
   :root {
+    --rf-sheet-w: min(100vw - 1.6rem, 34rem);
+    --rf-frame-rule: 4px;
+  }
+
+  .rf-sheet__body {
+    --rf-copy: 1rem;
+    --rf-copy-leading: 2;
+    --rf-tag: 1.3rem;
+    --rf-tag-leading: 1.3;
+    --rf-ribbon: clamp(0.95rem, 4.2vw, 1.4rem);
+    --rf-spine: clamp(2.6rem, 13vw, 4.2rem);
+    --rf-claim: clamp(1rem, 4vw, 1.35rem);
+    --rf-rail: clamp(1.3rem, 5.4vw, 1.9rem);
+    --rf-pad: 0.7rem;
     --rf-rule: 2px;
+    --rf-inner-gap: 0.9rem;
   }
 
   .rf-frame {
-    inset: 6px;
-  }
-
-  .rf-frame::before {
-    inset: 4px;
-    border-width: 4px;
-  }
-
-  .rf-sheet {
-    padding: 1.4rem 1.1rem 2rem;
+    padding-top: 4px;
   }
 
   .rf-masthead {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.7rem;
+    gap: 4px;
+    height: auto;
+  }
+
+  .rf-ribbon {
+    padding: 0.5em 0.6em;
+    border-width: 2px;
+  }
+
+  .rf-ribbon__text {
+    white-space: normal;
+    text-align: center;
+    text-wrap: balance;
   }
 
   .rf-mark {
-    justify-self: start;
+    gap: 0.3em;
+    padding: 0.5em 0.8em;
+    border-width: 2px;
   }
 
-  .rf-opening {
+  .rf-mark__word {
+    font-size: clamp(1.3rem, 7vw, 2rem);
+  }
+
+  .rf-mark__brand {
+    font-size: clamp(0.78rem, 3.2vw, 1rem);
+  }
+
+  .rf-mark__category {
+    font-size: clamp(0.56rem, 2vw, 0.7rem);
+  }
+
+  /* 書脊先讀，再一條一條往下；標語條收到最後當結尾橫幅。 */
+  .rf-collage {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.4rem;
-  }
-
-  .rf-opening__band {
-    grid-row: 1;
-    justify-content: center;
-    justify-items: center;
-  }
-
-  .rf-opening__intro {
-    grid-row: 2;
-  }
-
-  .rf-spine {
-    font-size: clamp(2.9rem, 15vw, 4.6rem);
-  }
-
-  .rf-chapter,
-  .rf-chapter--pair {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
     grid-template-areas:
-      "index"
-      "tag"
-      "media"
-      "aside"
-      "copy";
-    row-gap: 0.9rem;
+      "spine"
+      "one"
+      "two"
+      "three"
+      "four"
+      "rail";
+    height: auto;
+    padding-top: 2px;
   }
 
-  .rf-chapter__tag {
-    justify-self: start;
+  .rf-band--one,
+  .rf-band--two,
+  .rf-band--three {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rf-panel--stack,
+  .rf-panel--row,
+  .rf-panel--copy,
+  .rf-panel--wide {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "tag"
+      "lead"
+      "lines"
+      "aside";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
   }
 
   /* 直書在窄螢幕上閱讀成本太高，標籤與本文一併回到橫書。 */
-  .rf-chapter__tag-inner,
-  .rf-chapter__lines {
+  .rf-tag,
+  .rf-lines {
     writing-mode: horizontal-tb;
+    width: auto;
+    justify-self: start;
   }
 
-  .rf-chapter__tag-inner {
-    padding: 0.28em 0.6em;
-    font-size: 1.3rem;
-    letter-spacing: 0.04em;
+  .rf-tag__inner {
+    padding: 0.16em 0.4em;
   }
 
-  .rf-chapter__copy {
-    justify-content: flex-start;
-  }
-
-  .rf-chapter__lines {
+  /* 格高不再由海報決定，照片改用固定比例。 */
+  .rf-photo {
     height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  .rf-cell--plate .rf-photo,
+  .rf-photo--aside {
+    aspect-ratio: 4 / 3;
+  }
+
+  .rf-spine-panel {
+    padding: var(--rf-pad);
+  }
+
+  .rf-spine-panel__inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 0.6rem;
+    border-width: 2px;
+    outline-width: 2px;
+    outline-offset: 4px;
+  }
+
+  .rf-spine {
+    writing-mode: horizontal-tb;
+    letter-spacing: 0.01em;
+    line-height: 1.02;
+    text-align: center;
+  }
+
+  .rf-claim {
+    align-self: center;
+  }
+
+  .rf-claim__text {
+    writing-mode: horizontal-tb;
     letter-spacing: 0.04em;
-    line-height: 2.05;
+    line-height: 1.35;
+    text-align: center;
+    text-wrap: balance;
   }
 
-  .rf-chapter__media--aside {
-    max-width: 68%;
+  /* 標語條回到版內，橫著當結尾橫幅。 */
+  .rf-rail {
+    width: auto;
+    height: auto;
+    margin: 0;
   }
 
-  [data-rf-reveal="out"] .rf-chapter__lines,
-  [data-rf-reveal="out"] .rf-closing__body,
-  [data-rf-reveal="out"] .rf-cta {
-    transform: translateY(12px);
+  .rf-rail__text {
+    height: auto;
+    padding: 0.7rem 0.9rem;
+    writing-mode: horizontal-tb;
+    border-width: 2px;
+    outline-width: 2px;
+    outline-offset: 4px;
+    text-align: center;
+    text-wrap: balance;
   }
 
-  .rf-closing {
-    border-top-width: 4px;
-  }
-
-  .rf-closing__slogan-text {
-    font-size: clamp(1.5rem, 7.5vw, 2.4rem);
-  }
-
-  .rf-footer {
-    justify-content: flex-start;
+  [data-rf-reveal="out"] .rf-lines {
+    transform: translateY(10px);
   }
 }

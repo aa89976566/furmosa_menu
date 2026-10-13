@@ -43,15 +43,14 @@ export const RAIL_SLOGAN = "毛孩的一口，是台灣的驕傲！";
 export type ChapterPhoto = {
   image: StaticImageData;
   alt: string;
-  /** 圖說沿用海報的細字腳註，只在桌機顯示。 */
-  caption?: string;
 };
 
 export type Chapter = {
   id: string;
   /** 延續首頁的編號索引語彙。 */
   index: string;
-  tag: string;
+  /** 黃色標籤在海報上是直書，長標題分成兩欄，所以一欄一個字串。 */
+  tag: string[];
   lines: string[];
   photos: ChapterPhoto[];
   /** full 為滿版單圖，pair 為主圖加一張小圖。 */
@@ -62,7 +61,7 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "ingredient",
     index: "01",
-    tag: "台灣雞肉原食材",
+    tag: ["台灣雞肉原食材"],
     lines: [
       "選用台灣在地新鮮雞肉，",
       "以最單純的食材，",
@@ -74,7 +73,6 @@ export const CHAPTERS: Chapter[] = [
       {
         image: dryingRacks,
         alt: "不鏽鋼乾燥架上一層層舖平的雞肉片",
-        caption: "低溫乾燥架，一層一層把水分帶走",
       },
     ],
     media: "full",
@@ -82,7 +80,7 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "craft",
     index: "02",
-    tag: "職人手作堅持",
+    tag: ["職人手作堅持"],
     lines: [
       "每一片雞肉都由匠寵團隊",
       "用手工細心修整、低溫乾燥，",
@@ -94,7 +92,6 @@ export const CHAPTERS: Chapter[] = [
       {
         image: handTrim,
         alt: "戴手套的雙手以剪刀修整生雞肉片",
-        caption: "一片一片修整，沒有機器可以代班",
       },
     ],
     media: "full",
@@ -102,7 +99,7 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "joy",
     index: "03",
-    tag: "一口真肉的快樂",
+    tag: ["一口真肉的快樂"],
     lines: [
       "看見毛孩開心的眼神，",
       "就是我們堅持的理由。",
@@ -114,7 +111,6 @@ export const CHAPTERS: Chapter[] = [
       {
         image: goldenBite,
         alt: "黃金獵犬張嘴接住遞過來的雞肉乾",
-        caption: "決定性的瞬間，不需要任何形容詞",
       },
       {
         image: bowl,
@@ -126,7 +122,7 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "made-in-taiwan",
     index: "04",
-    tag: "台灣製造安心之選",
+    tag: ["台灣製造安心之選"],
     lines: [
       "從原料挑選、處理、烘乾到包裝，",
       "全程於台灣在地完成。",
@@ -138,7 +134,6 @@ export const CHAPTERS: Chapter[] = [
       {
         image: lineWork,
         alt: "身著無塵衣的人員在產線上整理烘乾後的雞肉片",
-        caption: "全程在台灣完成，包含每一次翻面",
       },
     ],
     media: "full",
@@ -146,7 +141,7 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "companion",
     index: "05",
-    tag: "用真食材，陪伴更久更好的生活",
+    tag: ["用真食材", "陪伴更久更好的生活"],
     lines: [
       "我們相信，",
       "好的食物能陪伴毛孩的健康與活力。",
@@ -160,7 +155,6 @@ export const CHAPTERS: Chapter[] = [
       {
         image: canning,
         alt: "戴手套的手將雞肉乾放入印有匠寵字樣的不鏽鋼罐",
-        caption: "裝罐，是這段路的最後一道手工",
       },
       {
         image: jackRussell,
@@ -172,6 +166,7 @@ export const CHAPTERS: Chapter[] = [
 ];
 
 export const CLOSING = {
+  title: "翻過標籤",
   slogan: RAIL_SLOGAN,
   body: "翻過標籤，你會看見一樣的答案：台灣雞肉、手工修整、低溫乾燥。沒有風味、沒有佐料、沒有不必要的成分。",
   cta: "看全部商品",
