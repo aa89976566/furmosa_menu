@@ -175,7 +175,6 @@ export default function RealFoodPage() {
                   <nav className="rf-footer__nav" aria-label="其他頁面">
                     <Link href="/">凍乾目錄</Link>
                     <Link href="/paper">市場報</Link>
-                    <Link href="/mooncake">中秋公益</Link>
                     <a
                       href={CHARITY_URL}
                       target="_blank"
