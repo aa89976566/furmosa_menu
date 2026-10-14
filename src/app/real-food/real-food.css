@@ -268,8 +268,13 @@ body:has(.rf-page) {
  */
 .rf-collage--news {
   --rf-rule: 0.46cqw;
+  /*
+   * 本文放到海報原稿的兩倍：直書一行的字數＝帶高÷字級，
+   * 所以字級一變，每一帶的每行字數、行數與照片寬度全部跟著重算。
+   */
+  --rf-copy: 2.84cqw;
   /* 四條帶的標籤一律同級，只有頭條例外（見下），版面才有層級。 */
-  --rf-tag: 2.8cqw;
+  --rf-tag: 3.8cqw;
   --rf-copy-leading: 1.62;
 }
 
@@ -280,7 +285,7 @@ body:has(.rf-page) {
 
 /* 格位自己宣告的字級要一起收齊，否則同一頁會出現三種標籤大小。 */
 .rf-collage--news .rf-panel--wide {
-  --rf-tag: 2.8cqw;
+  --rf-tag: 3.8cqw;
   --rf-copy-leading: 1.62;
 
   /*
@@ -294,7 +299,7 @@ body:has(.rf-page) {
 
 /* 頭條：最大的照片、最大的標籤，下緣再補一道比別處更粗的分界線。 */
 .rf-collage--news .rf-band--one {
-  --rf-tag: 4cqw;
+  --rf-tag: 5cqw;
   margin-bottom: 0.26cqw;
 }
 
@@ -1016,6 +1021,9 @@ body:has(.rf-page) {
   .rf-collage--news {
     /* 主題之間的分界線在手機上也要看得出來。 */
     --rf-rule: 3px;
+    /* 直書換成橫書後，字級由這一段的變數決定，cqw 在這個寬度會算出 10px。 */
+    --rf-copy: 1.02rem;
+    --rf-tag: 1.3rem;
   }
 
   .rf-collage--news .rf-panel--wide {
@@ -1032,6 +1040,14 @@ body:has(.rf-page) {
   .rf-collage--news .rf-band--one {
     --rf-tag: 1.5rem;
     margin-bottom: 0;
+  }
+
+  /*
+   * 本文的斷行是為了直書的欄長手排的，換成橫書就只是一段參差的窄字。
+   * 中文接排不需要空格，所以這裡直接把斷行收起來，讓它照欄寬自然重排。
+   */
+  .rf-collage--news .rf-lines br {
+    display: none;
   }
 
   /* 背面同樣攤成單欄，規格的標籤改排在內容上方。 */

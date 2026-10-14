@@ -4,8 +4,9 @@ import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
 import charityMooncake from "@/assets/poster/charity-mooncake.jpg";
 import cutletBag from "@/assets/poster/cutlet-bag.jpg";
 import dogMidBite from "@/assets/poster/dog-mid-bite.jpg";
-import dogWithCutlet from "@/assets/poster/dog-with-cutlet.jpg";
-import strayDog from "@/assets/poster/stray-dog-siaohuei.jpg";
+import menuSign from "@/assets/poster/menu-sign.jpg";
+/* 直幅版的小輝；橫幅的那一張還留著給 /mooncake 用。 */
+import strayDog from "@/assets/poster/stray-dog-siaohuei-tall.jpg";
 
 /**
  * 文案與照片取自 furmosa.com 首頁，排版沿用海報稿的格位，
@@ -63,12 +64,16 @@ export type Chapter = {
 
 /*
  * 一條帶就是一個主題，帶與帶之間由藍色格線分開；每一帶的編排都一樣，
- * 由左而右是「照片｜直書本文｜黃色標籤（｜小照片）」。
+ * 由左而右是「照片｜小照片｜直書本文｜黃色標籤」。
  *
- * 直書的一行就是一欄，欄長由帶高決定，所以每一帶的每行字數都有上限，
- * 而且同一帶的各行要一樣長（最後一行可以短），本文才會是一塊方正的字塊：
- * 頭條帶每行最多二十八字、第二與第三帶十七字、公益帶十五字。
- * 標籤單欄最多八字，兩欄的標籤各最多八字。
+ * 直書的一行就是一欄，一行的字數＝帶高÷字級，行數×行距＝字塊的寬度，
+ * 而照片吃掉的是剩下的寬度——所以分行同時決定了字塊填不填滿帶高、
+ * 以及照片是什麼長寬比。本文字級是海報原稿的兩倍，換算出來的上限是：
+ * 頭條帶每行十五字、第二與第三帶十字、公益帶九字。
+ *
+ * 同一帶的各行要一樣長（只有最後一行可以短），字塊才是方正的一塊；
+ * 字數不夠就會在帶裡留下空白紙，所以是照字數斷行，不是照語氣斷行。
+ * 行首不留標點。標籤單欄最多八字，兩欄的標籤各最多八字。
  */
 export const CHAPTERS: Chapter[] = [
   {
@@ -77,14 +82,17 @@ export const CHAPTERS: Chapter[] = [
     /** 頭條：主標是商品名，副標接首頁的台灣味。 */
     tag: ["嚎大大・雞霸", "台灣味毛孩也有份"],
     lines: [
-      "嚎大大・雞霸，純雞肉做的大片雞排，原味雞肉、淨重五十克。",
-      "不添加香料、色素，也沒有防腐劑。雞肉製泥、鋪平塑形，",
-      "把雞排變成毛孩零食。不是只有我們能逛夜市，台灣味牠也有份。",
+      "嚎大大・雞霸，純雞肉做的大片雞",
+      "排，原味雞肉、淨重五十克。不添",
+      "加香料、色素，也沒有防腐劑。雞",
+      "肉製泥、鋪平塑形，把雞排變成毛",
+      "孩零食。不是只有我們能逛夜市，",
+      "台灣味牠也有份。",
     ],
     photos: [
       {
-        image: dogWithCutlet,
-        alt: "黑狗趴在地上，身邊放著插著雞排的匠寵紙袋",
+        image: cutletBag,
+        alt: "大片雞排零食裝在印著 Thank you very much 的紙袋裡",
       },
     ],
     media: "full",
@@ -92,11 +100,13 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "daily-treat",
     index: "02",
-    tag: ["不計形象大口咬下"],
+    tag: ["不計形象", "大口咬下"],
     lines: [
-      "可以剪成小段，依體型調整份量，當作",
-      "日常的獎勵，慢慢分食。零食記得搭配",
-      "主食與充足的飲水。",
+      "可以剪成小段，依體型",
+      "調整份量，當作日常的",
+      "獎勵，慢慢分食。零食",
+      "記得搭配主食與充足的",
+      "飲水。",
     ],
     photos: [
       {
@@ -104,8 +114,8 @@ export const CHAPTERS: Chapter[] = [
         alt: "長毛黑狗張大嘴等著吃零食",
       },
       {
-        image: cutletBag,
-        alt: "大片雞排零食裝在印著 Thank you very much 的紙袋裡",
+        image: menuSign,
+        alt: "匠寵 FURMOSA 的今日菜單燈箱招牌",
       },
     ],
     media: "pair",
@@ -114,13 +124,17 @@ export const CHAPTERS: Chapter[] = [
     id: "this-issue",
     index: "03",
     tag: ["本期好物上架中"],
-    /** 這一帶是清單，所以一行一品，不照字數分行。 */
+    /**
+     * 這一帶是清單，一行一品，所以不下逗號——行就是分隔。
+     * 這一帶的帶高只容得下九字，排不完的那一品才接到下一行。
+     */
     lines: [
-      "大力士・牛肉丁凍乾，",
-      "頂真做・雞肉丁凍乾，",
-      "卵啵啵・柳葉魚凍乾，",
-      "走敢若飛・鴨翅，",
-      "草上飛・貓草雞肉乾薄片。",
+      "大力士・牛肉丁凍乾",
+      "頂真做・雞肉丁凍乾",
+      "卵啵啵・柳葉魚凍乾",
+      "走敢若飛・鴨翅",
+      "草上飛・貓草雞肉乾",
+      "薄片。",
     ],
     photos: [
       {
@@ -135,12 +149,16 @@ export const CHAPTERS: Chapter[] = [
     index: "04",
     tag: ["月餅有成交", "狗狗沒有價格"],
     lines: [
-      "匠寵與巴克幫－浪犬之家合作，",
-      "讓七隻狗狗在中秋被更多人看見。",
-      "我們把牠們的故事放進月餅裡，",
-      "每售出一顆月餅，由匠寵提撥十元",
-      "支持浪犬之家。多一個人看到，",
-      "就多一個回家的可能。",
+      "匠寵與巴克幫－浪犬",
+      "之家合作，讓七隻狗",
+      "狗在中秋被更多人看",
+      "見。我們把牠們的故",
+      "事放進月餅裡，每售",
+      "出一顆月餅，由匠寵",
+      "提撥十元支持浪犬之",
+      "家。多一個人看到，",
+      "就多一個回家的可",
+      "能。",
     ],
     photos: [
       {
