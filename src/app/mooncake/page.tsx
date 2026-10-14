@@ -121,50 +121,79 @@ export default function MooncakePage() {
         </div>
       </div>
 
-      {/* 直書排不了阿拉伯數字，所以金額、編號與日期都交代在紙的背面。 */}
-      <section className="rf-backside" aria-labelledby="rf-backside-title">
-        <h2 className="rf-backside__title" id="rf-backside-title">
-          {CLOSING.title}
-        </h2>
+      {/*
+        直書排不了阿拉伯數字，所以金額、編號與日期都交代在紙的背面：
+        同寬、同框、同一組藍色格線，只有直書換成橫書。
+      */}
+      <section
+        className="rf-sheet rf-sheet--back"
+        aria-labelledby="rf-backside-title"
+      >
+        <div className="rf-frame">
+          <div className="rf-sheet__body">
+            <header className="rf-masthead">
+              <h2 className="rf-ribbon" id="rf-backside-title">
+                <span className="rf-ribbon__text">{CLOSING.title}</span>
+              </h2>
+              <p className="rf-stamp">
+                <span className="rf-stamp__mark">背面</span>
+                <span className="rf-stamp__note">{MASTHEAD.category}</span>
+              </p>
+            </header>
 
-        <p className="rf-backside__lede">{OPENING.lede}</p>
+            <div className="rf-backside">
+              <div className="rf-cell rf-backside__lede">
+                <p className="rf-backside__lede-text">{OPENING.lede}</p>
+              </div>
 
-        <dl className="rf-specs">
-          {OPENING.specs.map((spec) => (
-            <div className="rf-specs__row" key={spec.label}>
-              <dt className="rf-specs__label">{spec.label}</dt>
-              <dd className="rf-specs__value">{spec.value}</dd>
+              <dl className="rf-specs">
+                {OPENING.specs.map((spec) => (
+                  <div className="rf-specs__row" key={spec.label}>
+                    <dt className="rf-specs__label">{spec.label}</dt>
+                    <dd className="rf-specs__value">{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="rf-cell rf-backside__act">
+                <p className="rf-backside__body">{CLOSING.body}</p>
+
+                <a
+                  className="rf-cta"
+                  href={CHARITY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {CLOSING.cta}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+
+              {/* 報尾沿用書脊那個裝置：紙格裡壓一條藍底墨條。 */}
+              <footer className="rf-footer">
+                <div className="rf-footer__inner">
+                  <p className="rf-footer__brand">
+                    <Wordmark className="rf-footer__word" />
+                    <span>{MASTHEAD.category}</span>
+                  </p>
+                  <nav className="rf-footer__nav" aria-label="其他頁面">
+                    <Link href="/">凍乾目錄</Link>
+                    <Link href="/real-food">毛孩的真食堂</Link>
+                    <Link href="/paper">市場報</Link>
+                    <a
+                      href={PACK_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      巴克幫 ↗
+                    </a>
+                  </nav>
+                </div>
+              </footer>
             </div>
-          ))}
-        </dl>
-
-        <p className="rf-backside__body">{CLOSING.body}</p>
-
-        <a
-          className="rf-cta"
-          href={CHARITY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {CLOSING.cta}
-          <span aria-hidden="true">↗</span>
-        </a>
+          </div>
+        </div>
       </section>
-
-      <footer className="rf-footer">
-        <p className="rf-footer__brand">
-          <Wordmark className="rf-footer__word" />
-          <span>{MASTHEAD.category}</span>
-        </p>
-        <nav className="rf-footer__nav" aria-label="其他頁面">
-          <Link href="/">凍乾目錄</Link>
-          <Link href="/real-food">毛孩的真食堂</Link>
-          <Link href="/paper">市場報</Link>
-          <a href={PACK_URL} target="_blank" rel="noopener noreferrer">
-            巴克幫 ↗
-          </a>
-        </nav>
-      </footer>
 
       <RegisterOnScroll />
     </div>

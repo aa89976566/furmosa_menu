@@ -510,51 +510,101 @@ body:has(.rf-page) {
   text-shadow: 0.05em 0.05em 0 var(--rf-navy);
 }
 
-/* ---------- 紙的背面：海報沒有的事實交代與導覽 ---------- */
+/* ---------- 紙的背面：同一張紙往下續印 ---------- */
 
-.rf-backside {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: clamp(1.1rem, 2.4vw, 1.9rem);
-  width: min(95vw, 46rem);
-  margin: clamp(2.4rem, 6vw, 5rem) auto 0;
-  padding-top: clamp(1rem, 2.4vw, 1.6rem);
-  border-top: 4px solid var(--rf-blue);
+/*
+ * 背面不另開版型：一樣的紙寬、一樣的外框、一樣由藍底透出來的格線，
+ * 只有直書換成橫書——規格、金額與導覽要讀得完，不能硬排成直書。
+ */
+.rf-sheet--back {
+  /* 兩塊之間只留一道摺線的距離，看起來是同一份印刷品繼續往下。 */
+  margin-top: calc(var(--rf-frame-rule) * 1.6);
 }
 
-.rf-backside__title {
+/* 背面的報頭右邊不再掛字標（正面已經有了），改成一枚版次印。 */
+.rf-stamp {
+  display: grid;
+  gap: 0.25em;
+  align-content: center;
+  justify-items: center;
   margin: 0;
-  color: var(--rf-blue);
+  border: 0.26cqw solid var(--rf-blue);
+  text-align: center;
+}
+
+.rf-stamp__mark {
+  padding: 0.1em 0.5em;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
   font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
-  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  font-size: 2.1cqw;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+}
+
+.rf-stamp__note {
+  color: var(--rf-blue);
+  font-size: 1.1cqw;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/*
+ * 和 .rf-collage 同一個做法：藍底、格與格之間留 gap，格線就是藍底透出來的。
+ * 右欄寬度直接沿用正面書脊那一欄（25.1cqw），縱向節奏才接得上。
+ */
+.rf-backside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 25.1cqw;
+  grid-template-areas:
+    "lede  act"
+    "specs act"
+    "foot  foot";
+  align-content: start;
+  gap: var(--rf-rule);
+  margin-top: 0.31cqw;
+  /* 上內距就是報頭下那條較粗的藍線，和正面一致。 */
+  padding-top: 0.42cqw;
+  background: var(--rf-blue);
+}
+
+/* 橫書要讀得下去，格內留白比正面的直書格寬。 */
+.rf-backside .rf-cell {
+  padding: clamp(0.7rem, 1.6cqw, 1.3rem);
 }
 
 .rf-backside__lede {
-  max-width: 32em;
+  grid-area: lede;
+  display: grid;
+  align-content: center;
+}
+
+.rf-backside__lede-text {
   margin: 0;
-  font-size: clamp(1rem, 1.5vw, 1.22rem);
-  line-height: 2;
+  max-width: 26em;
+  color: var(--rf-ink);
+  font-size: clamp(1rem, 1.9cqw, 1.26rem);
+  line-height: 1.95;
   letter-spacing: 0.03em;
   text-wrap: pretty;
 }
 
-/* 規格欄：功能性資訊一律橫書，讀起來像食品標籤。 */
+/* 規格欄：一列一格紙，黃色標籤沿用正面的標籤色塊。 */
 .rf-specs {
+  grid-area: specs;
   display: grid;
+  gap: var(--rf-rule);
   margin: 0;
-  border-top: 2px solid var(--rf-blue);
 }
 
 .rf-specs__row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: clamp(0.8rem, 2vw, 1.6rem);
-  padding: clamp(0.5rem, 1.2vw, 0.85rem) 0;
-  border-bottom: 2px solid var(--rf-blue);
+  gap: clamp(0.6rem, 1.4cqw, 1.2rem);
+  padding: clamp(0.55rem, 1.1cqw, 0.95rem) clamp(0.7rem, 1.6cqw, 1.3rem);
+  background: var(--rf-paper);
 }
 
 .rf-specs__label {
@@ -562,26 +612,36 @@ body:has(.rf-page) {
   padding: 0.1em 0.45em;
   background: var(--rf-yellow);
   color: var(--rf-navy);
-  font-size: clamp(0.78rem, 1vw, 0.92rem);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.72rem, 1.25cqw, 0.9rem);
   font-weight: 900;
   letter-spacing: 0.22em;
+  text-indent: 0.22em;
   white-space: nowrap;
 }
 
 .rf-specs__value {
   margin: 0;
   color: var(--rf-ink);
-  font-size: clamp(0.92rem, 1.25vw, 1.12rem);
-  line-height: 1.7;
+  font-size: clamp(0.88rem, 1.5cqw, 1.08rem);
+  line-height: 1.75;
   letter-spacing: 0.04em;
   text-wrap: pretty;
 }
 
+/* 右欄是收尾格：交代責任歸屬，再給一個出口。 */
+.rf-backside__act {
+  grid-area: act;
+  display: grid;
+  align-content: space-between;
+  gap: clamp(0.9rem, 1.8cqw, 1.5rem);
+}
+
 .rf-backside__body {
-  max-width: 30em;
   margin: 0;
-  font-size: clamp(0.95rem, 1.3vw, 1.12rem);
-  line-height: 2;
+  color: var(--rf-ink);
+  font-size: clamp(0.84rem, 1.3cqw, 1rem);
+  line-height: 1.9;
   letter-spacing: 0.03em;
   text-wrap: pretty;
 }
@@ -591,14 +651,15 @@ body:has(.rf-page) {
   align-items: center;
   justify-self: start;
   gap: 0.5em;
-  padding: 0.7em 1.3em;
+  padding: 0.6em 0.95em;
   background: var(--rf-yellow);
-  border: 2px solid var(--rf-navy);
+  border: 0.17cqw solid var(--rf-navy);
   box-shadow: 0.22em 0.26em 0 var(--rf-navy);
   color: var(--rf-navy);
-  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.9rem, 1.45cqw, 1.1rem);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-decoration: none;
 }
 
@@ -609,20 +670,25 @@ body:has(.rf-page) {
   transform: translate(0.14em, 0.16em);
 }
 
-/* ---------- 頁尾 ---------- */
+/* ---------- 報尾：和書脊同一個裝置，藍底墨條收掉整張紙 ---------- */
 
 .rf-footer {
-  position: relative;
-  z-index: 2;
+  grid-area: foot;
+  background: var(--rf-paper);
+  padding: var(--rf-pad);
+}
+
+.rf-footer__inner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem clamp(1rem, 3vw, 2rem);
-  width: min(95vw, 46rem);
-  margin: clamp(2rem, 5vw, 3.5rem) auto 0;
-  padding-top: clamp(0.8rem, 1.8vw, 1.2rem);
-  border-top: 2px solid var(--rf-blue);
+  gap: 0.7rem clamp(1rem, 3cqw, 2rem);
+  padding: clamp(0.5rem, 1cqw, 0.9rem) clamp(0.6rem, 1.2cqw, 1.1rem);
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.21cqw solid var(--rf-navy);
 }
 
 .rf-footer__brand {
@@ -630,25 +696,28 @@ body:has(.rf-page) {
   align-items: baseline;
   gap: 0.7em;
   margin: 0;
-  color: var(--rf-blue);
-  font-size: clamp(0.72rem, 0.95vw, 0.82rem);
+  /* 字標的 O 是挖空的爪印，墨底上要換成底色才看得出來。 */
+  --rf-wordmark-knockout: var(--rf-blue);
+  color: var(--rf-paper);
+  font-size: clamp(0.68rem, 1.05cqw, 0.82rem);
   font-weight: 700;
   letter-spacing: 0.12em;
 }
 
 .rf-footer__word {
-  font-size: clamp(1rem, 1.6vw, 1.3rem);
+  font-size: clamp(0.95rem, 1.75cqw, 1.3rem);
 }
 
 .rf-footer__nav {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(1rem, 2.4vw, 1.8rem);
+  gap: clamp(0.8rem, 2.2cqw, 1.7rem);
 }
 
 .rf-footer__nav a {
-  color: var(--rf-navy);
-  font-size: clamp(0.82rem, 1.05vw, 0.95rem);
+  color: var(--rf-paper);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.78rem, 1.2cqw, 0.95rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-decoration: none;
@@ -657,7 +726,8 @@ body:has(.rf-page) {
 
 .rf-footer__nav a:hover,
 .rf-footer__nav a:focus-visible {
-  border-bottom-color: var(--rf-navy);
+  border-bottom-color: var(--rf-yellow);
+  color: var(--rf-yellow);
 }
 
 .rf-page :focus-visible {
@@ -898,6 +968,47 @@ body:has(.rf-page) {
     outline-offset: 4px;
     text-align: center;
     text-wrap: balance;
+  }
+
+  /* 背面同樣攤成單欄，規格的標籤改排在內容上方。 */
+  .rf-stamp {
+    padding: 0.5em 0.8em;
+    border-width: 2px;
+  }
+
+  .rf-stamp__mark {
+    font-size: clamp(0.95rem, 4vw, 1.3rem);
+  }
+
+  .rf-stamp__note {
+    font-size: clamp(0.62rem, 2.4vw, 0.8rem);
+  }
+
+  .rf-backside {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "lede"
+      "specs"
+      "act"
+      "foot";
+    padding-top: 2px;
+  }
+
+  .rf-specs__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    justify-items: start;
+  }
+
+  .rf-cta {
+    border-width: 2px;
+  }
+
+  .rf-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    border-width: 2px;
   }
 
   [data-rf-reveal="out"] .rf-lines {
