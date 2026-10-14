@@ -2,7 +2,8 @@ import type { StaticImageData } from "next/image";
 
 import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
 import charityMooncake from "@/assets/poster/charity-mooncake.jpg";
-import cutletBag from "@/assets/poster/cutlet-bag.jpg";
+/* 頭條是去背的，透明處會透出紙色，所以存成帶 alpha 的 webp。 */
+import dogCutletCutout from "@/assets/poster/dog-cutlet-cutout.webp";
 import dogMidBite from "@/assets/poster/dog-mid-bite.jpg";
 import menuSign from "@/assets/poster/menu-sign.jpg";
 /* 直幅版的小輝；橫幅的那一張還留著給 /mooncake 用。 */
@@ -48,6 +49,11 @@ export const RAIL_SLOGAN = "先看誰要吃，再挑今天的菜！";
 export type ChapterPhoto = {
   image: StaticImageData;
   alt: string;
+  /**
+   * 去背的照片：透明處要透出格子的紙色，而不是照片格的底色，
+   * 而且窄螢幕不能把它鎖成橫幅，不然剪影會被裁掉。
+   */
+  cutout?: boolean;
 };
 
 export type Chapter = {
@@ -91,8 +97,9 @@ export const CHAPTERS: Chapter[] = [
     ],
     photos: [
       {
-        image: cutletBag,
-        alt: "大片雞排零食裝在印著 Thank you very much 的紙袋裡",
+        image: dogCutletCutout,
+        alt: "黑狗臥著，前腳攬著一只插著大片雞排的匠寵紙袋",
+        cutout: true,
       },
     ],
     media: "full",

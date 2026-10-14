@@ -431,12 +431,22 @@ body:has(.rf-page) {
   background: var(--rf-paper-deep);
 }
 
+/* 去背的照片直接壓在紙上：透明處要是格子的紙色，照片格自己不留底。 */
+.rf-photo--cutout {
+  background: transparent;
+}
+
 .rf-photo__img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   filter: saturate(1.05) contrast(1.03);
+}
+
+/* 去背的剪影不能被裁，所以照原比例擺進格子，四周留的是紙。 */
+.rf-photo--cutout .rf-photo__img {
+  object-fit: contain;
 }
 
 /* ---------- 書脊：匠寵FURMOSA 與黃色標語 ---------- */
@@ -959,6 +969,11 @@ body:has(.rf-page) {
   .rf-cell--plate .rf-photo,
   .rf-photo--aside {
     aspect-ratio: 4 / 3;
+  }
+
+  /* 去背的照片在窄螢幕也照原比例，橫幅的格子會把剪影切掉。 */
+  .rf-photo--cutout {
+    aspect-ratio: 109 / 154;
   }
 
   .rf-spine-panel {

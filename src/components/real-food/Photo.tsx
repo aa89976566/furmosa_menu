@@ -20,14 +20,19 @@ export default function Photo({
   className,
   priority = false,
 }: PhotoProps) {
+  const classes = ["rf-photo"];
+  if (photo.cutout) classes.push("rf-photo--cutout");
+  if (className) classes.push(className);
+
   return (
-    <figure className={className ? `rf-photo ${className}` : "rf-photo"}>
+    <figure className={classes.join(" ")}>
       <Image
         className="rf-photo__img"
         src={photo.image}
         alt={photo.alt}
         sizes={sizes}
-        placeholder="blur"
+        /* 去背的照片沒有底，模糊佔位會先鋪出一塊方形的色塊，所以不給。 */
+        placeholder={photo.cutout ? "empty" : "blur"}
         priority={priority}
       />
     </figure>

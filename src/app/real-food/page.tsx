@@ -17,10 +17,11 @@ import {
 const NOSCRIPT_FALLBACK = `<style>[data-rf-reveal]{opacity:1;transform:none;clip-path:none}</style>`;
 
 /* 各格位佔整張紙的寬度比例，取自實測的格寬。 */
+/* 照片改直幅之後格位變窄了，寬度提示跟著收，免得抓到過大的檔。 */
 const SIZES = {
-  lead: "(max-width: 860px) 92vw, 34vw",
-  band: "(max-width: 860px) 92vw, 26vw",
-  aside: "(max-width: 860px) 92vw, 25vw",
+  lead: "(max-width: 860px) 92vw, 23vw",
+  band: "(max-width: 860px) 92vw, 24vw",
+  aside: "(max-width: 860px) 92vw, 14vw",
 } as const;
 
 const [LEAD, DAILY_TREAT, THIS_ISSUE, CHARITY] = CHAPTERS;
