@@ -259,6 +259,45 @@ body:has(.rf-page) {
   grid-area: four;
 }
 
+/*
+ * 報紙式編排：一條帶就是一個主題。
+ *
+ * 拼貼版的帶裡可以塞兩三格（主題會跨欄，孤照也沒有主題），讀起來不整齊；
+ * 這個修飾子把每一條帶收成單格，四條帶＝四個主題，
+ * 並把格線加寬到看得出來——顏色仍是同一支藍，只是不再是一條髮線。
+ */
+.rf-collage--news {
+  --rf-rule: 0.46cqw;
+  /* 四條帶的標籤一律同級，只有頭條例外（見下），版面才有層級。 */
+  --rf-tag: 2.8cqw;
+  --rf-copy-leading: 1.62;
+}
+
+/* 只收 .rf-band 這層外框；第四帶本身就是一格，不在此列。 */
+.rf-collage--news .rf-band {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* 格位自己宣告的字級要一起收齊，否則同一頁會出現三種標籤大小。 */
+.rf-collage--news .rf-panel--wide {
+  --rf-tag: 2.8cqw;
+  --rf-copy-leading: 1.62;
+
+  /*
+   * 兩張照片併在左邊，標籤一律落在整條帶的最右側。
+   * 拼貼版把小照片排在標籤之後，標籤會被擠到帶的中間，
+   * 四條帶的標籤因此各在一個位置——這是最明顯的不整齊。
+   */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.96fr) auto auto;
+  grid-template-areas: "lead aside lines tag";
+}
+
+/* 頭條：最大的照片、最大的標籤，下緣再補一道比別處更粗的分界線。 */
+.rf-collage--news .rf-band--one {
+  --rf-tag: 4cqw;
+  margin-bottom: 0.26cqw;
+}
+
 /* 每一格都自己鋪紙並留內距，格線才會只來自 gap。 */
 .rf-cell,
 .rf-panel {
@@ -968,6 +1007,31 @@ body:has(.rf-page) {
     outline-offset: 4px;
     text-align: center;
     text-wrap: balance;
+  }
+
+  /*
+   * 報紙式編排的桌機覆蓋是「.rf-collage--news .rf-panel--wide」，
+   * 權重比這一段的單欄規則高，所以這裡要原樣再寫一次，否則窄螢幕不會攤平。
+   */
+  .rf-collage--news {
+    /* 主題之間的分界線在手機上也要看得出來。 */
+    --rf-rule: 3px;
+  }
+
+  .rf-collage--news .rf-panel--wide {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "lead"
+      "lines"
+      "aside";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  .rf-collage--news .rf-band--one {
+    --rf-tag: 1.5rem;
+    margin-bottom: 0;
   }
 
   /* 背面同樣攤成單欄，規格的標籤改排在內容上方。 */
