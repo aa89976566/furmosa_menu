@@ -6,6 +6,7 @@ import RegisterOnScroll from "@/components/real-food/RegisterOnScroll";
 import Wordmark from "@/components/real-food/Wordmark";
 import {
   CHAPTERS,
+  CHARITY_URL,
   CLOSING,
   MASTHEAD,
   OPENING,
@@ -26,7 +27,7 @@ const SIZES = {
   aside: "(max-width: 860px) 92vw, 23vw",
 } as const;
 
-const [NIGHT_MARKET, SIGNATURE, DAILY_TREAT, THIS_ISSUE, CURATED] = CHAPTERS;
+const [NIGHT_MARKET, SIGNATURE, DAILY_TREAT, THIS_ISSUE, CHARITY] = CHAPTERS;
 
 export default function RealFoodPage() {
   /* 第二帶右格在海報上自成一格，是一張直幅單圖，不屬於任何一段文案。 */
@@ -89,7 +90,7 @@ export default function RealFoodPage() {
               </div>
 
               <Panel
-                chapter={CURATED}
+                chapter={CHARITY}
                 variant="wide"
                 className="rf-band--four"
                 sizes={SIZES.band4}
@@ -154,6 +155,9 @@ export default function RealFoodPage() {
         <nav className="rf-footer__nav" aria-label="其他頁面">
           <Link href="/">凍乾目錄</Link>
           <Link href="/paper">市場報</Link>
+          <a href={CHARITY_URL} target="_blank" rel="noopener noreferrer">
+            浪浪尋家 ↗
+          </a>
           <a href={SHOP_URL} target="_blank" rel="noopener noreferrer">
             商店 ↗
           </a>

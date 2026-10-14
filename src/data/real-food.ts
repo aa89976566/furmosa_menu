@@ -1,12 +1,12 @@
 import type { StaticImageData } from "next/image";
 
 import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
-import catGrass from "@/assets/poster/cat-grass-jerky.jpg";
-import chickenCubes from "@/assets/poster/chicken-cubes-tower.jpg";
+import charityMooncake from "@/assets/poster/charity-mooncake.jpg";
 import cutletBag from "@/assets/poster/cutlet-bag.jpg";
 import dogMidBite from "@/assets/poster/dog-mid-bite.jpg";
 import dogWithCutlet from "@/assets/poster/dog-with-cutlet.jpg";
 import menuSign from "@/assets/poster/menu-sign.jpg";
+import strayDog from "@/assets/poster/stray-dog-siaohuei.jpg";
 
 /**
  * 文案與照片取自 furmosa.com 首頁，排版沿用海報稿的格位，
@@ -14,6 +14,9 @@ import menuSign from "@/assets/poster/menu-sign.jpg";
  */
 
 export const SHOP_URL = "https://furmosa.com/collections/all";
+
+/** 公益活動：匠寵 × 巴克幫－浪犬之家的中秋尋家合作計畫。 */
+export const CHARITY_URL = "https://them-stock-moon.furmosa.com/";
 
 export const MASTHEAD = {
   ribbon: "把熟悉的台灣味，放進牠的零食袋！",
@@ -32,6 +35,11 @@ export const OPENING = {
     { label: "招牌", value: "嚎大大・雞霸 — 純雞肉做的大片雞排，原味雞肉・淨重 50g・$165" },
     { label: "成分", value: "純雞肉製成，不添加香料、色素與防腐劑" },
     { label: "吃法", value: "可剪成小段，依體型調整份量；零食搭配主食與充足飲水" },
+    {
+      label: "公益",
+      value:
+        "中秋尋家合作計畫 — 匠寵 × 巴克幫－浪犬之家，每售出一顆月餅提撥 NT$10（活動已結單）",
+    },
   ],
 } as const;
 
@@ -130,7 +138,7 @@ export const CHAPTERS: Chapter[] = [
       "頂真做・雞肉丁凍乾，",
       "卵啵啵・柳葉魚凍乾，",
       "走敢若飛・鴨翅，",
-      "從雞排、海味到咬感零食。",
+      "草上飛・貓草雞肉乾薄片。",
     ],
     photos: [
       {
@@ -141,26 +149,26 @@ export const CHAPTERS: Chapter[] = [
     media: "full",
   },
   {
-    id: "curated",
+    id: "stray-dogs",
     index: "05",
-    tag: ["只留下我們願意", "給自己毛孩用的"],
+    tag: ["月餅有成交", "狗狗沒有價格"],
     lines: [
-      "我們不只是做零食，",
-      "更像一間為毛孩挑好物的選品店。",
-      "從食物到日常用品，",
-      "一樣一樣慢慢挑。",
-      "雞肉加上貓草粉，",
-      "做成容易分食的薄片，",
-      "整片吃、捏碎拌食都可以。",
+      "匠寵與巴克幫－浪犬之家合作，",
+      "讓七隻狗狗在中秋被更多人看見。",
+      "我們把牠們的故事放進月餅裡，",
+      "每售出一顆月餅，",
+      "由匠寵提撥十元支持浪犬之家。",
+      "多一個人看到，",
+      "就多一個回家的可能。",
     ],
     photos: [
       {
-        image: catGrass,
-        alt: "草上飛貓草雞肉乾薄片，形狀像台灣島，旁邊有一隻黑貓抬頭看",
+        image: strayDog,
+        alt: "等家的米克斯小輝在草坡步道上張嘴笑著",
       },
       {
-        image: chickenCubes,
-        alt: "雞肉丁凍乾在烤網上疊成一座塔",
+        image: charityMooncake,
+        alt: "雞肉山藥地瓜月餅，上面插著 FURMOSA FOR DOGS 的小旗子與一隻小狗公仔",
       },
     ],
     media: "pair",
@@ -170,6 +178,6 @@ export const CHAPTERS: Chapter[] = [
 export const CLOSING = {
   title: "不知道先點哪一道",
   slogan: RAIL_SLOGAN,
-  body: "幾題小測驗，幫你挑選零食組合，找到牠的零食路線。看照片、挑規格，喜歡的勾一份，就進購物車。",
+  body: "幾題小測驗，幫你挑選零食組合，找到牠的零食路線。看照片、挑規格，喜歡的勾一份，就進購物車。中秋尋家合作計畫已結單，七隻狗狗仍在等家。",
   cta: "看本期好物",
 } as const;
