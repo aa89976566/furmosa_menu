@@ -9,8 +9,9 @@ import type { Chapter } from "@/data/real-food";
  * - row：照片｜本文｜標籤 由左而右並置（第二帶左格）
  * - copy：只有本文與標籤，照片是同一帶裡的另一格（第三帶右格）
  * - wide：照片｜本文｜標籤｜小照片，吃掉整條帶（第四帶）
+ * - trio：三張同寬的照片｜本文｜標籤，用在製程這種有順序的圖
  */
-export type PanelVariant = "stack" | "row" | "copy" | "wide";
+export type PanelVariant = "stack" | "row" | "copy" | "wide" | "trio";
 
 type PanelProps = {
   chapter: Chapter;
@@ -30,7 +31,7 @@ export default function Panel({
   className,
   priority = false,
 }: PanelProps) {
-  const [lead, aside] = chapter.photos;
+  const [lead, aside, third] = chapter.photos;
   const headingId = `rf-panel-${chapter.id}`;
   const classes = ["rf-panel", `rf-panel--${variant}`];
   if (className) classes.push(className);
@@ -71,10 +72,18 @@ export default function Panel({
         ))}
       </p>
 
-      {variant === "wide" && aside ? (
+      {(variant === "wide" || variant === "trio") && aside ? (
         <Photo
           photo={aside}
           className="rf-photo--aside"
+          sizes={asideSizes ?? sizes ?? "33vw"}
+        />
+      ) : null}
+
+      {variant === "trio" && third ? (
+        <Photo
+          photo={third}
+          className="rf-photo--third"
           sizes={asideSizes ?? sizes ?? "33vw"}
         />
       ) : null}

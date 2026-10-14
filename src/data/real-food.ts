@@ -4,8 +4,10 @@ import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
 import charityMooncake from "@/assets/poster/charity-mooncake.jpg";
 /* 頭條是去背的，透明處會透出紙色，所以存成帶 alpha 的 webp。 */
 import dogCutletCutout from "@/assets/poster/dog-cutlet-cutout.webp";
-import dogMidBite from "@/assets/poster/dog-mid-bite.jpg";
-import menuSign from "@/assets/poster/menu-sign.jpg";
+/* 製程三連拍是情境示意圖，官網沒有製程照（紙背有註記）。 */
+import processDry from "@/assets/poster/process-03-dry.jpg";
+import processPaste from "@/assets/poster/process-02-paste.jpg";
+import processWash from "@/assets/poster/process-01-wash.jpg";
 /* 直幅版的小輝；橫幅的那一張還留著給 /mooncake 用。 */
 import strayDog from "@/assets/poster/stray-dog-siaohuei-tall.jpg";
 
@@ -35,11 +37,22 @@ export const OPENING = {
   specs: [
     { label: "招牌", value: "嚎大大・雞霸 — 純雞肉做的大片雞排，原味雞肉・淨重 50g・$165" },
     { label: "成分", value: "純雞肉製成，不添加香料、色素與防腐劑" },
+    {
+      label: "製程",
+      value:
+        "雞肉製泥後鋪平塑形，以接近 70–75°C 的低溫熱風緩慢帶走水分，耗時是一般做法的 3 倍",
+    },
     { label: "吃法", value: "可剪成小段，依體型調整份量；零食搭配主食與充足飲水" },
     {
       label: "公益",
       value:
         "中秋尋家合作計畫 — 匠寵 × 巴克幫－浪犬之家，每售出一顆月餅提撥 NT$10（活動已結單）",
+    },
+    /** 官網沒有製程照，所以照官網自己的做法標註示意。 */
+    {
+      label: "圖片",
+      value:
+        "製程三連拍為情境示意圖，僅用於呈現製作概念；實際製程與產品請以實品為準",
     },
   ],
 } as const;
@@ -64,8 +77,8 @@ export type Chapter = {
   tag: string[];
   lines: string[];
   photos: ChapterPhoto[];
-  /** full 為滿版單圖，pair 為主圖加一張小圖。 */
-  media: "full" | "pair";
+  /** full 為滿版單圖，pair 為主圖加一張小圖，trio 為三連拍的製程圖。 */
+  media: "full" | "pair" | "trio";
 };
 
 /*
@@ -105,27 +118,36 @@ export const CHAPTERS: Chapter[] = [
     media: "full",
   },
   {
-    id: "daily-treat",
+    id: "how-its-made",
     index: "02",
-    tag: ["不計形象", "大口咬下"],
+    /**
+     * 製程的說法照常見問題頁：「脆」是低溫熱風慢慢帶走水分，
+     * 接近七十五度、耗時是別人的三倍；塑形的說法照雞排商品頁。
+     * 直書排不了阿拉伯數字，所以溫度與倍數都寫成中文數字。
+     */
+    tag: ["慢工做的雞排", "低溫熱風烘乾"],
     lines: [
-      "可以剪成小段，依體型",
-      "調整份量，當作日常的",
-      "獎勵，慢慢分食。零食",
-      "記得搭配主食與充足的",
-      "飲水。",
+      "只用純雞肉，洗淨後製",
+      "泥、鋪平塑形，再用低",
+      "溫熱風慢慢帶走水分，",
+      "耗時是別人的三倍。",
     ],
+    /** 三連拍就是三道工：洗、製泥、烘乾。 */
     photos: [
       {
-        image: dogMidBite,
-        alt: "長毛黑狗張大嘴等著吃零食",
+        image: processWash,
+        alt: "情境示意圖：小廚房的不鏽鋼水槽裡，戴手套的手正沖洗整塊雞胸肉",
       },
       {
-        image: menuSign,
-        alt: "匠寵 FURMOSA 的今日菜單燈箱招牌",
+        image: processPaste,
+        alt: "情境示意圖：絞肉機把雞肉絞成肉泥，落進不鏽鋼盆裡",
+      },
+      {
+        image: processDry,
+        alt: "情境示意圖：不鏽鋼烘乾架上一盤盤鋪平的大片雞排",
       },
     ],
-    media: "pair",
+    media: "trio",
   },
   {
     id: "this-issue",

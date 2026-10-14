@@ -297,6 +297,20 @@ body:has(.rf-page) {
   grid-template-areas: "lead aside lines tag";
 }
 
+/*
+ * 製程三連拍：三張同寬的照片按順序並排，本文與標籤仍落在帶的最右側。
+ * 三張一樣寬，讀起來才是一個順序，而不是一張主圖配兩張配圖。
+ */
+.rf-collage--news .rf-panel--trio {
+  --rf-tag: 3.8cqw;
+  --rf-copy-leading: 1.62;
+
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
+    auto auto;
+  grid-template-areas: "lead aside third lines tag";
+}
+
 /* 頭條：最大的照片、最大的標籤，下緣再補一道比別處更粗的分界線。 */
 .rf-collage--news .rf-band--one {
   --rf-tag: 5cqw;
@@ -366,6 +380,10 @@ body:has(.rf-page) {
 
 .rf-photo--lead {
   grid-area: lead;
+}
+
+.rf-photo--third {
+  grid-area: third;
 }
 
 .rf-photo--aside {
@@ -1050,6 +1068,23 @@ body:has(.rf-page) {
       "aside";
     --rf-tag: 1.3rem;
     --rf-copy-leading: 2;
+  }
+
+  /* 製程三連拍要讀得出順序，所以三張連著排，本文接在後面。 */
+  .rf-collage--news .rf-panel--trio {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "lead"
+      "aside"
+      "third"
+      "lines";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  .rf-panel--trio .rf-photo {
+    aspect-ratio: 3 / 4;
   }
 
   .rf-collage--news .rf-band--one {

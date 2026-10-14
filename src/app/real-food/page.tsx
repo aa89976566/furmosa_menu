@@ -22,9 +22,11 @@ const SIZES = {
   lead: "(max-width: 860px) 92vw, 23vw",
   band: "(max-width: 860px) 92vw, 24vw",
   aside: "(max-width: 860px) 92vw, 14vw",
+  /* 製程三連拍是三張同寬的窄直幅。 */
+  trio: "(max-width: 860px) 92vw, 11vw",
 } as const;
 
-const [LEAD, DAILY_TREAT, THIS_ISSUE, CHARITY] = CHAPTERS;
+const [LEAD, MADE, THIS_ISSUE, CHARITY] = CHAPTERS;
 
 export default function RealFoodPage() {
   return (
@@ -63,10 +65,10 @@ export default function RealFoodPage() {
 
               <div className="rf-band rf-band--two">
                 <Panel
-                  chapter={DAILY_TREAT}
-                  variant="wide"
-                  sizes={SIZES.band}
-                  asideSizes={SIZES.aside}
+                  chapter={MADE}
+                  variant="trio"
+                  sizes={SIZES.trio}
+                  asideSizes={SIZES.trio}
                   priority
                 />
               </div>
