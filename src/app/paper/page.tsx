@@ -5,6 +5,7 @@ import Figure from "@/components/paper/Figure";
 import Plate from "@/components/paper/Plate";
 import Starburst from "@/components/paper/Starburst";
 import {
+  CHARITY,
   CLOSING_PHOTOS,
   COLOPHON,
   LEAD,
@@ -130,6 +131,79 @@ export default function PaperPage() {
               </div>
             ))}
           </dl>
+        </section>
+
+        {/* ---------- 三版：中秋月餅公益 ---------- */}
+        <section className="pp-charity" aria-labelledby="pp-charity-title">
+          <h2 className="pp-charity__title" id="pp-charity-title">
+            <span className="pp-charity__kicker">{CHARITY.kicker}</span>
+            <span className="pp-charity__headline">
+              {CHARITY.headline.map((line, index) => (
+                <Fragment key={line.text}>
+                  {index > 0 ? <br /> : null}
+                  {line.text}
+                </Fragment>
+              ))}
+            </span>
+          </h2>
+
+          <div className="pp-charity__editorial">
+            <Columns lines={CHARITY.story} className="pp-charity__text" />
+          </div>
+
+          {/* 證據欄：包裝照、收據照，以及收據欄位的逐字轉錄。 */}
+          <div className="pp-charity__docs">
+            <div className="pp-charity__plates">
+              {CHARITY.photos.map((photo) => (
+                <Plate
+                  key={photo.alt}
+                  photo={photo}
+                  sizes="(max-width: 680px) 92vw, 14rem"
+                />
+              ))}
+              <Plate
+                photo={CHARITY.receiptPhoto}
+                className="pp-plate--receipt"
+                sizes="(max-width: 680px) 92vw, 17rem"
+              />
+            </div>
+
+            <dl className="pp-ledger">
+              {CHARITY.receipt.map((row) => (
+                <div className="pp-ledger__row" key={row.label}>
+                  <dt className="pp-ledger__label">{row.label}</dt>
+                  <dd className="pp-ledger__value">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <p className="pp-charity__note">{CHARITY.note}</p>
+          </div>
+
+          <Starburst className="pp-burst--charity" count={18}>
+            <span className="pp-burst__shout">
+              {CHARITY.burst.map((line, index) => (
+                <Fragment key={line}>
+                  {index > 0 ? <br /> : null}
+                  {line}
+                </Fragment>
+              ))}
+            </span>
+          </Starburst>
+
+          {/* 全報唯一的金額欄位：一張收據，不是一個價錢。 */}
+          <div className="pp-donation">
+            <Figure figure={CHARITY.donation} className="pp-figure--donation" />
+            <p className="pp-donation__payee">{CHARITY.payee}</p>
+            <a
+              className="pp-donation__link"
+              href={CHARITY.link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {CHARITY.link.label}↗
+            </a>
+          </div>
         </section>
 
         {/* ---------- 綠底：上架清單 ---------- */}

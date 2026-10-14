@@ -531,6 +531,207 @@ body:has(.pp-page) {
   color: var(--pp-ink);
 }
 
+/* ---------- 三版：中秋月餅公益 ---------- */
+
+/*
+ * 沿用二版的四欄節奏（爆炸章｜社論｜直書標題｜照片），
+ * 金額則收進最底下那條跨整列的雙線公告帶。
+ */
+.pp-charity {
+  display: grid;
+  grid-template-columns: auto auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "burst    editorial title    docs"
+    "donation donation  donation donation";
+  align-items: start;
+  column-gap: var(--pp-gutter);
+  row-gap: calc(var(--pp-gutter) * 1.1);
+}
+
+.pp-charity__title {
+  grid-area: title;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 0.2em;
+  margin: 0;
+}
+
+.pp-charity__kicker {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding-top: 0.5em;
+  color: var(--pp-maroon);
+  font-size: clamp(0.85rem, 1.35vw, 1.1rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* 和二版同一個道理：直書標題一定要給定高度，否則會中途斷欄。 */
+.pp-charity__headline {
+  display: block;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: clamp(14rem, 42svh, 24rem);
+  color: var(--pp-maroon);
+  font-size: clamp(1.25rem, 3svh, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.pp-charity__editorial {
+  grid-area: editorial;
+}
+
+.pp-charity__text {
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: clamp(11rem, 34svh, 19rem);
+  color: var(--pp-maroon);
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 2.1;
+}
+
+/*
+ * 證據欄整塊放在一個格位裡，照片與轉錄表才會貼在一起；
+ * 拆成兩個格位的話，列高會被旁邊更高的直書社論撐開，中間開一個洞。
+ */
+.pp-charity__docs {
+  grid-area: docs;
+  display: grid;
+  gap: calc(var(--pp-gutter) * 0.9);
+  min-width: 0;
+}
+
+/* 包裝照與收據並排，收據那格略寬一點，因為它是這一版的證據。 */
+.pp-charity__plates {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr);
+  align-items: start;
+  gap: var(--pp-gutter);
+  min-width: 0;
+}
+
+.pp-burst--charity {
+  grid-area: burst;
+  align-self: center;
+}
+
+/* 收據是文件，不跟著 DM 的照片一起重壓對比，不然字會糊掉。 */
+.pp-plate--receipt {
+  border: var(--pp-rule) solid var(--pp-ink);
+  background: var(--pp-paper-warm);
+}
+
+.pp-plate--receipt .pp-plate__img {
+  filter: contrast(1.02);
+}
+
+/* 收據欄位：和三區家數同一種規格表，只是這次抄的是一張收據。 */
+.pp-ledger {
+  margin: 0;
+  border-top: var(--pp-rule) solid var(--pp-ink);
+}
+
+.pp-ledger__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0.35em 0;
+  border-bottom: var(--pp-rule) solid var(--pp-ink);
+}
+
+.pp-ledger__label {
+  margin: 0;
+  padding: 0.1em 0.4em;
+  background: var(--pp-maroon);
+  color: var(--pp-paper);
+  font-size: clamp(0.62rem, 0.88vw, 0.74rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+.pp-ledger__value {
+  margin: 0;
+  font-size: clamp(0.64rem, 0.9vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: var(--pp-ink);
+}
+
+.pp-charity__note {
+  margin: 0;
+  font-size: clamp(0.58rem, 0.82vw, 0.7rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.7;
+  color: #4a443e;
+}
+
+/*
+ * 全報唯一的金額欄位。其餘版位的大字都是家數、人數、編號，
+ * 這一格是捐款收據上的金額，所以用雙線公告帶把它和價格區分開。
+ */
+.pp-donation {
+  grid-area: donation;
+  display: grid;
+  justify-items: center;
+  gap: 0.5em;
+  padding: calc(var(--pp-gutter) * 1.2) var(--pp-gutter);
+  background: var(--pp-paper-warm);
+  border-top: 6px double var(--pp-ink);
+  border-bottom: 6px double var(--pp-ink);
+  text-align: center;
+}
+
+.pp-figure--donation {
+  justify-content: center;
+}
+
+.pp-figure--donation .pp-figure__value {
+  font-size: clamp(3rem, 7vw, 5rem);
+}
+
+.pp-figure--donation .pp-figure__label {
+  margin-top: 0.2em;
+  text-align: center;
+  letter-spacing: 0.22em;
+}
+
+/* 受贈單位壓在金額下方，中間一條墨線，和海報下緣那塊帶同一個做法。 */
+.pp-donation__payee {
+  margin: 0;
+  padding-top: 0.55em;
+  border-top: var(--pp-rule) solid var(--pp-ink);
+  color: var(--pp-maroon);
+  font-size: clamp(0.88rem, 1.5vw, 1.2rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.pp-donation__link {
+  color: var(--pp-ink);
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border-bottom: var(--pp-rule) solid var(--pp-ink);
+}
+
+.pp-donation__link:hover,
+.pp-donation__link:focus-visible {
+  color: var(--pp-red-deep);
+  border-bottom-color: var(--pp-red-deep);
+}
+
 /* ---------- 綠底：上架清單 ---------- */
 
 .pp-listings {
@@ -897,6 +1098,24 @@ body:has(.pp-page) {
     align-self: start;
   }
 
+  /* 公益版同樣收成三欄，金額帶改成跨整列的底帶。 */
+  .pp-charity {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "editorial title docs"
+      "burst     title docs"
+      "donation  donation donation";
+  }
+
+  .pp-charity__headline {
+    height: clamp(11rem, 26svh, 16rem);
+  }
+
+  .pp-burst--charity {
+    justify-self: start;
+    align-self: start;
+  }
+
   /* 兩欄時跨欄格剛好吃掉一整列，八個格位仍然填滿。 */
   .pp-listings__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -948,7 +1167,8 @@ body:has(.pp-page) {
 
   /* 內文回到橫書後，直書的欄高限制必須解掉，否則會被切斷。 */
   .pp-lead__text,
-  .pp-second__rules {
+  .pp-second__rules,
+  .pp-charity__text {
     writing-mode: horizontal-tb;
     height: auto;
     font-size: 0.86rem;
@@ -983,6 +1203,45 @@ body:has(.pp-page) {
   .pp-second__headline {
     font-size: clamp(1.4rem, 7.5vw, 2rem);
     line-height: 1.5;
+  }
+
+  .pp-charity {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "editorial"
+      "docs"
+      "donation"
+      "burst";
+    row-gap: var(--pp-band);
+  }
+
+  /* 手機上包裝照與收據改成上下兩塊，收據才看得出是一張文件。 */
+  .pp-charity__plates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pp-charity__title {
+    writing-mode: horizontal-tb;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3em;
+  }
+
+  .pp-charity__kicker,
+  .pp-charity__headline {
+    writing-mode: horizontal-tb;
+    height: auto;
+    padding-top: 0;
+  }
+
+  .pp-charity__headline {
+    font-size: clamp(1.4rem, 7.5vw, 2rem);
+    line-height: 1.5;
+  }
+
+  .pp-burst--charity {
+    justify-self: center;
   }
 
   .pp-listings__grid {

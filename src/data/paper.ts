@@ -2,13 +2,16 @@ import type { StaticImageData } from "next/image";
 
 import bowl from "@/assets/poster/bowl.jpg";
 import canning from "@/assets/poster/canning.jpg";
+import charityReceipt from "@/assets/poster/charity-receipt.png";
 import dryingRacks from "@/assets/poster/drying-racks.jpg";
 import goldenBite from "@/assets/poster/golden-bite.jpg";
 import handTrim from "@/assets/poster/hand-trim.jpg";
 import jackRussell from "@/assets/poster/jack-russell.jpg";
 import lineWork from "@/assets/poster/line-work.jpg";
+import mooncakePacks from "@/assets/poster/mooncake-packs.jpg";
 
 import { DOGMA_RULES, SERVICE_LINES, SWAP_REGIONS } from "./about";
+import { CHARITY_URL } from "./real-food";
 import { PARTNER_URL, SHOP_URL, WORKS_ROWS } from "./works";
 
 /**
@@ -130,6 +133,56 @@ export const SECOND = {
   total: SWAP_TOTAL,
 } as const;
 
+/**
+ * 三版：中秋月餅公益。
+ *
+ * 這是全報唯一出現金額的版位——因為它是一張開立出來的捐款收據，
+ * 不是價格。收據欄位逐字轉錄，民國紀年照抄，不換算成西元。
+ */
+export const CHARITY = {
+  kicker: "中秋月餅公益",
+  headline: [
+    { text: "牠的月餅" },
+    { text: "送進正在等家的故事" },
+  ] satisfies HeadlineLine[],
+  /** 爆炸章是圓的，交給自動斷行會把「收據」拆開，所以斷點自己指定。 */
+  burst: ["公益收據", "已公開"],
+  photos: [
+    {
+      image: mooncakePacks,
+      alt: "兩款中秋月餅包裝：左邊印著「牠的月餅」與一隻黑白狗，右邊印著「牠的故事」與七塊畫上狗臉的月餅",
+      tag: "七個包裝 ‧ 七個故事",
+    },
+  ] satisfies PaperPhoto[],
+  receiptPhoto: {
+    image: charityReceipt,
+    alt: "社團法人臺灣巴克動物懷善救援協會開立的捐款收據，金額 NT$11,480",
+    tag: "捐款收據 ‧ 收執聯",
+  } satisfies PaperPhoto,
+  /** 直書社論：欄數等於行數，所以維持在五行以內。 */
+  story: [
+    "每打開一款，會遇見一個不同的牠。",
+    "七個包裝，七個正在等家的故事。",
+    "這不只是月餅，更是一份陪伴與希望，",
+    "讓愛持續走下去。",
+  ],
+  /** 收據上的欄位，照原件轉錄，順序也照原件。 */
+  receipt: [
+    { label: "受贈", value: "社團法人臺灣巴克動物懷善救援協會" },
+    { label: "編號", value: "2026BK70323" },
+    { label: "日期", value: "中華民國 115 年 10 月 6 日" },
+    { label: "用途", value: "不指定" },
+  ],
+  donation: {
+    value: "11,480",
+    unit: "元",
+    label: "已捐贈",
+  } satisfies PaperFigure,
+  payee: "台灣巴克動物懷善救援協會",
+  note: "金額與收據編號逐字轉錄自受贈單位開立的收執聯；核准設立字號與統一編號載於收據上。",
+  link: { label: "看七隻狗狗的故事", href: CHARITY_URL },
+} as const;
+
 /** 綠底上架格：網站的編號清單，一格一筆。 */
 export type Listing = {
   index: string;
@@ -197,6 +250,7 @@ export const COLOPHON = {
   links: [
     { label: "凍乾目錄", href: "/", external: false },
     { label: "毛孩的真食堂", href: "/real-food", external: false },
+    { label: "浪浪尋家", href: CHARITY_URL, external: true },
     { label: "店家合作", href: PARTNER_URL, external: true },
     { label: "全部商品", href: SHOP_URL, external: true },
   ],
