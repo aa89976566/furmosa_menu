@@ -26,12 +26,12 @@ const SIZES = {
   aside: "(max-width: 860px) 92vw, 23vw",
 } as const;
 
-const [INGREDIENT, CRAFT, JOY, MADE_IN_TAIWAN, COMPANION] = CHAPTERS;
+const [NIGHT_MARKET, SIGNATURE, DAILY_TREAT, THIS_ISSUE, CURATED] = CHAPTERS;
 
 export default function RealFoodPage() {
-  /* 第二帶右格是碗那張單圖，在海報上自成一格，不屬於任何一段文案。 */
-  const plate = JOY.photos[1];
-  const lineWork = MADE_IN_TAIWAN.photos[0];
+  /* 第二帶右格在海報上自成一格，是一張直幅單圖，不屬於任何一段文案。 */
+  const plate = DAILY_TREAT.photos[1];
+  const issueHero = THIS_ISSUE.photos[0];
 
   return (
     <div className="rf-page">
@@ -59,13 +59,13 @@ export default function RealFoodPage() {
             <div className="rf-collage">
               <div className="rf-band rf-band--one">
                 <Panel
-                  chapter={INGREDIENT}
+                  chapter={NIGHT_MARKET}
                   variant="stack"
                   sizes={SIZES.band1}
                   priority
                 />
                 <Panel
-                  chapter={CRAFT}
+                  chapter={SIGNATURE}
                   variant="stack"
                   sizes={SIZES.band1}
                   priority
@@ -73,7 +73,7 @@ export default function RealFoodPage() {
               </div>
 
               <div className="rf-band rf-band--two">
-                <Panel chapter={JOY} variant="row" sizes={SIZES.band2} />
+                <Panel chapter={DAILY_TREAT} variant="row" sizes={SIZES.band2} />
                 {plate ? (
                   <div className="rf-cell rf-cell--plate">
                     <Photo photo={plate} sizes={SIZES.plate} />
@@ -83,13 +83,13 @@ export default function RealFoodPage() {
 
               <div className="rf-band rf-band--three">
                 <div className="rf-cell rf-cell--photo">
-                  <Photo photo={lineWork} sizes={SIZES.band3} />
+                  <Photo photo={issueHero} sizes={SIZES.band3} />
                 </div>
-                <Panel chapter={MADE_IN_TAIWAN} variant="copy" />
+                <Panel chapter={THIS_ISSUE} variant="copy" />
               </div>
 
               <Panel
-                chapter={COMPANION}
+                chapter={CURATED}
                 variant="wide"
                 className="rf-band--four"
                 sizes={SIZES.band4}

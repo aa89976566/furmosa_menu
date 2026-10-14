@@ -1,44 +1,41 @@
 import type { StaticImageData } from "next/image";
 
-import bowl from "@/assets/poster/bowl.jpg";
-import canning from "@/assets/poster/canning.jpg";
-import dryingRacks from "@/assets/poster/drying-racks.jpg";
-import goldenBite from "@/assets/poster/golden-bite.jpg";
-import handTrim from "@/assets/poster/hand-trim.jpg";
-import jackRussell from "@/assets/poster/jack-russell.jpg";
-import lineWork from "@/assets/poster/line-work.jpg";
+import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
+import catGrass from "@/assets/poster/cat-grass-jerky.jpg";
+import chickenCubes from "@/assets/poster/chicken-cubes-tower.jpg";
+import cutletBag from "@/assets/poster/cutlet-bag.jpg";
+import dogMidBite from "@/assets/poster/dog-mid-bite.jpg";
+import dogWithCutlet from "@/assets/poster/dog-with-cutlet.jpg";
+import menuSign from "@/assets/poster/menu-sign.jpg";
 
 /**
- * 真食堂的文案逐字轉錄自品牌海報稿，請在上線前校對一次。
- * 海報為低解析輸出，少數字元判讀有風險。
- *
- * src/assets/poster/*.jpg 同樣是從海報稿裁切而來，解析度僅夠網格尺寸；
- * 拿到原始攝影檔後，只需以同名檔案覆蓋即可，版面不必改動。
+ * 文案與照片取自 furmosa.com 首頁，排版沿用海報稿的格位，
+ * 所以每一欄的字數都有上限：改字之前先看一眼下面的註記。
  */
 
 export const SHOP_URL = "https://furmosa.com/collections/all";
 
 export const MASTHEAD = {
-  ribbon: "毛孩的真食堂，來自台灣的好味道！",
+  ribbon: "把熟悉的台灣味，放進牠的零食袋！",
   brand: "匠寵",
-  category: "台灣鮮肉寵物零食",
+  category: "吃的・用的・有個性的",
 } as const;
 
 export const OPENING = {
   /** 直書大標：CJK 直立、拉丁字母側倒，由 writing-mode 自然處理。 */
   spine: "匠寵FURMOSA",
-  claim: "台灣鮮肉手作，給毛孩最真的幸福！",
+  claim: "雞不可失，毛孩的雞排攤！",
   lede:
-    "一片雞肉從台灣的產地走到毛孩的碗裡，中間經過幾雙手、幾度溫度、幾次挑選——我們把這段路攤開給你看。",
+    "我們不只是做零食，更像是一間為毛孩挑選好物的選品店。從食物到用品，一樣一樣慢慢挑。",
   /** 像食品標籤一樣的規格欄，讓開場除了氣勢之外也交代得出事實。 */
   specs: [
-    { label: "原料", value: "台灣在地新鮮雞肉，不添加多餘成分" },
-    { label: "工法", value: "職人手工修整 · 低溫乾燥" },
-    { label: "產地", value: "從挑選到包裝，全程台灣完成" },
+    { label: "招牌", value: "嚎大大・雞霸 — 純雞肉做的大片雞排，原味雞肉・淨重 50g・$165" },
+    { label: "成分", value: "純雞肉製成，不添加香料、色素與防腐劑" },
+    { label: "吃法", value: "可剪成小段，依體型調整份量；零食搭配主食與充足飲水" },
   ],
 } as const;
 
-export const RAIL_SLOGAN = "毛孩的一口，是台灣的驕傲！";
+export const RAIL_SLOGAN = "先看誰要吃，再挑今天的菜！";
 
 export type ChapterPhoto = {
   image: StaticImageData;
@@ -57,108 +54,113 @@ export type Chapter = {
   media: "full" | "pair";
 };
 
+/*
+ * 直書的本文一行就是一欄，欄高由海報的帶高決定，所以行數與每行字數都有上限：
+ * 第一、二段每段五行、每行最多十四字；第三段之後每行最多十六字。
+ * 標籤單欄最多八字，最後一段的兩欄標籤各最多九字。
+ */
 export const CHAPTERS: Chapter[] = [
   {
-    id: "ingredient",
+    id: "night-market",
     index: "01",
-    tag: ["台灣雞肉原食材"],
+    tag: ["台灣味毛孩也有份"],
     lines: [
-      "選用台灣在地新鮮雞肉，",
-      "以最單純的食材，",
-      "製作毛孩安心享用的天然零食。",
-      "不添加多餘成分，",
-      "保留食材最真實的營養與美味。",
+      "不是只有我們能逛夜市，",
+      "把熟悉的台灣味，",
+      "放進牠的零食袋。",
+      "雞肉製泥、鋪平塑形，",
+      "把雞排變成毛孩零食。",
     ],
     photos: [
       {
-        image: dryingRacks,
-        alt: "不鏽鋼乾燥架上一層層舖平的雞肉片",
+        image: cutletBag,
+        alt: "大片雞排零食裝在印著 Thank you very much 的紙袋裡",
       },
     ],
     media: "full",
   },
   {
-    id: "craft",
+    id: "signature",
     index: "02",
-    tag: ["職人手作堅持"],
+    tag: ["純雞肉的內容"],
     lines: [
-      "每一片雞肉都由匠寵團隊",
-      "用手工細心修整、低溫乾燥，",
-      "保留肉質的原始風味與營養。",
-      "我們相信，毛孩值得吃到",
-      "像家人一樣的真實食物。",
+      "嚎大大・雞霸，",
+      "純雞肉做的大片雞排，",
+      "原味雞肉、淨重五十克。",
+      "不添加香料、色素，",
+      "也沒有防腐劑。",
     ],
     photos: [
       {
-        image: handTrim,
-        alt: "戴手套的雙手以剪刀修整生雞肉片",
+        image: dogWithCutlet,
+        alt: "黑狗趴在地上，身邊放著插著雞排的匠寵紙袋",
       },
     ],
     media: "full",
   },
   {
-    id: "joy",
+    id: "daily-treat",
     index: "03",
-    tag: ["一口真肉的快樂"],
+    tag: ["不計形象大口咬下"],
     lines: [
-      "看見毛孩開心的眼神，",
-      "就是我們堅持的理由。",
-      "天然雞肉的香氣，",
-      "讓每一口都充滿幸福，",
-      "陪伴牠們度過健康、更快樂的日子。",
+      "可以剪成小段，",
+      "依體型調整份量，",
+      "當作日常的獎勵，慢慢分食。",
+      "零食記得搭配主食",
+      "與充足的飲水。",
     ],
     photos: [
       {
-        image: goldenBite,
-        alt: "黃金獵犬張嘴接住遞過來的雞肉乾",
+        image: dogMidBite,
+        alt: "長毛黑狗張大嘴等著吃零食",
       },
       {
-        image: bowl,
-        alt: "印著匠寵字樣的藍色碗裝滿雞肉乾",
+        image: menuSign,
+        alt: "匠寵 FURMOSA 的今日菜單燈箱招牌",
       },
     ],
     media: "pair",
   },
   {
-    id: "made-in-taiwan",
+    id: "this-issue",
     index: "04",
-    tag: ["台灣製造安心之選"],
+    tag: ["本期好物上架中"],
     lines: [
-      "從原料挑選、處理、烘乾到包裝，",
-      "全程於台灣在地完成。",
-      "匠寵堅持透明製程與嚴格品質把關，",
-      "來自台灣的安心，",
-      "獻給全世界的毛孩。",
+      "大力士・牛肉丁凍乾，",
+      "頂真做・雞肉丁凍乾，",
+      "卵啵啵・柳葉魚凍乾，",
+      "走敢若飛・鴨翅，",
+      "從雞排、海味到咬感零食。",
     ],
     photos: [
       {
-        image: lineWork,
-        alt: "身著無塵衣的人員在產線上整理烘乾後的雞肉片",
+        image: beefCubes,
+        alt: "牛肉丁凍乾排成一條 LOADING 進度條",
       },
     ],
     media: "full",
   },
   {
-    id: "companion",
+    id: "curated",
     index: "05",
-    tag: ["用真食材", "陪伴更久更好的生活"],
+    tag: ["只留下我們願意", "給自己毛孩用的"],
     lines: [
-      "我們相信，",
-      "好的食物能陪伴毛孩的健康與活力。",
-      "匠寵以天然雞肉為核心，",
-      "製作真正看得見的鮮肉零食，",
-      "陪伴毛孩走過每一個重要的日子。",
-      "這不只是零食，",
-      "更是一份來自台灣的溫柔承諾。",
+      "我們不只是做零食，",
+      "更像一間為毛孩挑好物的選品店。",
+      "從食物到日常用品，",
+      "一樣一樣慢慢挑。",
+      "雞肉加上貓草粉，",
+      "做成容易分食的薄片，",
+      "整片吃、捏碎拌食都可以。",
     ],
     photos: [
       {
-        image: canning,
-        alt: "戴手套的手將雞肉乾放入印有匠寵字樣的不鏽鋼罐",
+        image: catGrass,
+        alt: "草上飛貓草雞肉乾薄片，形狀像台灣島，旁邊有一隻黑貓抬頭看",
       },
       {
-        image: jackRussell,
-        alt: "傑克羅素犬抬頭等著手上的雞肉乾",
+        image: chickenCubes,
+        alt: "雞肉丁凍乾在烤網上疊成一座塔",
       },
     ],
     media: "pair",
@@ -166,8 +168,8 @@ export const CHAPTERS: Chapter[] = [
 ];
 
 export const CLOSING = {
-  title: "翻過標籤",
+  title: "不知道先點哪一道",
   slogan: RAIL_SLOGAN,
-  body: "翻過標籤，你會看見一樣的答案：台灣雞肉、手工修整、低溫乾燥。沒有風味、沒有佐料、沒有不必要的成分。",
-  cta: "看全部商品",
+  body: "幾題小測驗，幫你挑選零食組合，找到牠的零食路線。看照片、挑規格，喜歡的勾一份，就進購物車。",
+  cta: "看本期好物",
 } as const;
