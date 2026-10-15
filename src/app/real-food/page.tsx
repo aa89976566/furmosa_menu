@@ -6,11 +6,11 @@ import Wordmark from "@/components/real-food/Wordmark";
 import {
   CHAPTERS,
   CHARITY_URL,
-  CLASSIFIEDS,
   CLOSING,
   MASTHEAD,
   OPENING,
   RAIL_SLOGAN,
+  REPORTS,
   SHOP_URL,
 } from "@/data/real-food";
 
@@ -155,39 +155,41 @@ export default function RealFoodPage() {
               </div>
 
               {/*
-                報紙的最後一塊是分類廣告：首頁上的那些清單排成小字多欄，
-                欄與欄之間用一條細墨線分開，照清單原樣登，不改寫成文章。
+                版底七欄：首頁清單的每一列就是一欄報導。欄與欄之間的藍線
+                和正面的拼貼同一個做法（藍底從 gap 透出來），本文回到直書，
+                標題在欄的右緣——報紙的一欄就是這樣讀的。
               */}
-              <section
-                className="rf-classified"
-                aria-labelledby="rf-classified-title"
-              >
-                <h3 className="rf-classified__head" id="rf-classified-title">
-                  <span className="rf-classified__title">
-                    {CLASSIFIEDS.title}
-                  </span>
-                  <span className="rf-classified__kicker">
-                    {CLASSIFIEDS.kicker}
-                  </span>
-                </h3>
+              <section className="rf-reports" aria-labelledby="rf-reports-title">
+                <header className="rf-reports__head">
+                  <h3 className="rf-reports__title" id="rf-reports-title">
+                    {REPORTS.title}
+                  </h3>
+                  <p className="rf-reports__kicker">{REPORTS.kicker}</p>
+                </header>
 
-                <div className="rf-classified__cols">
-                  {CLASSIFIEDS.columns.map((column) => (
-                    <section className="rf-ad" key={column.label}>
-                      <h4 className="rf-ad__label">{column.label}</h4>
-                      <p className="rf-ad__note">{column.note}</p>
-                      <ul className="rf-ad__list">
-                        {column.items.map((item) => (
-                          <li className="rf-ad__item" key={item}>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </section>
-                  ))}
-                </div>
+                {REPORTS.columns.map((column) => (
+                  <article className="rf-report" key={column.index}>
+                    <p className="rf-report__index">
+                      <span className="rf-report__num">#{column.index}</span>
+                    </p>
 
-                <p className="rf-classified__note">{CLASSIFIEDS.note}</p>
+                    <div className="rf-report__text">
+                      <h4 className="rf-report__title">
+                        <a
+                          className="rf-report__link"
+                          href={column.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {column.label}
+                        </a>
+                      </h4>
+                      <p className="rf-report__body">{column.body}</p>
+                    </div>
+                  </article>
+                ))}
+
+                <p className="rf-reports__note">{REPORTS.note}</p>
               </section>
 
               {/* 報尾沿用書脊那個裝置：紙格裡壓一條藍底墨條。 */}
