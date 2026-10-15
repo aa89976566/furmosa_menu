@@ -274,9 +274,29 @@ body:has(.rf-page) {
    * 所以字級一變，每一帶的每行字數、行數與照片寬度全部跟著重算。
    */
   --rf-copy: 2.84cqw;
-  /* 四條帶的標籤一律同級，只有頭條例外（見下），版面才有層級。 */
+  /* 每一帶的標籤一律同級，只有頭條例外（見下），版面才有層級。 */
   --rf-tag: 3.8cqw;
   --rf-copy-leading: 1.62;
+
+  /*
+   * 公益帶之後再往下接七帶（首頁清單的七列）。七帶沿用公益帶的列高
+   * 274fr，字數的算法才和上面同一套；整塊的高度也跟著重算，
+   * 1fr ＝ 0.10336cqw 不變，所以上面四帶在紙上還是原來的大小。
+   */
+  grid-template-rows:
+    minmax(0, 438fr) minmax(0, 295fr)
+    minmax(0, 291fr) minmax(0, 274fr)
+    repeat(7, minmax(0, 274fr));
+  height: 337.68cqw;
+}
+
+/*
+ * 往下接的七帶：一帶吃滿整個紙寬（書脊與標語條只占前四列）。
+ * 前四列的格子都有東西佔著，所以自動排版會從第五列開始放，
+ * 七帶依序落在第五到第十一列。
+ */
+.rf-band--drop {
+  grid-column: 1 / -1;
 }
 
 /* 只收 .rf-band 這層外框；第四帶本身就是一格，不在此列。 */
@@ -386,6 +406,17 @@ body:has(.rf-page) {
   --rf-copy-leading: 1.52;
 }
 
+/*
+ * 兩張同寬的照片｜本文｜標籤。--wide 的小照片是配圖（0.96fr 且排在標籤
+ * 之後），這裡兩張一樣大、一樣在左邊：一張是東西，一張是吃的那一位。
+ * 字級與行距一律繼承 .rf-collage--news，格位自己不另宣告，
+ * 七帶的標籤才和上面四帶同一級。
+ */
+.rf-panel--duo {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  grid-template-areas: "lead aside lines tag";
+}
+
 /* 第一條帶的本文排得比別處鬆，照海報留著。 */
 .rf-panel--stack {
   --rf-copy-leading: 2.35;
@@ -451,6 +482,29 @@ body:has(.rf-page) {
  */
 .rf-tag__sub {
   font-size: 0.68em;
+}
+
+/*
+ * 有活動頁的那幾帶，標籤本身就是連結（報紙的欄名本身可點）。靜止時和
+ * 其他帶的標籤一模一樣——同一支黃、同一個墨色、不加底線——壓上去才把
+ * 黃與藍對調。連結得自己當欄的容器，一欄一個 flex 項目的排法才接得下去。
+ */
+.rf-tag__link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rf-tag-gap);
+  width: fit-content;
+  color: inherit;
+  text-decoration: none;
+}
+
+.rf-tag__link:hover .rf-tag__main,
+.rf-tag__link:hover .rf-tag__sub,
+.rf-tag__link:focus-visible .rf-tag__main,
+.rf-tag__link:focus-visible .rf-tag__sub {
+  background: var(--rf-navy);
+  color: var(--rf-yellow);
 }
 
 .rf-lines {
@@ -667,7 +721,6 @@ body:has(.rf-page) {
   grid-template-areas:
     "lede  act"
     "specs act"
-    "reports reports"
     "foot  foot";
   align-content: start;
   gap: var(--rf-rule);
@@ -776,141 +829,6 @@ body:has(.rf-page) {
   background: var(--rf-paper);
   box-shadow: 0.08em 0.1em 0 var(--rf-navy);
   transform: translate(0.14em, 0.16em);
-}
-
-/* ---------- 版底七欄：首頁的每一列就是一欄報導 ---------- */
-
-/*
- * 首頁那份編號清單有七列，報紙上就是版底的七欄。
- * 欄界線的做法和正面的拼貼完全一樣——這一塊鋪藍底，每一欄自己鋪紙色並留
- * 內距，線一律由 gap 透出來，所以欄界和正面的帶界是同一支藍、同一個寬度。
- * 窄欄要讀得順就得直書（這也是中文報紙把窄欄排成直書的理由），
- * 所以本文回到直書，標題落在欄的右緣，和正面同一個閱讀方向。
- */
-.rf-reports {
-  grid-area: reports;
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--rf-rule);
-  background: var(--rf-blue);
-}
-
-/* 刊頭與附註各吃滿整列，中間那七格才是欄。 */
-.rf-reports__head,
-.rf-reports__note {
-  grid-column: 1 / -1;
-  background: var(--rf-paper);
-}
-
-.rf-reports__head {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.5em 1em;
-  margin: 0;
-  padding: clamp(0.45rem, 1cqw, 0.8rem) clamp(0.6rem, 1.3cqw, 1.1rem);
-}
-
-/* 刊頭的黃底標籤沿用規格欄的裝置，不另發明。 */
-.rf-reports__title {
-  margin: 0;
-  padding: 0.1em 0.5em;
-  background: var(--rf-yellow);
-  color: var(--rf-navy);
-  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
-  font-size: clamp(0.84rem, 1.5cqw, 1.1rem);
-  font-weight: 900;
-  letter-spacing: 0.22em;
-  text-indent: 0.22em;
-}
-
-.rf-reports__kicker {
-  margin: 0;
-  color: var(--rf-blue);
-  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
-  font-size: clamp(0.68rem, 1.1cqw, 0.85rem);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-}
-
-.rf-report {
-  min-width: 0;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: var(--rf-pad);
-  padding: var(--rf-pad);
-  background: var(--rf-paper);
-}
-
-/* 欄號橫書：直書裡的阿拉伯數字會躺著讀，所以它自己一條橫帶。 */
-.rf-report__index {
-  margin: 0;
-}
-
-.rf-report__num {
-  display: inline-block;
-  padding: 0.12em 0.45em;
-  background: var(--rf-yellow);
-  color: var(--rf-navy);
-  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
-  font-size: clamp(0.6rem, 1.15cqw, 0.85rem);
-  font-weight: 900;
-  letter-spacing: 0.1em;
-}
-
-/*
- * 一欄的內容：直書裡 flex 的 column 方向就是欄的方向（由右而左），
- * 所以標題是最右邊那一欄，本文接在它左邊。欄高寫死，直書才有
- * 可以斷行的依據——一行的字數就等於欄高除以字級。
- */
-.rf-report__text {
-  display: flex;
-  flex-direction: column;
-  /* 標題與本文之間只留一道細縫：再寬一點，本文的第四行就排不進欄裡了。 */
-  gap: 0.5cqw;
-  height: 26cqw;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-}
-
-.rf-report__title {
-  flex: none;
-  margin: 0;
-  color: var(--rf-navy);
-  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
-  font-size: 1.95cqw;
-  font-weight: 900;
-  line-height: 1.3;
-  letter-spacing: 0.02em;
-}
-
-/* 標題就是連結（報紙的欄名本身可點），hover 時壓上同一支黃。 */
-.rf-report__link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.rf-report__link:hover,
-.rf-report__link:focus-visible {
-  background: var(--rf-yellow);
-}
-
-.rf-report__body {
-  flex: none;
-  margin: 0;
-  color: var(--rf-ink);
-  font-size: 1.45cqw;
-  line-height: 1.68;
-  letter-spacing: 0.02em;
-}
-
-/* 整塊的附註，和紙背其他地方的註記同一個語氣。 */
-.rf-reports__note {
-  margin: 0;
-  padding: clamp(0.4rem, 0.9cqw, 0.7rem) clamp(0.6rem, 1.3cqw, 1.1rem);
-  color: var(--rf-blue);
-  font-size: clamp(0.64rem, 1cqw, 0.78rem);
-  letter-spacing: 0.08em;
 }
 
 /* ---------- 報尾：和書脊同一個裝置，藍底墨條收掉整張紙 ---------- */
@@ -1260,6 +1178,23 @@ body:has(.rf-page) {
     aspect-ratio: 3 / 4;
   }
 
+  /* 往下接的七帶：兩張照片先後落下，本文接在後面。 */
+  .rf-collage--news .rf-panel--duo {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "lead"
+      "aside"
+      "lines";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  /* 這七帶的圖是照正方的照片格裁的，窄螢幕就照正方放。 */
+  .rf-panel--duo .rf-photo {
+    aspect-ratio: 1 / 1;
+  }
+
   .rf-collage--news .rf-band--one {
     --rf-tag: 1.5rem;
     margin-bottom: 0;
@@ -1293,39 +1228,8 @@ body:has(.rf-page) {
       "lede"
       "specs"
       "act"
-      "reports"
       "foot";
     padding-top: 2px;
-  }
-
-  /*
-   * 窄螢幕排不了七欄：欄攤成七列，本文跟著紙背其他地方回到橫書，
-   * 欄高交還給內容（直書的固定欄高在這個寬度只會把字擠成一條）。
-   */
-  .rf-reports {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .rf-report {
-    grid-template-rows: auto auto;
-    justify-items: start;
-  }
-
-  .rf-report__text {
-    display: block;
-    height: auto;
-    writing-mode: horizontal-tb;
-  }
-
-  .rf-report__title {
-    font-size: clamp(1rem, 4.4vw, 1.3rem);
-  }
-
-  .rf-report__body {
-    margin-top: 0.45em;
-    font-size: clamp(0.84rem, 3.5vw, 1rem);
-    line-height: 1.85;
-    text-wrap: pretty;
   }
 
   .rf-specs__row {

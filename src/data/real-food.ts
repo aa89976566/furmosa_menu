@@ -4,13 +4,31 @@ import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
 import charityMooncake from "@/assets/poster/charity-mooncake.jpg";
 /* 頭條是去背的，透明處會透出紙色，所以存成帶 alpha 的 webp。 */
 import dogCutletCutout from "@/assets/poster/dog-cutlet-cutout.webp";
+/*
+ * 延伸七帶的照片一律取自各個活動頁（drop）自己的圖，裁成正方：
+ * 那七帶的照片格實測是 288×282，照原比例放進去只會被切掉主體。
+ */
+import dropAllFriesCup from "@/assets/poster/drop-all-fries-cup.jpg";
+import dropAllShampoo from "@/assets/poster/drop-all-shampoo.jpg";
+import dropBowlJerky from "@/assets/poster/drop-bowl-jerky.jpg";
+import dropBowlRattan from "@/assets/poster/drop-bowl-rattan.jpg";
+import dropCardPhotosheet from "@/assets/poster/drop-card-photosheet.jpg";
+import dropCardShiba from "@/assets/poster/drop-card-shiba.jpg";
+import dropCatCatgrass from "@/assets/poster/drop-cat-catgrass.jpg";
+import dropCatUgc from "@/assets/poster/drop-cat-ugc.jpg";
+import dropCutletDog from "@/assets/poster/drop-cutlet-dog.jpg";
+import dropCutletPaperbag from "@/assets/poster/drop-cutlet-paperbag.jpg";
+import dropMoonHeitang from "@/assets/poster/drop-moon-heitang.jpg";
+import dropMoonPacks from "@/assets/poster/drop-moon-packs.jpg";
+import dropPartnerMixed from "@/assets/poster/drop-partner-mixed.jpg";
+import dropPartnerPigear from "@/assets/poster/drop-partner-pigear.jpg";
 /* 製程三連拍是情境示意圖，官網沒有製程照（紙背有註記）。 */
 import processDry from "@/assets/poster/process-03-dry.jpg";
 import processPaste from "@/assets/poster/process-02-paste.jpg";
 import processWash from "@/assets/poster/process-01-wash.jpg";
 /* 直幅版的小輝；橫幅的那一張還留著給 /mooncake 用。 */
 import strayDog from "@/assets/poster/stray-dog-siaohuei-tall.jpg";
-/* 版底七欄的欄名與連結就是首頁那份編號清單，維持單一真實來源。 */
+/* 延伸七帶的連結就是首頁那份編號清單的網址，維持單一真實來源。 */
 import { WORKS_ROWS } from "@/data/works";
 
 /**
@@ -45,6 +63,12 @@ export const OPENING = {
         "雞肉製泥後鋪平塑形，以接近 70–75°C 的低溫熱風緩慢帶走水分，耗時是一般做法的 3 倍",
     },
     { label: "吃法", value: "可剪成小段，依體型調整份量；零食搭配主食與充足飲水" },
+    /** 延伸七帶是直書，放不下的拉丁字與確切價格收在這裡。 */
+    {
+      label: "本期",
+      value:
+        "洗護補上 Earthbath 系列八支（473ml）・Kali 回收藤編狗碗四款預購中（17–26cm）・品項、價格與活動期間以 furmosa.com 為準",
+    },
     {
       label: "公益",
       value:
@@ -81,6 +105,8 @@ export type Chapter = {
   photos: ChapterPhoto[];
   /** full 為滿版單圖，pair 為主圖加一張小圖，trio 為三連拍的製程圖。 */
   media: "full" | "pair" | "trio";
+  /** 有活動頁的那幾帶，標籤本身就是連結（報紙的欄名本身可點）。 */
+  href?: string;
 };
 
 /*
@@ -206,44 +232,219 @@ export const CHAPTERS: Chapter[] = [
 ];
 
 /*
- * 版底的七欄：首頁那份編號清單的每一列，在報紙上就是一欄報導。
+ * 延伸的七帶：首頁那份編號清單的每一列，在報紙上就是往下接的一條帶。
  *
- * 標題與連結直接取自 WORKS_ROWS，所以首頁改欄名、改網址，報紙跟著動；
- * 本文是那一欄自己的事實，散在首頁與各活動頁上的清單（毛孩分類、免運、
- * 月餅結案、碗的尺寸與顏色、合作條件）各自收進它該在的那一欄。
+ * 編排與上面四帶完全同一套——照片｜照片｜直書本文｜黃色標籤——所以字數
+ * 的算法也一樣：帶高 274fr（約 282 像素）÷ 本文字級 ＝ 一行九字，
+ * 字塊寬放得下七行，上限六十三字；寫到第七行，帶裡才不留空白紙。
+ * 直書排不了阿拉伯數字，數字一律寫成中文數字（確切數字與拉丁字留在紙背
+ * 的規格欄，那裡是橫書）。
  *
- * 一欄的本文有上限：欄高 26cqw ÷ 本文字級 ＝ 一行十七字，欄寬放得下四行，
- * 所以上限是六十八字，寫滿四行欄裡才不留空白紙。直書排不了阿拉伯數字，
- * 數字一律寫成中文數字（確切數字留在紙背的規格欄，那裡是橫書）。
+ * 標籤也有同一套上限：一欄的長度＝帶高÷字級，所以主標最多七字、
+ * 副標（主標的 0.68 倍）最多十字。超過就會折成第三欄，把照片擠窄一截。
+ *
+ * 照片取自各個活動頁自己的圖，一帶兩張：一張是那一帶在賣的東西，
+ * 一張是吃的、用的那一位——報導要有圖，也要看得到產品。
  */
-const REPORT_BODIES: Record<number, string> = {
-  1: "不只做零食，更像一間為毛孩挑選好物的選品店。架上分成狗狗、貓咪、兔兔與小動物，本期補上洗護系列八支，單筆滿一千一百九十九元免運。",
-  2: "頭版那片雞排自己的活動頁。純雞肉做的大片雞排，淨重五十克，不添加香料、色素與防腐劑；低溫熱風慢慢烘乾，耗時是一般做法的三倍。",
-  3: "與巴克幫－浪犬之家的中秋合作盤。每售出一顆月餅提撥十元支持浪犬之家；月餅已結單，售出八百四十八顆，預計捐出一萬一千四百八十元。",
-  4: "貓的那一欄。活動頁自己喊「一臉不屑，一口淪陷」；架上對應的是草上飛・貓草雞肉乾薄片，給家裡那位嘴硬、聞到貓草就自己軟下來的貓。",
-  5: "每一包裡都有一張卡，卡上是和自家毛孩同品種的那一位。拿卡跟牠拍一張、加官方帳號，就再領一包同樣的零食；照片牆上還有別人家的那一隻。",
-  6: "匠寵選物第一件：印尼匠人用回收藤編做的狗碗，綠黑與黃色兩色，尺寸從十七到二十六公分共四款；首頁掛著最新上架的那一列，現正預購。",
-  7: "給店家的那一欄：肉乾與凍乾共十八項，五十組起訂。合作分兩種——寄賣先放店裡三十天後結算，或由店家直接進貨；建議售價與官網同步。",
-};
-
-export const REPORTS = {
-  title: "本期七欄",
-  kicker: "首頁七列，一列一欄",
-  /** 直書欄位放不下的拉丁字與價格，收在這條橫書的註記裡。 */
-  note: "本期架上：Earthbath 洗護系列八支（473ml）・品項、價格與活動期間以 furmosa.com 為準",
-  columns: WORKS_ROWS.flatMap((row) =>
-    row.kind === "link" && REPORT_BODIES[row.index]
-      ? [
-          {
-            index: row.index,
-            label: row.label,
-            href: row.href,
-            body: REPORT_BODIES[row.index],
-          },
-        ]
-      : [],
+const DROP_HREFS = new Map(
+  WORKS_ROWS.flatMap((row) =>
+    row.kind === "link" ? [[row.index, row.href] as const] : [],
   ),
-} as const;
+);
+
+/*
+ * 首頁的第二列連的是相對路徑 /haodada，而 furmosa.com 上那一頁目前是 404，
+ * 所以只接得出去的絕對網址才當連結，接不出去的那一帶就只是一則報導。
+ */
+function dropHref(index: number): string | undefined {
+  const href = DROP_HREFS.get(index);
+  return href?.startsWith("http") ? href : undefined;
+}
+
+export const DROPS: Chapter[] = [
+  {
+    id: "drop-all",
+    index: "05",
+    tag: ["不只是零食店", "狗貓兔與小動物"],
+    lines: [
+      "不只做零食，更像一",
+      "間為毛孩挑選好物的",
+      "選品店。架上分成狗",
+      "狗、貓咪、兔兔與小",
+      "動物，從肉乾、凍乾",
+      "一路排到洗護，一樣",
+      "一樣慢慢挑。",
+    ],
+    photos: [
+      {
+        image: dropAllFriesCup,
+        alt: "薯條杯裝的雞肉乾條，杯身印著匠寵的腳印",
+      },
+      {
+        image: dropAllShampoo,
+        alt: "架上的洗護品項：Earthbath 地中海除臭洗毛精 473ml",
+      },
+    ],
+    media: "pair",
+    href: dropHref(1),
+  },
+  {
+    id: "drop-cutlet",
+    index: "06",
+    tag: ["雞霸這一片", "拆開就能給"],
+    lines: [
+      "雞霸這片：大片雞排",
+      "拆開就給，剪成小段",
+      "依體型調整份量。純",
+      "雞肉做的，不添加香",
+      "料、色素與防腐劑，",
+      "零食之外主食與水也",
+      "要備著。",
+    ],
+    photos: [
+      {
+        image: dropCutletDog,
+        alt: "黑狗叼著一片大雞排，身前是印著 Thank you very much 的匠寵紙袋",
+      },
+      {
+        image: dropCutletPaperbag,
+        alt: "一片大雞排插在印著小狗的匠寵紙袋裡",
+      },
+    ],
+    media: "pair",
+    href: dropHref(2),
+  },
+  {
+    id: "drop-moon",
+    index: "07",
+    tag: ["浪浪交易所", "中秋限定盤結單"],
+    lines: [
+      "七個包裝對應七隻等",
+      "家的狗狗，每售出一",
+      "顆月餅，匠寵提撥十",
+      "元給浪犬之家。盤子",
+      "收了，狗狗的尋家故",
+      "事還在繼續，照片裡",
+      "的黑糖是其中一隻。",
+    ],
+    photos: [
+      {
+        image: dropMoonPacks,
+        alt: "「牠的月餅」月餅包裝盒，盒上印著一隻等家的黑白狗狗",
+      },
+      {
+        image: dropMoonHeitang,
+        alt: "等家的黑糖坐在推車裡張嘴笑著",
+      },
+    ],
+    media: "pair",
+    href: dropHref(3),
+  },
+  {
+    id: "drop-cat",
+    index: "08",
+    tag: ["貓草配雞肉", "一臉不屑一口淪陷"],
+    lines: [
+      "這一欄留給貓咪。草",
+      "上飛・貓草雞肉乾薄",
+      "片，貓草配雞肉，薄",
+      "得好分食；活動頁自",
+      "己喊「一臉不屑，一",
+      "口淪陷」，說的就是",
+      "家裡那位。",
+    ],
+    photos: [
+      {
+        image: dropCatCatgrass,
+        alt: "草上飛・貓草雞肉乾薄片的活動主視覺：一片雞肉乾浮在星空上",
+      },
+      {
+        image: dropCatUgc,
+        alt: "一隻白貓趴在地上，前腳收在胸前",
+      },
+    ],
+    media: "pair",
+    href: dropHref(4),
+  },
+  {
+    id: "drop-card",
+    index: "09",
+    tag: ["再來一包", "毛孩人格抽驗"],
+    lines: [
+      "每一包裡都有一張卡",
+      "牌，卡上是和自家毛",
+      "孩同品種的那一位。",
+      "拿卡跟牠拍一張、加",
+      "官方帳號，就再領一",
+      "包同樣的零食。照片",
+      "牆上還有別人家的。",
+    ],
+    photos: [
+      {
+        image: dropCardShiba,
+        alt: "一隻柴犬坐在路邊，鏡頭前舉著一張畫著柴犬的卡牌",
+      },
+      {
+        image: dropCardPhotosheet,
+        alt: "四格照片牆：抽到卡牌的狗狗們各自入鏡",
+      },
+    ],
+    media: "pair",
+    href: dropHref(5),
+  },
+  {
+    id: "drop-bowl",
+    index: "10",
+    tag: ["背景很硬的碗", "藤編四款預購中"],
+    lines: [
+      "印尼匠人用回收藤編",
+      "做的狗碗，綠黑與黃",
+      "色兩色，尺寸從十七",
+      "公分到二十六公分共",
+      "四款，現正預購。碗",
+      "是給牠的，裝什麼還",
+      "是由你挑。",
+    ],
+    photos: [
+      {
+        image: dropBowlRattan,
+        alt: "回收藤編做的狗碗，碗內是墨綠色的硬襯",
+      },
+      {
+        image: dropBowlJerky,
+        alt: "切成塊的雞肉乾，可以剪成小段放進碗裡",
+      },
+    ],
+    media: "pair",
+    href: dropHref(6),
+  },
+  {
+    id: "drop-partner",
+    index: "11",
+    tag: ["店家合作清單", "五十組起訂"],
+    lines: [
+      "給台灣寵物店家的一",
+      "份清單：肉乾與凍乾",
+      "共十八項，五十組起",
+      "訂。寄賣先放店裡三",
+      "十天後結算，或由店",
+      "家直接進貨，建議售",
+      "價與官網同步。",
+    ],
+    photos: [
+      {
+        image: dropPartnerPigear,
+        alt: "一整片豬耳朵零食，旁邊寫著「今天乖乖嗎？」",
+      },
+      {
+        image: dropPartnerMixed,
+        alt: "一碗肉乾，旁邊配著蘋果片與地瓜丁",
+      },
+    ],
+    media: "pair",
+    href: dropHref(7),
+  },
+];
 
 export const CLOSING = {
   title: "不知道先點哪一道",

@@ -7,10 +7,10 @@ import {
   CHAPTERS,
   CHARITY_URL,
   CLOSING,
+  DROPS,
   MASTHEAD,
   OPENING,
   RAIL_SLOGAN,
-  REPORTS,
   SHOP_URL,
 } from "@/data/real-food";
 
@@ -25,6 +25,8 @@ const SIZES = {
   aside: "(max-width: 860px) 92vw, 14vw",
   /* 製程三連拍是三張同寬的窄直幅。 */
   trio: "(max-width: 860px) 92vw, 11vw",
+  /* 往下接的七帶各有兩張同寬的方形照片。 */
+  drop: "(max-width: 860px) 92vw, 20vw",
 } as const;
 
 const [LEAD, MADE, THIS_ISSUE, CHARITY] = CHAPTERS;
@@ -85,6 +87,22 @@ export default function RealFoodPage() {
                 sizes={SIZES.band}
                 asideSizes={SIZES.aside}
               />
+
+              {/*
+                公益帶之後往下接的七帶：首頁那份編號清單的每一列就是一帶。
+                編排與上面四帶同一套（照片｜照片｜直書本文｜黃色標籤），
+                只是兩張照片一樣寬——一張是那一帶在賣的東西，一張是吃的那一位。
+              */}
+              {DROPS.map((drop) => (
+                <Panel
+                  key={drop.id}
+                  chapter={drop}
+                  variant="duo"
+                  className="rf-band--drop"
+                  sizes={SIZES.drop}
+                  asideSizes={SIZES.drop}
+                />
+              ))}
 
               {/* 海報上唯一刻意破框的元素，壓在左下角跨過最後兩條帶。 */}
               <aside className="rf-rail">
@@ -153,44 +171,6 @@ export default function RealFoodPage() {
                   <span aria-hidden="true">↗</span>
                 </a>
               </div>
-
-              {/*
-                版底七欄：首頁清單的每一列就是一欄報導。欄與欄之間的藍線
-                和正面的拼貼同一個做法（藍底從 gap 透出來），本文回到直書，
-                標題在欄的右緣——報紙的一欄就是這樣讀的。
-              */}
-              <section className="rf-reports" aria-labelledby="rf-reports-title">
-                <header className="rf-reports__head">
-                  <h3 className="rf-reports__title" id="rf-reports-title">
-                    {REPORTS.title}
-                  </h3>
-                  <p className="rf-reports__kicker">{REPORTS.kicker}</p>
-                </header>
-
-                {REPORTS.columns.map((column) => (
-                  <article className="rf-report" key={column.index}>
-                    <p className="rf-report__index">
-                      <span className="rf-report__num">#{column.index}</span>
-                    </p>
-
-                    <div className="rf-report__text">
-                      <h4 className="rf-report__title">
-                        <a
-                          className="rf-report__link"
-                          href={column.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {column.label}
-                        </a>
-                      </h4>
-                      <p className="rf-report__body">{column.body}</p>
-                    </div>
-                  </article>
-                ))}
-
-                <p className="rf-reports__note">{REPORTS.note}</p>
-              </section>
 
               {/* 報尾沿用書脊那個裝置：紙格裡壓一條藍底墨條。 */}
               <footer className="rf-footer">
