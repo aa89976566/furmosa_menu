@@ -6,6 +6,7 @@ import Wordmark from "@/components/real-food/Wordmark";
 import {
   CHAPTERS,
   CHARITY_URL,
+  CLASSIFIEDS,
   CLOSING,
   MASTHEAD,
   OPENING,
@@ -152,6 +153,42 @@ export default function RealFoodPage() {
                   <span aria-hidden="true">↗</span>
                 </a>
               </div>
+
+              {/*
+                報紙的最後一塊是分類廣告：首頁上的那些清單排成小字多欄，
+                欄與欄之間用一條細墨線分開，照清單原樣登，不改寫成文章。
+              */}
+              <section
+                className="rf-classified"
+                aria-labelledby="rf-classified-title"
+              >
+                <h3 className="rf-classified__head" id="rf-classified-title">
+                  <span className="rf-classified__title">
+                    {CLASSIFIEDS.title}
+                  </span>
+                  <span className="rf-classified__kicker">
+                    {CLASSIFIEDS.kicker}
+                  </span>
+                </h3>
+
+                <div className="rf-classified__cols">
+                  {CLASSIFIEDS.columns.map((column) => (
+                    <section className="rf-ad" key={column.label}>
+                      <h4 className="rf-ad__label">{column.label}</h4>
+                      <p className="rf-ad__note">{column.note}</p>
+                      <ul className="rf-ad__list">
+                        {column.items.map((item) => (
+                          <li className="rf-ad__item" key={item}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+
+                <p className="rf-classified__note">{CLASSIFIEDS.note}</p>
+              </section>
 
               {/* 報尾沿用書脊那個裝置：紙格裡壓一條藍底墨條。 */}
               <footer className="rf-footer">

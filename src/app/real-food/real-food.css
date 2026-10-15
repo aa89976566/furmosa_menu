@@ -667,6 +667,7 @@ body:has(.rf-page) {
   grid-template-areas:
     "lede  act"
     "specs act"
+    "ads   ads"
     "foot  foot";
   align-content: start;
   gap: var(--rf-rule);
@@ -775,6 +776,126 @@ body:has(.rf-page) {
   background: var(--rf-paper);
   box-shadow: 0.08em 0.1em 0 var(--rf-navy);
   transform: translate(0.14em, 0.16em);
+}
+
+/* ---------- 分類索引：報紙收版前的分類廣告 ---------- */
+
+/*
+ * 首頁那些清單（分類、選品、測驗題目、公益結案、須知）在報紙上就是
+ * 分類廣告：小字、多欄、欄間一條細墨線，條目照清單原樣一行一條。
+ * 顏色沿用整頁同一組，只有字級與欄寬是這一塊自己的。
+ */
+.rf-classified {
+  grid-area: ads;
+  background: var(--rf-paper);
+  padding: clamp(0.7rem, 1.6cqw, 1.3rem);
+}
+
+/* 分類廣告的刊頭：上下各一條墨線，中間是黃色標籤——和規格欄同一個裝置。 */
+.rf-classified__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6em 1em;
+  margin: 0 0 clamp(0.6rem, 1.3cqw, 1.1rem);
+  padding: clamp(0.3rem, 0.7cqw, 0.6rem) 0;
+  border-top: 0.21cqw solid var(--rf-navy);
+  border-bottom: 0.07cqw solid var(--rf-navy);
+}
+
+.rf-classified__title {
+  padding: 0.1em 0.5em;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.84rem, 1.5cqw, 1.1rem);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+}
+
+.rf-classified__kicker {
+  color: var(--rf-blue);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.68rem, 1.1cqw, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+/*
+ * 多欄排版（columns）而不是格線：分類廣告是一條接一條往下流，
+ * 流滿一欄才換下一欄，column-rule 就是欄間那條細墨線。
+ */
+.rf-classified__cols {
+  columns: 3;
+  column-gap: clamp(0.9rem, 2.2cqw, 1.8rem);
+  /* 欄間線是同一支藍的淡墨，和格線同色不同濃度。 */
+  column-rule: 1px solid rgb(4 73 126 / 0.42);
+}
+
+/* 一則廣告不能被切成兩欄，不然讀不出哪一條屬於哪一類。 */
+.rf-ad {
+  break-inside: avoid;
+  margin: 0 0 clamp(0.7rem, 1.5cqw, 1.2rem);
+}
+
+.rf-ad__label {
+  margin: 0;
+  color: var(--rf-navy);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.8rem, 1.35cqw, 1rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  /* 類別名下面壓一條墨線，和刊頭同一支筆。 */
+  border-bottom: 0.14cqw solid var(--rf-navy);
+  padding-bottom: 0.2em;
+}
+
+.rf-ad__note {
+  margin: 0.4em 0 0;
+  color: var(--rf-blue);
+  font-size: clamp(0.66rem, 1.05cqw, 0.8rem);
+  letter-spacing: 0.06em;
+}
+
+.rf-ad__list {
+  margin: 0.45em 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * 條目的行首是一個藍色方點（報紙分類廣告的引導符），
+ * 一條占一行，折行時對齊在點之後。
+ */
+.rf-ad__item {
+  position: relative;
+  padding-left: 1em;
+  color: var(--rf-ink);
+  font-size: clamp(0.72rem, 1.18cqw, 0.9rem);
+  line-height: 1.72;
+  letter-spacing: 0.02em;
+  text-wrap: pretty;
+}
+
+.rf-ad__item::before {
+  content: "";
+  position: absolute;
+  top: 0.72em;
+  left: 0.1em;
+  width: 0.34em;
+  height: 0.34em;
+  background: var(--rf-blue);
+}
+
+/* 整塊的附註，和紙背其他地方的註記同一個語氣。 */
+.rf-classified__note {
+  margin: 0;
+  padding-top: clamp(0.35rem, 0.8cqw, 0.6rem);
+  border-top: 0.07cqw solid var(--rf-navy);
+  color: var(--rf-blue);
+  font-size: clamp(0.64rem, 1cqw, 0.78rem);
+  letter-spacing: 0.08em;
 }
 
 /* ---------- 報尾：和書脊同一個裝置，藍底墨條收掉整張紙 ---------- */
@@ -1157,8 +1278,28 @@ body:has(.rf-page) {
       "lede"
       "specs"
       "act"
+      "ads"
       "foot";
     padding-top: 2px;
+  }
+
+  /* 窄螢幕排不了三欄分類廣告，收成兩欄；條目本來就短。 */
+  .rf-classified__cols {
+    columns: 2;
+    column-gap: 1rem;
+  }
+
+  .rf-classified__head {
+    border-top-width: 3px;
+    border-bottom-width: 1px;
+  }
+
+  .rf-ad__label {
+    border-bottom-width: 2px;
+  }
+
+  .rf-classified__note {
+    border-top-width: 1px;
   }
 
   .rf-specs__row {
