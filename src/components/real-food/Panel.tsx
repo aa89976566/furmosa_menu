@@ -51,16 +51,22 @@ export default function Panel({
         />
       ) : null}
 
-      {/* 黃色直書標籤同時是這一格的標題。背景跟著每一欄斷開，所以長短欄各有自己的色塊。 */}
+      {/*
+        黃色直書標籤同時是這一格的標題。照報紙的標題分級：第一欄是主標，
+        後面的欄是副標，字級小一號。一欄就是一個色塊，所以長短欄各自斷開，
+        欄距也由版面決定——擠在一起的話，相鄰兩欄的色塊會疊到彼此的字上。
+      */}
       <h2 className="rf-tag" id={headingId}>
-        <span className="rf-tag__inner">
-          {chapter.tag.map((column, index) => (
-            <Fragment key={column}>
-              {index > 0 ? <br /> : null}
-              {column}
-            </Fragment>
-          ))}
-        </span>
+        {chapter.tag.map((column, index) => (
+          <span
+            key={column}
+            className={
+              index === 0 ? "rf-tag__main" : "rf-tag__sub"
+            }
+          >
+            {column}
+          </span>
+        ))}
       </h2>
 
       <p className="rf-lines">

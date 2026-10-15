@@ -100,6 +100,7 @@ body:has(.rf-page) {
   --rf-copy-leading: 1.62;
   --rf-tag: 3.3cqw;
   --rf-tag-leading: 1.26;
+  --rf-tag-gap: 0.2cqw;
   --rf-ribbon: 4cqw;
   --rf-spine: 14.4cqw;
   --rf-claim: 4.1cqw;
@@ -281,6 +282,18 @@ body:has(.rf-page) {
 /* 只收 .rf-band 這層外框；第四帶本身就是一格，不在此列。 */
 .rf-collage--news .rf-band {
   grid-template-columns: minmax(0, 1fr);
+  /* 帶高來自拼貼的列比例，所以帶裡那一列也要寫死成 1fr，不能讓內容反推。 */
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/*
+ * 帶高早就被拼貼的列比例鎖死了，格位裡那一列要跟著填滿（1fr）。
+ * 留成 auto 的話照片的 height: 100% 沒有可解的高度，會退回原圖比例，
+ * 於是「換一張比例不一樣的照片」就會把整條帶撐破——照片該被裁進格位，
+ * 而不是反過來決定帶高。
+ */
+.rf-collage--news .rf-panel {
+  grid-template-rows: minmax(0, 1fr);
 }
 
 /* 格位自己宣告的字級要一起收齊，否則同一頁會出現三種標籤大小。 */
@@ -394,10 +407,21 @@ body:has(.rf-page) {
  * 直書區塊一律 align-self: start：高度交給內容，
  * 被格列拉伸的話行長會被截短，斷行就跑掉了。
  */
+/*
+ * 標題是一疊直書的欄：vertical-rl 裡 flex 的 column 方向就是欄的方向
+ * （由右而左），所以一欄一個 flex 項目，欄與欄之間留 --rf-tag-gap。
+ * 早先是同一段文字用 box-decoration-break: clone 切開，但那時候每一欄
+ * 的黃底是「字寬＋左右內距」，比欄距還寬，相鄰兩欄的色塊就會疊到彼此
+ * 的字上，整塊也溢出格位壓到本文。
+ */
 .rf-tag {
   grid-area: tag;
   align-self: start;
   justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rf-tag-gap);
   width: fit-content;
   margin: 0;
   writing-mode: vertical-rl;
@@ -409,13 +433,24 @@ body:has(.rf-page) {
   line-height: var(--rf-tag-leading);
 }
 
-/* 黃底跟著每一欄各自斷開，長短欄因此各有自己的色塊，和海報一樣。 */
-.rf-tag__inner {
-  padding: 0.18em 0.2em;
+/*
+ * 色塊左右不另外加內距：直書的行高（1.26em）本來就讓色塊比字寬一點，
+ * 再加內距只會把標籤欄撐寬、把照片擠窄。上下的 0.18em 是色塊收頭的留白。
+ */
+.rf-tag__main,
+.rf-tag__sub {
+  padding: 0.18em 0;
   background: var(--rf-yellow);
   color: var(--rf-navy);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+}
+
+/*
+ * 副標比主標小一號，報紙的標題才有主從。
+ * 用 em（相對主標）而不是 cqw：格線在算 auto 欄寬時，欄裡的 cqw 字級
+ * 會被當成主標的尺寸，標籤欄就會多撐出一截空白紙。
+ */
+.rf-tag__sub {
+  font-size: 0.68em;
 }
 
 .rf-lines {
@@ -818,7 +853,7 @@ body:has(.rf-page) {
   transform: translateX(0.6cqw);
 }
 
-[data-rf-reveal="out"] .rf-tag__inner {
+[data-rf-reveal="out"] .rf-tag > * {
   opacity: 0;
 }
 
@@ -836,7 +871,7 @@ body:has(.rf-page) {
       transform 0.7s var(--rf-ease) 0.14s;
   }
 
-  [data-rf-reveal="in"] .rf-tag__inner {
+  [data-rf-reveal="in"] .rf-tag > * {
     opacity: 1;
     transition: opacity 0.45s ease 0.2s;
   }
@@ -853,7 +888,7 @@ body:has(.rf-page) {
 @media (prefers-reduced-motion: reduce) {
   [data-rf-reveal] .rf-photo__img,
   [data-rf-reveal] .rf-lines,
-  [data-rf-reveal] .rf-tag__inner {
+  [data-rf-reveal] .rf-tag > * {
     opacity: 1;
     clip-path: none;
     transform: none;
@@ -878,6 +913,7 @@ body:has(.rf-page) {
     --rf-copy-leading: 2;
     --rf-tag: 1.3rem;
     --rf-tag-leading: 1.3;
+    --rf-tag-gap: 3px;
     --rf-ribbon: clamp(0.95rem, 4.2vw, 1.4rem);
     /*
      * 窄螢幕的紙寬會被 34rem 封頂，用 vw 算會算出一個比紙還寬的書脊；
@@ -974,8 +1010,9 @@ body:has(.rf-page) {
     justify-self: start;
   }
 
-  .rf-tag__inner {
-    padding: 0.16em 0.4em;
+  .rf-tag__main,
+  .rf-tag__sub {
+    padding: 0.14em 0.4em;
   }
 
   /* 格高不再由海報決定，照片改用固定比例。 */
