@@ -136,8 +136,8 @@ body:has(.st-page) {
   --st-caption: 1.5cqw;
   /* 稿子上報尾那組字標橫量 152：要跟稿子一樣寬，級數只能照字寬給。 */
   --st-footword: 2.3cqw;
-  /* 稿子上 DROP 卡的號碼墨高 23，是卡裡最顯眼的一筆。 */
-  --st-index: 3.4cqw;
+  /* 稿子上 DROP 卡的號碼墨高 17，比原先量的小一號。 */
+  --st-index: 2.8cqw;
   /*
    * 稿子上卡名一行塞得進六個字（卡的淨寬約 110）。手上的字是方的，
    * 一個字就佔滿一個字級，所以級數只能照「排得下六個字」給，不是照墨高給。
@@ -771,8 +771,8 @@ body:has(.st-page) {
 .st-drops {
   display: grid;
 
-  /* 稿子上這條帶高 342、帶寬 814。標頭給自然高，卡片列收剩下的。 */
-  height: 42cqw;
+  /* 稿子上這條帶的框是 640..998，帶高 358。標頭給自然高，卡片列收剩下的。 */
+  height: 44cqw;
   grid-template-rows: auto minmax(0, 1fr);
 }
 
@@ -781,8 +781,10 @@ body:has(.st-page) {
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 1.4cqw;
-  padding: 0.4cqw 0.5cqw 1.1cqw;
-  border-bottom: var(--st-hair) solid var(--st-ink-soft);
+  /* 稿子上這一列的框是 11..77，連框 66 高，底下沒有多留。 */
+  padding: 0.4cqw 0.5cqw 0.2cqw;
+  /* 稿子上這一列是整條框起來的（框是 11..77），不是標題加一條底線。 */
+  border: var(--st-hair) solid var(--st-ink-soft);
 }
 
 .st-drops__title {
@@ -829,8 +831,11 @@ body:has(.st-page) {
   /* 列要封頂：卡片高度由帶高決定，圖收剩下的空間。 */
   grid-template-rows: minmax(0, 1fr);
 
-  /* 稿子上六張卡是連成一排的，相鄰的框線共用一條，中間沒有欄距。 */
-  gap: 0;
+  /*
+   * 稿子上六張卡各自是一只框，框與框之間留了 5 的縫——放大看是兩道線夾著
+   * 一條紙白，不是共用一條線。
+   */
+  gap: 0.6cqw;
   margin: 0;
   padding: var(--st-cell-gap) 0 0;
   list-style: none;
@@ -846,9 +851,16 @@ body:has(.st-page) {
  */
 .st-drop {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  /* 卡變窄之後左右還留 1.5 的話，六個字的卡名就塞不進一行。 */
+  --st-drop-pad: 1.2cqw;
+
   gap: 0.55cqw;
-  padding: 1cqw 1.5cqw;
+  /*
+   * 稿子上雕版那一列是定高的（152..276），剩下的空白留在說明與連結之間，
+   * 不是堆在圖的下面——所以圖給 max、說明那一列吃剩下的。
+   */
+  grid-template-rows: auto auto minmax(0, 15.3cqw) minmax(min-content, 1fr) auto;
+  padding: 1cqw var(--st-drop-pad);
   border: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -885,8 +897,8 @@ body:has(.st-page) {
 .st-drop__art {
   align-self: stretch;
   min-height: 0;
-  width: calc(100% + 3cqw);
-  margin: 0 -1.5cqw;
+  width: calc(100% + 2 * var(--st-drop-pad));
+  margin: 0 calc(-1 * var(--st-drop-pad));
   object-fit: cover;
 }
 
