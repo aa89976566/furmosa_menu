@@ -134,7 +134,8 @@ body:has(.st-page) {
   --st-note: 2cqw;
   --st-name: 1.7cqw;
   --st-caption: 1.5cqw;
-  --st-footword: 2.7cqw;
+  /* 稿子上報尾那組字標橫量 152：要跟稿子一樣寬，級數只能照字寬給。 */
+  --st-footword: 2.3cqw;
   /* 稿子上 DROP 卡的號碼墨高 23，是卡裡最顯眼的一筆。 */
   --st-index: 3.4cqw;
   /*
@@ -1559,9 +1560,17 @@ body:has(.st-page) {
 .st-footer {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 1.2cqw 2cqw;
+  /* 稿子上這一列是對著字標的基線排的，不是對著它的腰。 */
+  align-items: baseline;
+  /*
+   * 帶高是釘住的，兩列若按預設拉開填滿，列裡的東西就跟著往下飄。
+   * 稿子上這兩列是貼著上緣排的，多出來的高度全留在底下。
+   */
+  align-content: start;
+  /* 稿子上標語離上面那一列只有 17，其中大半是字本身的行高。 */
+  gap: 0.54cqw 2cqw;
   margin-top: var(--st-band-gap);
+  /* 稿子上標語收在 72、頁尾的框到 102：靠 align-content 把三十的白留在底下。 */
   padding: 1.4cqw 0.4cqw 0;
   border-top: var(--st-rule) solid var(--st-ink);
 
@@ -1575,7 +1584,7 @@ body:has(.st-page) {
 
 .st-footer__brand {
   display: grid;
-  gap: 0.5cqw;
+  gap: 0.3cqw;
 }
 
 .st-footer__mark {
@@ -1600,7 +1609,8 @@ body:has(.st-page) {
 .st-footer__line {
   font-family: var(--st-font-didone), serif;
   font-size: var(--st-origin);
-  letter-spacing: 0.24em;
+  /* 稿子上這一行橫量 152：要跟字標一樣寬，字距只能收到這裡。 */
+  letter-spacing: 0.117em;
 }
 
 .st-footer__nav {
@@ -1677,15 +1687,15 @@ body:has(.st-page) {
   letter-spacing: 0.14em;
 }
 
-/* 報尾最後那條標語：字兩側各拉一條線出去。 */
+/* 報尾最後那條標語：字兩側各壓一小截破折號。 */
 .st-footer__slogan {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: auto auto auto;
+  justify-content: center;
   align-items: center;
-  gap: 1.2cqw;
-  margin-top: 0.2cqw;
-  padding: 0.5cqw 0 0;
+  /* 稿子上破折號離字 13。 */
+  gap: 1.6cqw;
   color: var(--st-ink);
   font-size: var(--st-copy);
   letter-spacing: 0.44em;
@@ -1693,10 +1703,12 @@ body:has(.st-page) {
   text-indent: 0.44em;
 }
 
+/* 稿子上這兩截只有 12 長，不是拉到紙邊的長線。 */
 .st-footer__slogan::before,
 .st-footer__slogan::after {
   content: "";
-  border-top: var(--st-hair) solid var(--st-ink-soft);
+  width: 1.47cqw;
+  border-top: var(--st-hair) solid var(--st-ink-mid);
 }
 
 /* ---------- 窄螢幕 ---------- */
