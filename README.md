@@ -1,12 +1,14 @@
 # 不用登入的預覽鏡像（自動產生，不要改這個分支）
 
-這個分支不是程式碼，是 `cursor/furmosa-real-food-poster-site-0dea` 那一版的
-**靜態輸出**，只為了一件事存在：Vercel 的預覽網址開了 Deployment Protection，
-手機上沒登入就會被擋，所以把同一版輸出成純靜態檔，放在這個公開 repo 上，
-由公開 CDN 直接服務，任何人不用登入就能打開。
+這個分支不是程式碼，是程式碼分支的**靜態輸出**，只為了一件事存在：Vercel 的
+預覽網址開了 Deployment Protection，手機上沒登入就會被擋，所以把同一版輸出
+成純靜態檔，放在這個公開 repo 上，由公開 CDN 直接服務，任何人不用登入就能打開。
+
+目前這一版輸出自 `cursor/store-letterpress-homepage-0dea`。
 
 預覽網址（手機直接開）：
 
+- **門市版首頁 `/store`（照設計稿的兩色雕版）** — https://raw.githack.com/aa89976566/furmosa_menu/cursor/static-mobile-preview-0dea/store/index.html
 - 報紙 `/real-food` — https://raw.githack.com/aa89976566/furmosa_menu/cursor/static-mobile-preview-0dea/real-food/index.html
 - 市場報 `/paper` — https://raw.githack.com/aa89976566/furmosa_menu/cursor/static-mobile-preview-0dea/paper/index.html
 - 中秋公益海報 `/mooncake` — https://raw.githack.com/aa89976566/furmosa_menu/cursor/static-mobile-preview-0dea/mooncake/index.html
@@ -24,8 +26,16 @@
 
 ## 怎麼重新產生
 
-在那個分支上把 `next.config.ts` 換成 `output: "export"`、
-`images.unoptimized: true`、`assetPrefix` 指到這個分支在 CDN 上的位置，
-`npm run build`，再把 `out/` 的內容覆蓋到這個分支的根目錄。
+在程式碼分支上把 `next.config.ts` 暫時換成：
+
+```ts
+output: "export",
+assetPrefix: "https://raw.githack.com/aa89976566/furmosa_menu/cursor/static-mobile-preview-0dea",
+images: { unoptimized: true },
+trailingSlash: true,
+```
+
+`npm run build`，把 `out/` 的內容覆蓋到這個分支的根目錄，再把 `next.config.ts`
+改回來（**不要**把 export 設定提交到程式碼分支）。
 
 Vercel 那邊關掉 Deployment Protection 之後，這個分支就可以刪了。
