@@ -116,7 +116,8 @@ body:has(.st-page) {
   /* 稿子上這條副題墨高只有 12、橫量 266：級數照字高給，寬度靠字距補。 */
   --st-strap: 1.83cqw;
   --st-quote: 2.6cqw;
-  --st-nav: 1.95cqw;
+  /* 稿子上一個欄目字橫量 14：欄目列要撐滿帶寬，級數只能照字寬給。 */
+  --st-nav: 1.72cqw;
   --st-claim: 6cqw;
   --st-headline: 3.9cqw;
   --st-section: 5cqw;
@@ -265,9 +266,15 @@ body:has(.st-page) {
 
 .st-utility__links {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-end;
   gap: 1.4cqw;
+}
+
+/* 稿子上這幾項之間各有一道細豎線，線沒有頂到欄的上下緣。 */
+.st-utility__links > * + * {
+  padding-left: 1.4cqw;
+  border-left: var(--st-hair) solid var(--st-ink-soft);
 }
 
 .st-utility__links a {
@@ -281,10 +288,11 @@ body:has(.st-page) {
   color: var(--st-red);
 }
 
+/* 稿子上這顆放大鏡比旁邊的字高，不是跟字一樣小。 */
 .st-utility__search svg {
   display: block;
-  width: 1.3cqw;
-  height: 1.3cqw;
+  width: 1.9cqw;
+  height: 1.9cqw;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.2;
