@@ -7,29 +7,32 @@ import dogCutletCutout from "@/assets/poster/dog-cutlet-cutout.webp";
 /*
  * 延伸七帶的第二張照片取自各個活動頁（drop）自己的圖，裁成正方：
  * 那七帶的照片格實測是 288×282，照原比例放進去只會被切掉主體。
- * 退下來的那幾張（洗毛精、紙袋雞排、黑糖、白貓、照片牆、藤編碗、
- * 綜合肉乾）還留在 src/assets/poster/，要換回來不必動版面。
+ * 退下來的那幾張（洗毛精、黑糖、白貓、照片牆、綜合肉乾）還留在
+ * src/assets/poster/，要換回來不必動版面。
  */
 import dropAllFriesCup from "@/assets/poster/drop-all-fries-cup.jpg";
-import dropBowlJerky from "@/assets/poster/drop-bowl-jerky.jpg";
+import dropBowlYellow from "@/assets/poster/drop-bowl-yellow.jpg";
 import dropCardShiba from "@/assets/poster/drop-card-shiba.jpg";
 import dropCatCatgrass from "@/assets/poster/drop-cat-catgrass.jpg";
 import dropCutletDog from "@/assets/poster/drop-cutlet-dog.jpg";
 import dropMoonPacks from "@/assets/poster/drop-moon-packs.jpg";
 import dropPartnerPigear from "@/assets/poster/drop-partner-pigear.jpg";
 /*
- * 延伸七帶的第一張照片就是那一頁本身：用 430px 寬的手機視窗拍下來、
- * 裁成正方的網頁畫面，所以報紙上登的是那個網頁，不是它的代表照。
- * 取景一律讓那一頁的標題（或主視覺）落在框內，才看得出是哪一頁；
- * 全部商品那一頁的架上還有一批 $0.89 的佔位價，取景時刻意留在框外。
+ * 延伸七帶的第一張照片是那一頁的 hero 圖——那一頁最上面那張主視覺的
+ * 原始檔（og:image、首圖或影片封面），不是網頁截圖，所以報紙上登的是
+ * 那一頁自己拿來當門面的照片，一律裁成正方。
+ *
+ * 兩頁沒有 hero 圖，取那一頁的第一張圖代替（紙背的「網頁」列有註記）：
+ * 全部商品頁的 hero 位置是「給牠的愛」標題加商品格，所以取架上第一格；
+ * 店家合作頁的門面是牛皮紙信箋，是 CSS 疊出來的，所以取目錄第一項。
  */
-import pageAll from "@/assets/poster/page-01-all.webp";
-import pageBowl from "@/assets/poster/page-06-bowl.webp";
-import pageCard from "@/assets/poster/page-05-card.webp";
-import pageCat from "@/assets/poster/page-04-cat.webp";
-import pageCutlet from "@/assets/poster/page-02-cutlet.webp";
-import pageMoon from "@/assets/poster/page-03-moon.webp";
-import pagePartner from "@/assets/poster/page-07-partner.webp";
+import heroAll from "@/assets/poster/hero-01-all.webp";
+import heroBowl from "@/assets/poster/hero-06-bowl.webp";
+import heroCard from "@/assets/poster/hero-05-card.webp";
+import heroCat from "@/assets/poster/hero-04-cat.webp";
+import heroCutlet from "@/assets/poster/hero-02-cutlet.webp";
+import heroMoon from "@/assets/poster/hero-03-moon.webp";
+import heroPartner from "@/assets/poster/hero-07-partner.webp";
 /* 製程三連拍是情境示意圖，官網沒有製程照（紙背有註記）。 */
 import processDry from "@/assets/poster/process-03-dry.jpg";
 import processPaste from "@/assets/poster/process-02-paste.jpg";
@@ -84,7 +87,7 @@ export const OPENING = {
     {
       label: "網頁",
       value:
-        "① 全部商品 furmosa.com/collections/all ・② 嚎大大◈雞霸 furmosa.com/products/chicken-fillet ・③ 浪浪交易所｜中秋限定盤 them-stock-moon.furmosa.com ・④ chill嗨嗨ㄟ貓 catnip-chick.furmosa.com ・⑤ 再來一包｜毛孩人格抽驗 furmosa-one-more-street ・⑥ 預購！背景很硬的碗 furmosa.com/pages/found-object-001 ・⑦ 店家合作 furmosa.com/pages/partner",
+        "① 全部商品 furmosa.com/collections/all（無 hero 圖，取架上第一格）・② 嚎大大◈雞霸 furmosa.com/products/chicken-fillet ・③ 浪浪交易所｜中秋限定盤 them-stock-moon.furmosa.com ・④ chill嗨嗨ㄟ貓 catnip-chick.furmosa.com（hero 影片封面）・⑤ 再來一包｜毛孩人格抽驗 furmosa-one-more-street ・⑥ 預購！背景很硬的碗 furmosa.com/pages/found-object-001 ・⑦ 店家合作 furmosa.com/pages/partner（門面為 CSS 牛皮紙信箋，取目錄第一項）",
     },
     {
       label: "公益",
@@ -252,8 +255,8 @@ export const CHAPTERS: Chapter[] = [
  * 延伸的七帶：首頁那份編號清單的每一列，在報紙上就是往下接的一條帶。
  *
  * 一帶登的就是那一個網頁，所以標籤用那一頁自己的名字（長的照首頁的「｜」
- * 拆成主標與副標），第一張照片是那一頁的網頁畫面，第二張是那一頁在賣的
- * 東西——報導要看得到網頁，也要看得到產品。
+ * 拆成主標與副標），第一張照片是那一頁的 hero 圖，第二張是那一頁在賣的
+ * 東西——報導要登那一頁自己的門面，也要看得到產品。
  *
  * 編排與上面四帶完全同一套——照片｜照片｜直書本文｜黃色標籤——所以字數
  * 的算法也一樣：帶高 274fr（約 282 像素）÷ 本文字級 ＝ 一行九字，
@@ -301,8 +304,8 @@ export const DROPS: Chapter[] = [
     ],
     photos: [
       {
-        image: pageAll,
-        alt: "全部商品頁的網頁畫面：「給牠的愛」標題與洗護品項的商品格",
+        image: heroAll,
+        alt: "全部商品頁架上第一格：Earthbath 2 合 1 芒果探戈洗毛精 473ml",
       },
       {
         image: dropAllFriesCup,
@@ -328,8 +331,8 @@ export const DROPS: Chapter[] = [
     ],
     photos: [
       {
-        image: pageCutlet,
-        alt: "雞霸商品頁的網頁畫面：「嚎大大 ◈ 雞霸」標題與高蛋白補給、高適口性兩張說明卡",
+        image: heroCutlet,
+        alt: "雞霸商品頁的 hero 圖：一片大雞排插在印著 Thank you very much 的匠寵紙袋裡",
       },
       {
         image: dropCutletDog,
@@ -355,8 +358,8 @@ export const DROPS: Chapter[] = [
     ],
     photos: [
       {
-        image: pageMoon,
-        alt: "浪浪交易所的網頁畫面：「這個中秋，想幫七隻狗狗找到家」與月餅售出、找到家的計數",
+        image: heroMoon,
+        alt: "浪浪交易所的 hero 圖：小輝的正面大頭照，穿著橘色背心在街上張嘴笑",
       },
       {
         image: dropMoonPacks,
@@ -382,8 +385,8 @@ export const DROPS: Chapter[] = [
     ],
     photos: [
       {
-        image: pageCat,
-        alt: "嗨嗨ㄟ貓活動頁的網頁畫面：一隻貓與「慢熱型」的貓格卡",
+        image: heroCat,
+        alt: "嗨嗨ㄟ貓活動頁的 hero 影片封面：一隻長毛貓側躺在綠色地磚上",
       },
       {
         image: dropCatCatgrass,
@@ -409,8 +412,8 @@ export const DROPS: Chapter[] = [
     ],
     photos: [
       {
-        image: pageCard,
-        alt: "再來一包活動頁的網頁畫面：街景主視覺與「毛孩照片牆」、「我抽到卡了」兩個入口",
+        image: heroCard,
+        alt: "再來一包活動頁的 hero 圖：台灣巷口的毛孩街坊，背包小狗與兩隻貓在廟前走過",
       },
       {
         image: dropCardShiba,
@@ -430,18 +433,18 @@ export const DROPS: Chapter[] = [
       "做的狗碗，綠黑與黃",
       "色兩色，尺寸從十七",
       "公分到二十六公分共",
-      "四款，現正預購。碗",
-      "是給牠的，裝什麼還",
-      "是由你挑。",
+      "四款，現正預購。藤",
+      "是回收的，碗是一只",
+      "一只手編的。",
     ],
     photos: [
       {
-        image: pageBowl,
-        alt: "背景很硬的碗預購頁的網頁畫面：藤編狗碗與小、中、大、特大四個尺寸",
+        image: heroBowl,
+        alt: "背景很硬的碗預購頁的 hero 圖：綠黑款回收藤編狗碗的四十五度角",
       },
       {
-        image: dropBowlJerky,
-        alt: "切成塊的雞肉乾，可以剪成小段放進碗裡",
+        image: dropBowlYellow,
+        alt: "同一款碗的黃色版本，碗身是原色藤編、碗內上黃釉",
       },
     ],
     media: "pair",
@@ -463,8 +466,8 @@ export const DROPS: Chapter[] = [
     ],
     photos: [
       {
-        image: pagePartner,
-        alt: "店家合作頁的網頁畫面：匠寵店家合作的抬頭與日常肉乾、凍乾商品、特色商品的品項目錄",
+        image: heroPartner,
+        alt: "店家合作頁目錄第一項：一堆切成片的雞肉乾",
       },
       {
         image: dropPartnerPigear,
