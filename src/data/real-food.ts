@@ -30,6 +30,7 @@ import heroAll from "@/assets/poster/hero-01-all.webp";
 import heroBowl from "@/assets/poster/hero-06-bowl.webp";
 import heroCard from "@/assets/poster/hero-05-card.webp";
 import heroCat from "@/assets/poster/hero-04-cat.webp";
+/* 雞霸那一帶的 hero 來自 /haodada 的獨立頁，不是 furmosa.com 的商品頁。 */
 import heroCutlet from "@/assets/poster/hero-02-cutlet.webp";
 import heroMoon from "@/assets/poster/hero-03-moon.webp";
 import heroPartner from "@/assets/poster/hero-07-partner.webp";
@@ -87,7 +88,7 @@ export const OPENING = {
     {
       label: "網頁",
       value:
-        "① 全部商品 furmosa.com/collections/all（無 hero 圖，取架上第一格）・② 嚎大大◈雞霸 furmosa.com/products/chicken-fillet ・③ 浪浪交易所｜中秋限定盤 them-stock-moon.furmosa.com ・④ chill嗨嗨ㄟ貓 catnip-chick.furmosa.com（hero 影片封面）・⑤ 再來一包｜毛孩人格抽驗 furmosa-one-more-street ・⑥ 預購！背景很硬的碗 furmosa.com/pages/found-object-001 ・⑦ 店家合作 furmosa.com/pages/partner（門面為 CSS 牛皮紙信箋，取目錄第一項）",
+        "① 全部商品 furmosa.com/collections/all（無 hero 圖，取架上第一格）・② 嚎大大雞霸 /haodada → aa89976566.github.io/haodada ・③ 浪浪交易所｜中秋限定盤 them-stock-moon.furmosa.com ・④ chill嗨嗨ㄟ貓 catnip-chick.furmosa.com（hero 影片封面）・⑤ 再來一包｜毛孩人格抽驗 furmosa-one-more-street ・⑥ 預購！背景很硬的碗 furmosa.com/pages/found-object-001 ・⑦ 店家合作 furmosa.com/pages/partner（門面為 CSS 牛皮紙信箋，取目錄第一項）",
     },
     {
       label: "公益",
@@ -275,16 +276,12 @@ const DROP_HREFS = new Map(
 );
 
 /*
- * 首頁第二列連的是相對路徑 /haodada，而 furmosa.com 上沒有這一頁
- * （站台地圖裡也沒有），雞霸真正的商品頁是 /products/chicken-fillet。
- * 首頁那一列不在這次的改動範圍，所以這裡只替報紙補上正確的網址。
+ * 七列的網址照首頁原樣用，相對路徑也照用：第二列的 /haodada 不是壞連結，
+ * next.config.ts 把它改寫到 aa89976566.github.io/haodada（雞霸的獨立頁），
+ * 所以在這個站台裡點得開。
  */
-const CUTLET_URL = "https://furmosa.com/products/chicken-fillet";
-
-/** 只有接得出去的絕對網址才當連結，相對路徑一律不接。 */
 function dropHref(index: number): string | undefined {
-  const href = DROP_HREFS.get(index);
-  return href?.startsWith("http") ? href : undefined;
+  return DROP_HREFS.get(index);
 }
 
 export const DROPS: Chapter[] = [
@@ -332,7 +329,7 @@ export const DROPS: Chapter[] = [
     photos: [
       {
         image: heroCutlet,
-        alt: "雞霸商品頁的 hero 圖：一片大雞排插在印著 Thank you very much 的匠寵紙袋裡",
+        alt: "雞霸頁的 hero 圖：一台「嚎大大雞排 食品資訊」印表機，六個工站從絞肉製泥排到低溫烘乾",
       },
       {
         image: dropCutletDog,
@@ -340,7 +337,7 @@ export const DROPS: Chapter[] = [
       },
     ],
     media: "pair",
-    href: CUTLET_URL,
+    href: dropHref(2),
   },
   {
     id: "drop-moon",
