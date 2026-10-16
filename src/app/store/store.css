@@ -49,15 +49,21 @@ body:has(.st-page) {
   color: var(--st-paper);
 }
 
-/* 紙紋。整頁一層，壓在內容之上以 multiply 疊色，讓墨色吃到紙的顆粒。 */
+/*
+ * 紙紋。整頁一層，壓在內容之上以 multiply 疊色，讓墨色吃到紙的顆粒。
+ * 兩層疊著用：細的那層是纖維的顆粒，粗的那層是手工紙上大塊的濃淡，
+ * 只有細的那層時紙面會太均勻，看起來像螢幕而不像紙。
+ */
 .st-grain {
   position: fixed;
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  opacity: 0.34;
+  opacity: 0.42;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='520' height='520' filter='url(%23m)' opacity='0.3'/%3E%3C/svg%3E");
+  background-size: 180px 180px, 520px 520px;
 }
 
 /* ---------- 紙張 ---------- */
@@ -96,15 +102,17 @@ body:has(.st-page) {
   --st-utility: 1.4cqw;
   --st-badge: 2.1cqw;
   --st-origin: 1cqw;
-  --st-word: 16.1cqw;
-  --st-word-w: 48.9cqw;
-  --st-word-squeeze: 0.592;
-  --st-brand: 5.6cqw;
-  --st-strap: 1.5cqw;
-  --st-quote: 1.6cqw;
-  --st-nav: 1.85cqw;
+  /* 報頭左邊那塊「犬貓樂」是整張紙上第二大的字，跟欄裡蓋的小印不同級。 */
+  --st-badge-word: 5.1cqw;
+  --st-word: 12.78cqw;
+  --st-word-w: 42cqw;
+  --st-word-squeeze: 0.627;
+  --st-brand: 6.1cqw;
+  --st-strap: 2.6cqw;
+  --st-quote: 2.6cqw;
+  --st-nav: 1.95cqw;
   --st-claim: 4.5cqw;
-  --st-headline: 2.5cqw;
+  --st-headline: 4.2cqw;
   --st-section: 5.2cqw;
   --st-subsection: 3.8cqw;
   --st-block: 3.2cqw;
@@ -138,10 +146,18 @@ body:has(.st-page) {
   text-orientation: upright;
 }
 
+/*
+ * 稿子上的關防是立著的橢圓，框線比格線粗得多，兩個字中間還橫一條分隔線。
+ * 線是背景畫的，所以不必為它多包一層標籤。
+ */
 .st-seal--oval {
+  border-width: 0.3cqw;
   border-radius: 50%;
-  /* 關防的字是直書的兩個字，所以印面是立著的橢圓。 */
-  padding: 0.56em 0.5em;
+  padding: 0.46em 0.21em;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: calc(100% - 0.3em) var(--st-rule);
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .st-seal--square {
@@ -151,12 +167,14 @@ body:has(.st-page) {
     0 0 0 calc(var(--st-rule) * 2.6) currentColor;
 }
 
+/* 兩側的細線交給 border，SVG 裡就不必算「寬度減一」畫不出來的右邊線。 */
 .st-ornament {
   display: block;
   width: 100%;
   height: 100%;
-  color: var(--st-ink-mid);
-  opacity: 0.85;
+  border-left: var(--st-hair) solid currentColor;
+  border-right: var(--st-hair) solid currentColor;
+  color: var(--st-ink);
 }
 
 /* 雕版：圖檔自己帶墨色與透明底，所以只管尺寸，不鋪底、不裁切。 */
@@ -273,15 +291,17 @@ body:has(.st-page) {
   position: relative;
   display: grid;
   height: 23.2cqw;
-  grid-template-columns: 9.6cqw 3.4cqw auto minmax(0, 1fr) 18.6cqw;
+
+  /* 稿子上這五欄量出來是 7.75 / 4.4 / 6.6 / 餘 / 17.3，欄距只有 0.4。 */
+  grid-template-columns: 7.75cqw 4.4cqw auto minmax(0, 1fr) 17.3cqw;
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     "badge weave seal mark quote"
     "badge weave seal strap quote";
   align-items: center;
-  gap: 0 1.5cqw;
+  gap: 0 0.42cqw;
   margin-top: var(--st-band-gap);
-  padding: 1.5cqw;
+  padding: 1.2cqw;
   border: var(--st-hair) solid var(--st-ink);
 }
 
@@ -303,27 +323,31 @@ body:has(.st-page) {
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 0.8cqw;
+  gap: 0.4cqw;
   align-self: stretch;
-  padding: 0.6cqw 0;
+  padding: 0.3cqw 0;
   border: var(--st-hair) solid var(--st-ink-soft);
 }
 
+/* 稿子上這三個字幾乎把方框填滿，字距是貼著的，不是鬆鬆散開的。 */
 .st-masthead__badge-text {
   writing-mode: vertical-rl;
   text-orientation: upright;
-  font-size: var(--st-badge);
+  font-size: var(--st-badge-word);
   font-weight: 700;
-  letter-spacing: 0.3em;
+  /* 直書時行高就是欄寬：放鬆了這一欄會比方框還寬，整句就斷成兩欄。 */
+  line-height: 1.05;
+  letter-spacing: 0.02em;
 }
 
 .st-masthead__origin {
   display: grid;
   justify-items: center;
-  gap: 0.2em;
-  padding-top: 0.7cqw;
+  gap: 0.1em;
+  padding-top: 0.45cqw;
   border-top: var(--st-hair) solid var(--st-ink-soft);
   width: 68%;
+  line-height: 1.25;
   font-family: var(--st-font-didone), serif;
   font-size: var(--st-origin);
   letter-spacing: 0.22em;
@@ -335,12 +359,13 @@ body:has(.st-page) {
   align-self: stretch;
 }
 
+/* 稿子上字標靠左擺，右邊的空比左邊多一倍，不是置中。 */
 .st-masthead__mark {
   grid-area: mark;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 1.4cqw;
+  padding-left: 2.4cqw;
   color: inherit;
   text-decoration: none;
 }
@@ -348,12 +373,12 @@ body:has(.st-page) {
 /* 關防自己佔一欄，不混在字標那一列裡，才不會壓到花邊或 F。 */
 .st-masthead__seal {
   grid-area: seal;
-  font-size: 2.5cqw;
+  font-size: 4.4cqw;
 }
 
 /*
- * 稿子上的 FURMOSA 是窄長的 Didone：字高是帶寬的 12.7%，整個字卻只佔 48.9%，
- * 一個字母的寬高比約 0.55。手上的 Bodoni Moda 沒有寬度軸，自然比例是 0.79，
+ * 稿子上的 FURMOSA 是窄長的 Didone：字高是帶寬的 9.2%，整個字佔 42.1%，
+ * 一個字母的寬高比約 0.65。手上的 Bodoni Moda 沒有寬度軸，自然比例是 0.79，
  * 所以把字級開到該有的高度，再沿橫向壓到該有的寬度。盒子的寬度寫的是壓完
  * 以後的寬，所以版面照壓完的結果排，不會被壓前的字寬推開。
  */
@@ -377,28 +402,79 @@ body:has(.st-page) {
   font-size: var(--st-brand);
   font-weight: 900;
   line-height: 1.3;
-  letter-spacing: 0;
+  /*
+   * 稿子上這兩個字是窄長體，墨高比墨寬多了一成；手上的字是方的，
+   * 所以只能把兩字之間的空拉開，讓整疊的墨高對得上。
+   */
+  letter-spacing: 0.4em;
 }
 
+/* 稿子上這行標語比想像的大一級，字距卻是窄的——大而密，不是小而散。 */
 .st-masthead__line {
   grid-area: strap;
   font-family: var(--st-font-didone), serif;
   font-size: var(--st-strap);
-  letter-spacing: 0.42em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-align: center;
-  text-indent: 0.42em;
+  text-indent: 0.06em;
 }
 
+/*
+ * 稿子上這只框是：紅框 + 角花，三欄直書的藍字從右邊排進來，狗壓在右下角
+ * 的空處。狗不佔欄，用絕對定位放在角上，三欄字才能用滿整個框寬。
+ */
 .st-masthead__quote {
   grid-area: quote;
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 36%;
-  align-items: end;
-  gap: 0.6cqw;
   align-self: stretch;
   padding: 1cqw 0.9cqw;
   border: var(--st-rule) solid var(--st-red);
+}
+
+/*
+ * 角花。稿子上每一只紅框的四個角都壓著一小截 L 形花邊，是活版框線的做法。
+ * 用八塊背景色畫出四個角，不必為了裝飾多塞四個元素到版面裡。
+ */
+.st-masthead__quote::after,
+.st-hero__claim::after,
+.st-hero__plate::after,
+.st-about__claim::after,
+.st-swap::after {
+  content: "";
+  position: absolute;
+  inset: 0.42cqw;
+  pointer-events: none;
+
+  --st-corner: 1.5cqw;
+  --st-corner-ink: var(--st-red);
+  background-image: linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink)),
+    linear-gradient(var(--st-corner-ink), var(--st-corner-ink));
+  background-size: var(--st-corner) var(--st-hair), var(--st-hair) var(--st-corner),
+    var(--st-corner) var(--st-hair), var(--st-hair) var(--st-corner),
+    var(--st-corner) var(--st-hair), var(--st-hair) var(--st-corner),
+    var(--st-corner) var(--st-hair), var(--st-hair) var(--st-corner);
+  background-position: left top, left top, right top, right top, left bottom, left bottom,
+    right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
+/* 這兩只框是藍墨的，角花跟著改色。 */
+.st-hero__claim::after,
+.st-about__claim::after {
+  --st-corner-ink: var(--st-red-soft);
+}
+
+.st-hero__plate,
+.st-about__claim,
+.st-swap {
+  position: relative;
 }
 
 /* 引文框也是雙框，內框跟著紅墨。 */
@@ -413,18 +489,23 @@ body:has(.st-page) {
 .st-masthead__quote-text {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  justify-self: end;
-  max-height: 100%;
-  color: var(--st-red);
+  height: 100%;
+  color: var(--st-ink);
   font-size: var(--st-quote);
   font-weight: 500;
-  line-height: 1.66;
-  letter-spacing: 0.06em;
-  text-align: center;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.st-masthead__quote-text span {
+  display: block;
 }
 
 .st-masthead__dog {
-  align-self: end;
+  position: absolute;
+  right: 1cqw;
+  bottom: 0.9cqw;
+  width: 36%;
   height: auto;
 }
 
@@ -452,12 +533,13 @@ body:has(.st-page) {
   border-top: var(--st-hair) solid var(--st-ink-soft);
 }
 
+/* 稿子上欄目是粗的、字距是緊的；原來的細體寬字距看起來像內文不像欄目。 */
 .st-nav__link {
   color: var(--st-ink);
   white-space: nowrap;
   font-size: var(--st-nav);
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-decoration: none;
   transition: color 0.18s ease;
 }
@@ -484,7 +566,7 @@ body:has(.st-page) {
 .st-hero {
   display: grid;
   height: 41.9cqw;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 3.5fr) minmax(0, 1.78fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 3.1fr) minmax(0, 2.15fr);
   /* 列也要封頂，否則格子按 max-content 長高，整條帶就被內容頂破。 */
   grid-template-rows: minmax(0, 1fr);
   gap: var(--st-cell-gap);
@@ -566,11 +648,14 @@ body:has(.st-page) {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   max-height: 100%;
+  /* 稿子上大標與內文之間落一條直線。 */
+  padding-left: 1.2cqw;
+  border-left: var(--st-hair) solid var(--st-ink-soft);
   color: var(--st-ink);
   font-size: var(--st-headline);
   font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0.06em;
+  line-height: 1.32;
+  letter-spacing: 0.02em;
 }
 
 .st-hero__body {
@@ -580,14 +665,33 @@ body:has(.st-page) {
   justify-self: end;
   max-height: 100%;
   color: var(--st-ink-mid);
-  font-size: var(--st-copy);
-  line-height: 2.1;
-  letter-spacing: 0.08em;
+  /* 最長那一句（十七個字）要排得進一欄，不然會掉出一個兩字的孤欄。 */
+  font-size: 1.8cqw;
+  line-height: 1.9;
+  letter-spacing: 0.04em;
 }
 
 .st-hero__copy .st-link {
   grid-area: cta;
   align-self: end;
+  padding-top: 0.8cqw;
+  border-top: var(--st-hair) solid var(--st-ink-soft);
+  font-size: var(--st-note);
+}
+
+/* 箭頭推到欄的另一端，中間拉一條紅線把它接回「看更多」。 */
+.st-hero__copy .st-link span {
+  flex: 1;
+  position: relative;
+  line-height: 1;
+  text-align: right;
+}
+
+.st-hero__copy .st-link span::before {
+  content: "";
+  position: absolute;
+  inset: 50% 1.1em auto 0;
+  border-top: var(--st-hair) solid currentcolor;
 }
 
 /* ---------- 本期六大 DROP ---------- */
@@ -749,8 +853,9 @@ body:has(.st-page) {
   text-orientation: mixed;
   max-height: 100%;
   color: var(--st-ink);
-  /* 稿子上這三欄的字比帶名小一截，欄距是字級的 1.5 倍。 */
-  font-size: calc(var(--st-block) * 0.85);
+  /* 稿子上這三欄的字比帶名小一截，欄距是字級的 1.5 倍；
+     最長那欄七個字要落在同一欄，字級得壓到欄高裝得下。 */
+  font-size: calc(var(--st-block) * 0.8);
   font-weight: 700;
   line-height: 1.5;
   letter-spacing: 0.04em;
@@ -795,7 +900,8 @@ body:has(.st-page) {
 .st-about__body {
   align-self: center;
   color: var(--st-ink);
-  font-size: var(--st-note);
+  /* 稿子上這段六行、每行一句不折；字級再大一級最長那句就會斷成兩行。 */
+  font-size: var(--st-copy);
   line-height: var(--st-leading);
   letter-spacing: 0.06em;
 }
@@ -1357,11 +1463,25 @@ body:has(.st-page) {
   border-radius: 50%;
   background: var(--st-ink);
   color: var(--st-paper);
-  font-family: var(--st-font-didone), serif;
-  font-size: calc(var(--st-copy) * 0.82);
-  letter-spacing: 0.02em;
   text-decoration: none;
   transition: background 0.18s ease;
+}
+
+.st-footer__socials svg {
+  display: block;
+  width: 1.6cqw;
+  height: 1.6cqw;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 臉書那一筆是實心的字標，描邊畫不出來。 */
+.st-footer__socials li:nth-child(2) svg {
+  fill: currentColor;
+  stroke: none;
 }
 
 .st-footer__socials a:hover,

@@ -35,6 +35,27 @@ const SIZES = {
   tiny: "(max-width: 900px) 18vw, 5vw",
 } as const;
 
+/*
+ * 稿子的頁尾放的是社群的字標本身，不是「IG」「FB」這種縮寫。
+ * 三個圓章都畫在同一個 24 格的框裡，大小才會一致。
+ */
+const SOCIAL_GLYPHS: Record<string, React.ReactNode> = {
+  Instagram: (
+    <>
+      <rect x="4.6" y="4.6" width="14.8" height="14.8" rx="4.4" />
+      <circle cx="12" cy="12" r="3.7" />
+      <circle cx="16.6" cy="7.4" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  Facebook: (
+    <path d="M14.8 7.3h2V4.4h-2.4c-2.3 0-3.6 1.4-3.6 3.7v2h-1.9v3h1.9v6.5h3.1v-6.5h2.2l.4-3h-2.6V8.6c0-.9.4-1.3 1.3-1.3Z" />
+  ),
+  /* 圓章只有二十來像素，塞得進 LINE 四個字母也認不出來，只畫那只對話框。 */
+  "LINE 官方帳號": (
+    <path d="M12 4.8c4.2 0 7.6 2.7 7.6 6.1 0 3.4-3.4 6.1-7.6 6.1-.6 0-1.2 0-1.7-.1l-3.9 2.3 1-3.3c-1.9-1.1-3-2.9-3-5 0-3.4 3.4-6.1 7.6-6.1Z" />
+  ),
+};
+
 /** 外部連結一律新開視窗；站內的（含 /haodada 這種改寫路徑）用 Link。 */
 function Anchor({
   item,
@@ -125,7 +146,11 @@ export default function StorePage() {
             <p className="st-masthead__line">{MASTHEAD.line}</p>
 
             <div className="st-masthead__quote">
-              <p className="st-masthead__quote-text">{MASTHEAD.quote}</p>
+              <p className="st-masthead__quote-text">
+                {MASTHEAD.quote.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </p>
               <Cut
                 art={MASTHEAD.art}
                 alt={MASTHEAD.alt}
@@ -487,7 +512,9 @@ export default function StorePage() {
                     rel="noopener noreferrer"
                     aria-label={social.label}
                   >
-                    {social.short}
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      {SOCIAL_GLYPHS[social.label]}
+                    </svg>
                   </a>
                 </li>
               ))}

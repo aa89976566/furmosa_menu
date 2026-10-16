@@ -66,8 +66,8 @@ export const MASTHEAD = {
   wordmark: "FURMOSA",
   brand: "匠寵",
   line: "REAL FOOD FOR A WILDER LIFE",
-  /** 報頭右邊那只紅框裡的直書引文。 */
-  quote: "好食物，讓牠們的世界再大一點。",
+  /** 報頭右邊那只紅框裡的直書引文，照稿子分三欄。 */
+  quote: ["好食物，", "讓牠們的世界", "再大一點。"],
   seal: "匠寵",
   art: dogSitting,
   alt: "情境示意圖：紅色雕版風格的插畫，一隻側坐著的長毛狗",
