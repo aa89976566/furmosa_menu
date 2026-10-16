@@ -157,6 +157,7 @@ body:has(.st-page) {
   object-fit: contain;
 }
 
+/* 連結與按鈕的字都短，一律不折行，不然窄欄裡會把箭頭甩到下一行去。 */
 .st-link {
   display: inline-flex;
   align-items: center;
@@ -164,6 +165,7 @@ body:has(.st-page) {
   color: var(--st-red);
   font-size: var(--st-link);
   letter-spacing: 0.08em;
+  white-space: nowrap;
   text-decoration: none;
   transition: color 0.18s ease, gap 0.18s ease;
 }
@@ -180,6 +182,7 @@ body:has(.st-page) {
   justify-content: center;
   gap: 0.7em;
   padding: 0.62em 1.1em;
+  white-space: nowrap;
   border: var(--st-hair) solid var(--st-ink);
   color: var(--st-ink);
   font-size: var(--st-note);
@@ -1362,30 +1365,55 @@ body:has(.st-page) {
     height: 0.9rem;
   }
 
+  /*
+   * 窄螢幕的報頭重排過：字標獨佔一列，拿到整個版寬才排得下 FURMOSA 匠寵，
+   * 不然擠在關防旁邊會掉出紙外。字級改回 cqw，跟著紙寬縮，不管多窄都放得下。
+   */
   .st-masthead {
-    grid-template-columns: auto auto minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
     grid-template-areas:
-      "badge seal mark"
-      "badge seal strap"
-      "quote quote quote";
-    gap: 2.4cqw;
+      "badge seal"
+      "mark mark"
+      "strap strap"
+      "quote quote";
+    align-items: center;
+    gap: 2.6cqw;
+
+    --st-word: 13cqw;
+    --st-brand: 7.2cqw;
   }
 
   .st-masthead__weave {
     display: none;
   }
 
-  .st-masthead__mark {
-    justify-content: flex-start;
+  /* 關防推到那一列的另一端，報頭第一列才像信箋的兩個角，中間不留一塊空白。 */
+  .st-masthead__seal {
+    justify-self: end;
   }
 
+  .st-masthead__mark {
+    justify-content: center;
+  }
+
+  /* 直書的引文在一條窄帶裡會變成一根細長的柱子，所以窄螢幕改成橫排。 */
   .st-masthead__quote {
-    grid-template-columns: minmax(0, 1fr) 24%;
+    grid-template-columns: minmax(0, 1fr) 22%;
+    align-items: center;
+    gap: 2cqw;
   }
 
   .st-masthead__quote-text {
-    max-height: 11rem;
+    writing-mode: horizontal-tb;
+    justify-self: stretch;
+    max-height: none;
+    text-align: left;
+  }
+
+  /* 引文橫排以後框就只要一行高，狗跟著縮，不然框被狗撐成一塊空地。 */
+  .st-masthead__dog {
+    max-height: 4.2rem;
   }
 
   .st-nav {
@@ -1400,22 +1428,10 @@ body:has(.st-page) {
     height: auto;
   }
 
-  .st-hero,
-  .st-about,
-  .st-care,
-  .st-goods__row {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-  }
-
-  .st-hero__copy,
-  .st-about__copy {
-    padding-left: 0;
-    padding-top: var(--st-cell-gap);
-    border-left: 0;
-    border-top: var(--st-hair) solid var(--st-ink-soft);
-  }
-
+  /*
+   * 直書在窄螢幕上要封個高度，不然一句話就拉成一根比螢幕還長的柱子。
+   * 封在最長那一句剛好排得下的高度，少一點就會掉出兩三個字的孤欄。
+   */
   .st-hero__claim-text,
   .st-hero__headline,
   .st-hero__body,
@@ -1423,7 +1439,7 @@ body:has(.st-page) {
   .st-goods__claim-text,
   .st-care__aside-text,
   .st-swap__title {
-    max-height: 17rem;
+    max-height: 21rem;
   }
 
   .st-drops__head,
@@ -1444,51 +1460,28 @@ body:has(.st-page) {
     grid-row: 2;
   }
 
-  .st-drops__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
+  /* 圖框的高度本來照紙寬算，窄螢幕的紙窄了就太扁，按這一段的比例重給。 */
   .st-drop__art {
-    min-height: 18cqw;
-  }
-
-  .st-goods__claim {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto;
-    align-items: center;
-  }
-
-  .st-goods__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
-  }
-
-  .st-product {
-    border-top: var(--st-hair) solid var(--st-ink-soft);
-    padding-block: var(--st-cell-gap);
-  }
-
-  .st-product:nth-child(odd) {
-    border-left: 0;
-  }
-
-  .st-product:first-child,
-  .st-product:nth-child(2) {
-    border-top: 0;
+    min-height: 13cqw;
   }
 
   .st-product__shot {
-    height: 26cqw;
+    height: 15cqw;
   }
 
-  .st-care__main {
-    border-left: 0;
-    border-top: var(--st-rule) solid var(--st-red);
-    padding-inline: 0;
+  /* 桌機上這幾張是窄欄裡的小圖，窄螢幕一攤開就會長成滿版，所以封高度。 */
+  .st-goods__dog {
+    max-height: 7rem;
   }
 
   .st-care__cat {
     max-height: 7rem;
+  }
+
+  /* 圖示在桌機是 cqw，窄螢幕折算下來只剩幾像素，改回 rem 才看得出是購物車。 */
+  .st-product__cart svg {
+    width: 0.8rem;
+    height: 0.8rem;
   }
 
   .st-news {
@@ -1528,5 +1521,86 @@ body:has(.st-page) {
 @media (prefers-reduced-motion: reduce) {
   .st-page * {
     transition: none !important;
+  }
+}
+
+/*
+ * 真的只剩一欄寬的時候才拆欄。620 以上字級已經換成 rem，版面還撐得住
+ * 稿子的分欄，拆掉只會把同樣的內容疊成兩倍長的一根長條。
+ */
+@media (max-width: 620px) {
+  .st-hero,
+  .st-about,
+  .st-care,
+  .st-goods__row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .st-hero__copy,
+  .st-about__copy {
+    padding-left: 0;
+    padding-top: var(--st-cell-gap);
+    border-left: 0;
+    border-top: var(--st-hair) solid var(--st-ink-soft);
+  }
+
+  .st-drops__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .st-drop__art {
+    min-height: 18cqw;
+  }
+
+  .st-goods__claim {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+  }
+
+  .st-care__main {
+    border-left: 0;
+    border-top: var(--st-rule) solid var(--st-red);
+    padding-inline: 0;
+  }
+}
+
+/*
+ * 六張 DROP 與四樣商品擺不進這個寬度：名稱會折成三行，連「探索商品 →」
+ * 的箭頭都會掉到下一行。所以這一段少擺幾欄，欄寬換回去給字。
+ */
+@media (max-width: 780px) {
+  .st-goods__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .st-product {
+    border-top: var(--st-hair) solid var(--st-ink-soft);
+    padding-block: var(--st-cell-gap);
+  }
+
+  .st-product:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .st-product:first-child,
+  .st-product:nth-child(2) {
+    border-top: 0;
+  }
+
+  .st-product__shot {
+    height: 26cqw;
+  }
+}
+
+@media (min-width: 621px) and (max-width: 780px) {
+  .st-drops__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .st-drop__art {
+    min-height: 15cqw;
   }
 }
