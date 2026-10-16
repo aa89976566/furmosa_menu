@@ -102,13 +102,19 @@ body:has(.st-page) {
   --st-utility: 1.4cqw;
   --st-badge: 2.1cqw;
   --st-origin: 1cqw;
-  /* 報頭左邊那塊「犬貓樂」是整張紙上第二大的字，跟欄裡蓋的小印不同級。 */
-  --st-badge-word: 5.1cqw;
-  --st-word: 12.78cqw;
-  --st-word-w: 42cqw;
-  --st-word-squeeze: 0.627;
+  /*
+   * 報頭左邊那塊「犬貓樂」跟欄裡蓋的小印不同級：稿子上一個字的墨高 29、
+   * 字距 35.5，換算下來是這一級。
+   */
+  --st-badge-word: 4.05cqw;
+  --st-origin-mark: 1.05cqw;
+  /* 稿子上 FURMOSA 的墨寬 350、字高 87：先照字高給級數，再橫壓到那個寬。 */
+  --st-word: 14.06cqw;
+  --st-word-w: 43cqw;
+  --st-word-squeeze: 0.584;
   --st-brand: 6.1cqw;
-  --st-strap: 2.6cqw;
+  /* 稿子上這條副題墨高只有 12、橫量 266：級數照字高給，寬度靠字距補。 */
+  --st-strap: 1.83cqw;
   --st-quote: 2.6cqw;
   --st-nav: 1.95cqw;
   --st-claim: 6cqw;
@@ -122,9 +128,14 @@ body:has(.st-page) {
   --st-name: 1.7cqw;
   --st-caption: 1.5cqw;
   --st-footword: 2.7cqw;
-  --st-index: 2.6cqw;
-  --st-label: 2.6cqw;
-  --st-price: 2.1cqw;
+  /* 稿子上 DROP 卡的號碼墨高 23，是卡裡最顯眼的一筆。 */
+  --st-index: 3.4cqw;
+  /*
+   * 稿子上卡名一行塞得進六個字（卡的淨寬約 110）。手上的字是方的，
+   * 一個字就佔滿一個字級，所以級數只能照「排得下六個字」給，不是照墨高給。
+   */
+  --st-label: 2.15cqw;
+  --st-price: 2.3cqw;
   --st-link: 1.75cqw;
   --st-leading: 1.78;
 }
@@ -346,10 +357,10 @@ body:has(.st-page) {
   gap: 0.1em;
   padding-top: 0.45cqw;
   border-top: var(--st-hair) solid var(--st-ink-soft);
-  width: 68%;
+  width: 92%;
   line-height: 1.25;
   font-family: var(--st-font-didone), serif;
-  font-size: var(--st-origin);
+  font-size: var(--st-origin-mark);
   letter-spacing: 0.22em;
   text-align: center;
 }
@@ -409,15 +420,15 @@ body:has(.st-page) {
   letter-spacing: 0.4em;
 }
 
-/* 稿子上這行標語比想像的大一級，字距卻是窄的——大而密，不是小而散。 */
+/* 稿子上這行標語是小而散的：字壓得比字標小得多，靠字距撐到字標的寬。 */
 .st-masthead__line {
   grid-area: strap;
   font-family: var(--st-font-didone), serif;
   font-size: var(--st-strap);
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-align: center;
-  text-indent: 0.06em;
+  text-indent: 0.05em;
 }
 
 /*
@@ -838,11 +849,12 @@ body:has(.st-page) {
   object-fit: cover;
 }
 
+/* 稿子上這一句是一行排完的；字距照 --st-caption 給就會被甩到第二行。 */
 .st-drop__caption {
   color: var(--st-ink-mid);
-  font-size: var(--st-caption);
+  font-size: 1.35cqw;
   line-height: 1.25;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
 }
 
 .st-drop__cta {
@@ -933,7 +945,7 @@ body:has(.st-page) {
 }
 
 .st-about__body {
-  align-self: center;
+  align-self: start;
   color: var(--st-ink);
   /* 稿子上這段六行、每行一句不折；字級再大一級最長那句就會斷成兩行。 */
   font-size: var(--st-copy);
@@ -955,36 +967,52 @@ body:has(.st-page) {
   grid-template-rows: auto minmax(0, 1fr);
 }
 
+/*
+ * 稿子上這一列是整條框起來的，帶名自己關在左邊一小格裡，
+ * 中間一道豎線把它和欄目、看全部隔開——不是標題加一條底線。
+ */
 .st-goods__head {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 18.9cqw minmax(0, 1fr) auto;
   align-items: center;
-  gap: 1.6cqw;
-  padding: 0.3cqw 0.5cqw 0.5cqw;
-  border-bottom: var(--st-hair) solid var(--st-ink-soft);
+  /* 稿子上標頭只佔帶高的一成七，省下來的高度全給商品列。 */
+  padding-right: 4cqw;
+  border: var(--st-hair) solid var(--st-ink);
 }
 
 .st-goods__title {
   margin: 0;
-  padding: 0 0.5em 0.1em 0;
+  padding: 0.3cqw 0 0.3cqw 1.97cqw;
   line-height: 1;
-  border-bottom: var(--st-rule) solid var(--st-ink);
+  border-right: var(--st-hair) solid var(--st-ink);
   color: var(--st-ink);
   font-size: var(--st-subsection);
   font-weight: 900;
-  letter-spacing: 0.1em;
+  /* 稿子上帶名是緊排的，字距一放鬆整個標題就比稿子寬出兩成。 */
+  letter-spacing: 0.02em;
 }
 
 .st-goods__tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6cqw 2.6cqw;
+  padding-left: 4.8cqw;
+}
+
+/* 稿子上這一句跟帶名同墨色，不是紅的。 */
+.st-goods__all {
+  color: var(--st-ink);
+}
+
+.st-goods__all:hover,
+.st-goods__all:focus-visible {
+  color: var(--st-red);
 }
 
 .st-goods__tab {
   color: var(--st-ink-mid);
   font-size: var(--st-copy);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.04em;
   text-decoration: none;
   transition: color 0.18s ease;
 }
@@ -1000,7 +1028,7 @@ body:has(.st-page) {
   /* 列要封頂，否則商品圖按原寸撐高，整條釘住的帶就被頂破。 */
   grid-template-rows: minmax(0, 1fr);
   gap: var(--st-cell-gap);
-  padding-top: var(--st-cell-gap);
+  padding-top: 0.6cqw;
 }
 
 .st-goods__claim {
@@ -1025,14 +1053,12 @@ body:has(.st-page) {
   text-align: center;
 }
 
-/* 直書裡一個 block 就是一欄，所以稿子上分兩欄的句子就寫成兩個 block。 */
-.st-hero__claim-text span,
-.st-hero__headline span,
 /*
  * 直書的那幾句，稿子上一句就是一欄。不切成 block 的話整段會被當成一串字，
  * 由瀏覽器自己找地方斷行，欄數與斷點都對不上稿子。
  */
 .st-hero__claim-text span,
+.st-hero__headline span,
 .st-about__claim-text span,
 .st-goods__claim-text span,
 .st-care__aside-text span {
@@ -1121,10 +1147,11 @@ body:has(.st-page) {
   letter-spacing: 0.02em;
 }
 
+/* 稿子上這顆加入購物車的方框比價格還高一截，不是價格旁邊的小鈕。 */
 .st-product__cart {
   display: grid;
   place-items: center;
-  padding: 0.34cqw;
+  padding: 0.45cqw;
   border: var(--st-hair) solid var(--st-ink-soft);
   color: var(--st-ink);
   transition: background 0.18s ease, color 0.18s ease;
@@ -1132,8 +1159,8 @@ body:has(.st-page) {
 
 .st-product__cart svg {
   display: block;
-  width: 1.3cqw;
-  height: 1.3cqw;
+  width: 1.9cqw;
+  height: 1.9cqw;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -1158,7 +1185,7 @@ body:has(.st-page) {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   /* 第一列給定高，直書的「換罐計畫」才排得成一欄，不會被折成兩欄。 */
-  grid-template-rows: 7cqw auto auto;
+  grid-template-rows: 12cqw auto auto;
   grid-template-areas:
     "title art"
     "body body"
@@ -1186,16 +1213,18 @@ body:has(.st-page) {
   writing-mode: vertical-rl;
   text-orientation: upright;
   color: var(--st-red);
-  font-size: 1.55cqw;
+  /* 四個字要排成一欄，所以字級的上限就是這一列的高度除以四。 */
+  font-size: 2.8cqw;
   font-weight: 900;
   letter-spacing: 0;
   text-align: center;
 }
 
 /* 這一格是 center 對齊，圖不會被拉開，height:100% 就沒有依據，所以直接給高。 */
+/* 稿子上這只罐子高 106、寬 79，佔掉這一格一半以上。 */
 .st-swap__art {
   grid-area: art;
-  height: 6cqw;
+  height: 11.4cqw;
 }
 
 .st-swap__body {
@@ -1203,7 +1232,7 @@ body:has(.st-page) {
   color: var(--st-ink);
   /* 這一欄窄，字級要讓最長的那一行（十四個字）排得完。 */
   font-size: 1.2cqw;
-  line-height: 1.55;
+  line-height: 1.35;
   letter-spacing: 0.04em;
 }
 
@@ -1222,7 +1251,9 @@ body:has(.st-page) {
 
   /* 稿子上這條帶高 158、帶寬 814。 */
   height: 19.4cqw;
-  grid-template-columns: minmax(0, 2.37fr) minmax(0, 1.16fr) minmax(0, 1fr);
+
+  /* 稿子上三格量出來是 357 / 173 / 267：訂閱那一格比想像的寬得多。 */
+  grid-template-columns: minmax(0, 4.47fr) minmax(0, 2.17fr) minmax(0, 3.34fr);
   /* 列要封頂，三欄才會收在帶裡，而不是各自按內容長高。 */
   grid-template-rows: minmax(0, 1fr);
   gap: var(--st-cell-gap);
@@ -1233,32 +1264,35 @@ body:has(.st-page) {
 }
 
 /*
- * 稿子上帶名與正文是並排起頭的，狗躺在帶名底下那一格，了解更多壓在正文底。
- * 帶名若壓在正文上面，這一欄會比釘住的帶高多出一個標題的高度。
+ * 稿子上帶名橫跨整格起頭，狗躺在左半欄，正文與了解更多疊在右半欄。
+ * 帶名若擠進左欄，六個字會折成兩行，整欄就比釘住的帶高多出一行。
  */
 .st-care__main {
   display: grid;
-  /* 左欄要排得下六個字的帶名，右欄一行要容得下二十個字。 */
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  /* 稿子上狗佔 114、正文佔 216。 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.86fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
-    "title body"
+    "title title"
     "art   body"
     "art   cta";
   align-items: start;
-  gap: 0.7cqw 1.2cqw;
-  padding: 0.8cqw 1.2cqw 0.9cqw;
+  gap: 0.6cqw 0.5cqw;
+  padding: 0.8cqw 1.2cqw 0.9cqw 0.3cqw;
   border-left: var(--st-rule) solid var(--st-red);
 }
 
 .st-care__title {
   grid-area: title;
   margin: 0;
+  /* 稿子上狗貼著紅線排，帶名卻往裡縮了一截。 */
+  padding-left: 2.1cqw;
   color: var(--st-ink);
-  font-size: calc(var(--st-block) * 0.88);
-  line-height: 1.1;
+  /* 稿子上六個字橫量 152：要排成一行，字寬得照稿子收，不能照字高放。 */
+  font-size: 3.17cqw;
+  line-height: 1.05;
   font-weight: 900;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 .st-care__art {
@@ -1266,13 +1300,14 @@ body:has(.st-page) {
   align-self: center;
 }
 
+/* 稿子上這段是紅字小字，一行容得下二十個字；放大就會折行把帶頂出去。 */
 .st-care__body {
   grid-area: body;
   align-self: start;
-  color: var(--st-ink);
-  font-size: var(--st-caption);
-  line-height: 1.7;
-  letter-spacing: 0.02em;
+  color: var(--st-red);
+  font-size: 1.3cqw;
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 
 .st-care__body p {
@@ -1317,8 +1352,13 @@ body:has(.st-page) {
   text-align: center;
 }
 
+/*
+ * 稿子上這隻貓幾乎佔滿那一格的高度。圖檔四周留了一圈透明邊，
+ * 單靠格寬撐不到稿子上的墨寬，所以在格子裡再放大一截。
+ */
 .st-care__cat {
-  max-height: 11cqw;
+  max-height: 14cqw;
+  transform: scale(1.3);
 }
 
 .st-news {
@@ -1340,15 +1380,17 @@ body:has(.st-page) {
   display: grid;
   gap: 0.1em;
   color: var(--st-ink);
-  font-size: var(--st-lead);
+  /* 稿子上這兩行是貼著排的大字，不是行距鬆開的中字；五個字要容得進左半格。 */
+  font-size: 2.5cqw;
   font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  line-height: 1.22;
+  letter-spacing: 0.02em;
 }
 
+/* 稿子上這塊風景是橫的，寬 148、高 76，貼著訂閱欄的右上角。 */
 .st-news__art {
   grid-area: art;
-  max-height: 7cqw;
+  max-height: 9.3cqw;
 }
 
 .st-news__form {
@@ -1489,17 +1531,18 @@ body:has(.st-page) {
 .st-footer__socials {
   display: flex;
   align-items: center;
-  gap: 0.7cqw;
+  gap: 1.1cqw;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* 稿子上這幾顆是實心的藍墨章，圖案是留白出來的，不是空心圈。 */
 .st-footer__socials a {
   display: grid;
   place-items: center;
-  width: 2.5cqw;
-  height: 2.5cqw;
+  width: 2.46cqw;
+  height: 2.46cqw;
   border-radius: 50%;
   background: var(--st-ink);
   color: var(--st-paper);
@@ -1748,8 +1791,10 @@ body:has(.st-page) {
     max-height: 7rem;
   }
 
+  /* 窄螢幕這一格攤得很寬，桌機那層放大會把圖頂出紙外。 */
   .st-care__cat {
     max-height: 7rem;
+    transform: none;
   }
 
   /* 圖示在桌機是 cqw，窄螢幕折算下來只剩幾像素，改回 rem 才看得出是購物車。 */
@@ -1783,7 +1828,11 @@ body:has(.st-page) {
   .st-footer__socials a {
     width: 1.7rem;
     height: 1.7rem;
-    font-size: 0.56rem;
+  }
+
+  .st-footer__socials svg {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 
   .st-footer__slogan {
