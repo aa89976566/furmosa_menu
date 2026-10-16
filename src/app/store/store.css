@@ -467,6 +467,8 @@ body:has(.st-page) {
 .st-hero__claim::after,
 .st-hero__plate::after,
 .st-about__claim::after,
+.st-care__aside::after,
+.st-news::after,
 .st-swap::after {
   content: "";
   position: absolute;
@@ -498,8 +500,16 @@ body:has(.st-page) {
   --st-corner-ink: var(--st-red-soft);
 }
 
+/* 浪浪帶右邊那兩只框是藍墨的。 */
+.st-care__aside::after,
+.st-news::after {
+  --st-corner-ink: var(--st-ink-soft);
+}
+
 .st-hero__plate,
 .st-about__claim,
+.st-care__aside,
+.st-news,
 .st-swap {
   position: relative;
 }
@@ -511,6 +521,16 @@ body:has(.st-page) {
   position: absolute;
   inset: 0.42cqw;
   border: var(--st-hair) solid var(--st-red-soft);
+  pointer-events: none;
+}
+
+/* 稿子上貓那一格與訂閱那一格也是雙框，兩道都是藍墨。 */
+.st-care__aside::before,
+.st-news::before {
+  content: "";
+  position: absolute;
+  inset: 0.42cqw;
+  border: var(--st-hair) solid var(--st-ink-soft);
   pointer-events: none;
 }
 
@@ -1301,9 +1321,10 @@ body:has(.st-page) {
   /*
    * 稿子上這條帶的框是 1514..1663，帶高 149。稿子的格子是貼著框排的，
    * 只留 4 的內距，不是別條帶那樣的 --st-pad，不然釘住的帶高裝不下內容。
+   * 左邊例外：稿子上那道紅豎線是在 21，不是貼著帶框。
    */
   height: 18.3cqw;
-  padding: 0.5cqw;
+  padding: 0.5cqw 0.5cqw 0.5cqw 2.46cqw;
 
   /* 稿子上三格量出來是 357 / 173 / 267：訂閱那一格比想像的寬得多。 */
   grid-template-columns: minmax(0, 4.47fr) minmax(0, 2.17fr) minmax(0, 3.34fr);
@@ -1322,8 +1343,8 @@ body:has(.st-page) {
  */
 .st-care__main {
   display: grid;
-  /* 稿子上狗佔 114、正文佔 216。 */
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.86fr);
+  /* 稿子上狗的墨寬 122、正文 202。 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.66fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "title title"
@@ -1348,18 +1369,28 @@ body:has(.st-page) {
   letter-spacing: 0;
 }
 
+/*
+ * 稿子上這隻狗的墨是 122 x 91、剛好填滿牠那一格。手上的圖四周留了一圈透明邊，
+ * 等比縮進格子裡墨只剩一百寬，所以改成填滿格子——裁掉的全是那圈透明邊。
+ */
 .st-care__art {
   grid-area: art;
   align-self: center;
+  object-fit: cover;
 }
 
-/* 稿子上這段是紅字小字，一行容得下二十個字；放大就會折行把帶頂出去。 */
+/*
+ * 稿子上這段是小字，一行容得下二十個字；放大就會折行把帶頂出去。
+ * 墨色是藍的、字還加粗——整條帶只有「了解更多」那只框是紅的。
+ */
 .st-care__body {
   grid-area: body;
   align-self: start;
-  color: var(--st-red);
+  color: var(--st-ink);
   font-size: 1.3cqw;
-  line-height: 1.5;
+  font-weight: 700;
+  /* 稿子上四行的行距量出來是 17.6。 */
+  line-height: 1.62;
   letter-spacing: 0;
 }
 
@@ -1386,8 +1417,9 @@ body:has(.st-page) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.8cqw;
-  padding: 1cqw;
+  /* 稿子上貓佔了這一格快一半的寬，內距與欄距都收緊讓給牠。 */
+  gap: 0.5cqw;
+  padding: 0.6cqw;
   border: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -1406,12 +1438,14 @@ body:has(.st-page) {
 }
 
 /*
- * 稿子上這隻貓幾乎佔滿那一格的高度。圖檔四周留了一圈透明邊，
- * 單靠格寬撐不到稿子上的墨寬，所以在格子裡再放大一截。
+ * 稿子上這隻貓幾乎佔滿那一格：墨寬 78、墨高 129，是張直幅的裁切。
+ * 手上的圖是方的、四周還留了一圈透明邊，等比縮進格子裡墨只剩六十來寬。
+ * 所以改成撐滿格高、左右各裁掉幾像素，才排得到稿子上的墨量。
  */
 .st-care__cat {
-  max-height: 14cqw;
-  transform: scale(1.3);
+  width: 100%;
+  height: 16.5cqw;
+  object-fit: cover;
 }
 
 .st-news {
@@ -1423,12 +1457,15 @@ body:has(.st-page) {
     "form form";
   align-items: start;
   gap: 1cqw;
-  padding: 1cqw 1.2cqw 1.2cqw;
+  /* 稿子上這一格的風景從 16 起、訂閱欄收在 127，上下都留了白。 */
+  padding: 1.7cqw 1.2cqw 2.46cqw;
   border: var(--st-hair) solid var(--st-ink-soft);
 }
 
 .st-news__title {
   grid-area: title;
+  /* 稿子上這兩行是對著風景的腰排的，不是跟它的上緣齊頭。 */
+  align-self: center;
   margin: 0;
   display: grid;
   gap: 0.1em;
@@ -1440,10 +1477,15 @@ body:has(.st-page) {
   letter-spacing: 0.02em;
 }
 
-/* 稿子上這塊風景是橫的，寬 148、高 76，貼著訂閱欄的右上角。 */
+/*
+ * 稿子上這塊風景是橫的，墨寬 150、墨高 68，貼著訂閱欄的右上角。
+ * 圖檔四周留了四成的透明邊，等比縮進格子裡墨只剩八十幾寬，
+ * 所以放大到墨對得上稿子——溢出格子的全是那圈透明邊，不會壓到字。
+ */
 .st-news__art {
   grid-area: art;
-  max-height: 9.3cqw;
+  max-height: 8.3cqw;
+  transform: scale(1.89);
 }
 
 .st-news__form {
@@ -1846,7 +1888,17 @@ body:has(.st-page) {
 
   /* 窄螢幕這一格攤得很寬，桌機那層放大會把圖頂出紙外。 */
   .st-care__cat {
+    height: auto;
     max-height: 7rem;
+  }
+
+  /* 窄螢幕的格子比例差很多，填滿會裁到狗，回到等比縮放。 */
+  .st-care__art {
+    object-fit: contain;
+  }
+
+  /* 窄螢幕沒有多餘的寬度吃放大後的透明邊，照原寸排就好。 */
+  .st-news__art {
     transform: none;
   }
 
