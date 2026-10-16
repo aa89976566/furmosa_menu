@@ -111,19 +111,19 @@ body:has(.st-page) {
   --st-strap: 2.6cqw;
   --st-quote: 2.6cqw;
   --st-nav: 1.95cqw;
-  --st-claim: 4.5cqw;
-  --st-headline: 4.2cqw;
-  --st-section: 5.2cqw;
+  --st-claim: 6cqw;
+  --st-headline: 3.9cqw;
+  --st-section: 5cqw;
   --st-subsection: 3.8cqw;
   --st-block: 3.2cqw;
   --st-lead: 2.3cqw;
   --st-copy: 1.5cqw;
   --st-note: 2cqw;
   --st-name: 1.7cqw;
-  --st-caption: 1.4cqw;
+  --st-caption: 1.5cqw;
   --st-footword: 2.7cqw;
-  --st-index: 2.4cqw;
-  --st-label: 2.1cqw;
+  --st-index: 2.6cqw;
+  --st-label: 2.6cqw;
   --st-price: 2.1cqw;
   --st-link: 1.75cqw;
   --st-leading: 1.78;
@@ -477,8 +477,9 @@ body:has(.st-page) {
   position: relative;
 }
 
-/* 引文框也是雙框，內框跟著紅墨。 */
-.st-masthead__quote::before {
+/* 引文框與雕版框都是雙框，內框跟著紅墨。 */
+.st-masthead__quote::before,
+.st-hero__plate::before {
   content: "";
   position: absolute;
   inset: 0.42cqw;
@@ -566,7 +567,9 @@ body:has(.st-page) {
 .st-hero {
   display: grid;
   height: 41.9cqw;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 3.1fr) minmax(0, 2.15fr);
+
+  /* 稿子上三格量出來是 15.7 / 53.6 / 27.2——雕版佔掉一半以上的帶寬。 */
+  grid-template-columns: minmax(0, 1.57fr) minmax(0, 5.36fr) minmax(0, 2.72fr);
   /* 列也要封頂，否則格子按 max-content 長高，整條帶就被內容頂破。 */
   grid-template-rows: minmax(0, 1fr);
   gap: var(--st-cell-gap);
@@ -581,39 +584,48 @@ body:has(.st-page) {
   margin: 0;
 }
 
+/* 稿子上框底是一列：標語靠左、關防靠右，不是上下疊著排。 */
 .st-hero__claim {
   position: relative;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
-  justify-items: center;
-  gap: 1cqw;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "text text"
+    "line seal";
+  align-items: end;
+  gap: 1cqw 0.6cqw;
   padding: 1.4cqw 0.8cqw 1.2cqw;
   border: var(--st-hair) solid var(--st-red-soft);
 }
 
 .st-hero__claim-text {
+  grid-area: text;
+  justify-self: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   max-height: 100%;
   color: var(--st-ink);
   font-size: var(--st-claim);
   font-weight: 700;
-  line-height: 1.22;
+  /* 稿子上兩欄幾乎貼著，欄距只比字身大一點。 */
+  line-height: 1.02;
   letter-spacing: 0.02em;
   text-align: center;
 }
 
 .st-hero__claim-line {
+  grid-area: line;
   display: grid;
   gap: 0.3em;
   color: var(--st-ink-mid);
   font-family: var(--st-font-didone), serif;
   font-size: var(--st-origin);
   letter-spacing: 0.24em;
-  text-align: center;
 }
 
 .st-hero__seal {
+  grid-area: seal;
   font-size: calc(var(--st-badge) * 0.82);
 }
 
@@ -623,21 +635,28 @@ body:has(.st-page) {
   grid-template-rows: minmax(0, 1fr);
   padding: 0.7cqw;
   border: var(--st-rule) solid var(--st-red);
+  overflow: hidden;
 }
 
-/* 稿子上的雕版是出血的，整格填滿；寧可裁掉邊上一點天空，也不要框內留白邊。 */
+/*
+ * 稿子上的雕版是出血的，整格填滿；寧可裁掉邊上一點天空，也不要框內留白邊。
+ * 手上這張圖的天空比稿子多一截，所以往下壓著放大一點，狗耳才會頂到框邊。
+ */
 .st-hero__art {
   max-height: 100%;
   object-fit: cover;
+  transform: scale(1.08);
+  transform-origin: center 72%;
 }
 
+/* 稿子上內文那幾欄通到底，大標在上、「看更多」收在大標底下。 */
 .st-hero__copy {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     "body headline"
-    "cta headline";
+    "body cta";
   gap: 1cqw 1.3cqw;
   padding-left: var(--st-cell-gap);
   border-left: var(--st-hair) solid var(--st-ink-soft);
@@ -654,7 +673,7 @@ body:has(.st-page) {
   color: var(--st-ink);
   font-size: var(--st-headline);
   font-weight: 700;
-  line-height: 1.32;
+  line-height: 1.12;
   letter-spacing: 0.02em;
 }
 
@@ -665,17 +684,18 @@ body:has(.st-page) {
   justify-self: end;
   max-height: 100%;
   color: var(--st-ink-mid);
-  /* 最長那一句（十七個字）要排得進一欄，不然會掉出一個兩字的孤欄。 */
-  font-size: 1.8cqw;
-  line-height: 1.9;
-  letter-spacing: 0.04em;
+  /* 稿子上這段排成四根細欄，欄距只有字身的一又四分之一，不是鬆鬆的三欄。 */
+  font-size: 1.97cqw;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
 }
 
+/* 稿子上這條紅線是壓在「看更多」底下的，不是架在它上面。 */
 .st-hero__copy .st-link {
   grid-area: cta;
   align-self: end;
-  padding-top: 0.8cqw;
-  border-top: var(--st-hair) solid var(--st-ink-soft);
+  padding-bottom: 0.5cqw;
+  border-bottom: var(--st-hair) solid var(--st-red);
   font-size: var(--st-note);
 }
 
@@ -718,7 +738,8 @@ body:has(.st-page) {
   color: var(--st-ink);
   font-size: var(--st-section);
   font-weight: 900;
-  letter-spacing: 0.06em;
+  /* 稿子上這行是緊排的，字距一放鬆整行就比稿子寬出一成。 */
+  letter-spacing: 0.01em;
 }
 
 /*
@@ -756,10 +777,15 @@ body:has(.st-page) {
   /* 列要封頂：卡片高度由帶高決定，圖收剩下的空間。 */
   grid-template-rows: minmax(0, 1fr);
 
-  gap: var(--st-cell-gap);
+  /* 稿子上六張卡是連成一排的，相鄰的框線共用一條，中間沒有欄距。 */
+  gap: 0;
   margin: 0;
   padding: var(--st-cell-gap) 0 0;
   list-style: none;
+}
+
+.st-drop + .st-drop {
+  margin-left: calc(var(--st-hair) * -1);
 }
 
 /*
@@ -769,8 +795,8 @@ body:has(.st-page) {
 .st-drop {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  gap: 0.7cqw;
-  padding: 1cqw 0.9cqw;
+  gap: 0.55cqw;
+  padding: 1cqw 1.5cqw;
   border: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -795,12 +821,21 @@ body:has(.st-page) {
   font-size: var(--st-label);
   font-weight: 700;
   line-height: 1.16;
-  letter-spacing: 0.02em;
+  /* 五個字的品名要落在同一行，所以字距收到零。 */
+  letter-spacing: 0;
 }
 
+/*
+ * 稿子上雕版是橫向出血的，左右各吃掉卡片的內距，貼著框線。
+ * width 要自己加回被負邊距讓出來的那兩段，不然 100% 還是照內容盒算，圖只會
+ * 往左挪而不會變寬；也改成 cover，寧可裁掉上下一點，也不要圖縮在格子中間。
+ */
 .st-drop__art {
   align-self: stretch;
   min-height: 0;
+  width: calc(100% + 3cqw);
+  margin: 0 -1.5cqw;
+  object-fit: cover;
 }
 
 .st-drop__caption {
@@ -993,6 +1028,11 @@ body:has(.st-page) {
 /* 直書裡一個 block 就是一欄，所以稿子上分兩欄的句子就寫成兩個 block。 */
 .st-hero__claim-text span,
 .st-hero__headline span,
+/*
+ * 直書的那幾句，稿子上一句就是一欄。不切成 block 的話整段會被當成一串字，
+ * 由瀏覽器自己找地方斷行，欄數與斷點都對不上稿子。
+ */
+.st-hero__claim-text span,
 .st-about__claim-text span,
 .st-goods__claim-text span,
 .st-care__aside-text span {
