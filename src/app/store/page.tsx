@@ -115,8 +115,9 @@ export default function StorePage() {
 
             <Ornament className="st-masthead__weave" />
 
+            <Seal text={MASTHEAD.seal} className="st-masthead__seal" />
+
             <Link className="st-masthead__mark" href="/store" aria-label="匠寵 FURMOSA 首頁">
-              <Seal text={MASTHEAD.seal} className="st-masthead__seal" />
               <span className="st-masthead__word">{MASTHEAD.wordmark}</span>
               <span className="st-masthead__brand">{MASTHEAD.brand}</span>
             </Link>
@@ -144,7 +145,11 @@ export default function StorePage() {
           {/* ---------- 頭版 ---------- */}
           <section className="st-hero" aria-labelledby="st-hero-title">
             <div className="st-hero__claim">
-              <p className="st-hero__claim-text">{HERO.claim}</p>
+              <p className="st-hero__claim-text">
+                {HERO.claim.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </p>
               <p className="st-hero__claim-line">
                 {HERO.line.map((line) => (
                   <span key={line}>{line}</span>
@@ -165,7 +170,9 @@ export default function StorePage() {
 
             <div className="st-hero__copy">
               <h1 className="st-hero__headline" id="st-hero-title">
-                {HERO.headline}
+                {HERO.headline.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
               </h1>
               <div className="st-hero__body">
                 {HERO.body.map((line) => (

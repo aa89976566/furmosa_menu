@@ -5,9 +5,9 @@ import type { StaticImageData } from "next/image";
  * 墨色是圖檔自己的顏色，空白處透明，所以紙色與紙紋從底下透上來，
  * 每一張圖都像直接印在同一張紙上，而不是貼一塊方形圖片。
  *
- * 來源分兩種，混不得：
- * cut-* 與 scene-*／dog-*／cat-*／hero-dog-cat 是雕版情境示意圖；
- * goods-* 是 furmosa.com 的商品照原圖，沒有改過內容。
+ * 全頁的圖都是情境示意圖，所以 alt 一律標出來。goods-* 是照 furmosa.com 的
+ * 商品照一張一張描成雕版的，畫的是該商品本身；商品的名稱、規格與價格另外取自
+ * 店裡的商品頁，不從圖上讀。
  */
 import catFace from "@/assets/store/cat-face.webp";
 import cutJerky from "@/assets/store/cut-1-jerky.webp";
@@ -107,18 +107,23 @@ export const NAV: NavItem[] = [
 ];
 
 export const HERO = {
-  /** 直書大標。直書排不了阿拉伯數字，所以這一頁的直書欄位一律不出現數字。 */
-  claim: "吃好的，生活更野。",
+  /**
+   * 直書大標，一個字串就是一欄：斷在逗號上，不讓「生活」被折到兩欄去。
+   * 直書排不了阿拉伯數字，所以這一頁的直書欄位一律不出現數字。
+   */
+  claim: ["吃好的，", "生活更野。"],
   line: ["REAL FOOD FOR A", "WILDER LIFE"],
   seal: "匠寵",
-  headline: "在牠的眼神裡，找得到人的影子",
-  /** 直書本文，一行一欄；每行字數相近，字塊才方正。 */
+  /** 頭條也是一個字串一欄：稿子是兩欄，斷在逗號上。 */
+  headline: ["在牠的眼神裡，", "找得到人的影子"],
+  /**
+   * 直書本文，一行就是一欄：分幾行就折幾欄，所以是照欄數斷行而不是照語氣。
+   * 稿子上這一塊是三欄，每欄的字數要相近，字塊才是方正的一塊。
+   */
   body: [
-    "我們相信，一包食物不只是零食。",
-    "那是你每天回家的時候，",
-    "牠願意把頭靠過來的理由。",
-    "真食材、不調味，",
-    "讓牠陪你走更遠的路。",
+    "我們相信，一包食物不只是零食；",
+    "那是你每天回家時，牠願意把頭靠過來的理由。",
+    "真食材、不調味，讓牠陪你走更遠的路。",
   ],
   cta: "看更多",
   art: heroDogCat,
@@ -204,8 +209,8 @@ export const DROPS_BAND = {
 } as const;
 
 export const ABOUT = {
-  /** 直書大標，兩欄。 */
-  claim: ["毛孩不是寵物，", "是家人，也是旅伴。"],
+  /** 直書大標。稿子在逗號處斷欄，所以一欄寫一句，別讓它自己折在「也是旅／伴」。 */
+  claim: ["毛孩不是寵物，", "是家人，", "也是旅伴。"],
   line: ["REAL FOOD", "FOR A", "WILDER LIFE"],
   seal: "匠寵",
   /** 橫書本文，一行一句。 */
@@ -244,7 +249,7 @@ export const PRODUCTS: Product[] = [
     price: "NT$165",
     href: `${SHOP_ORIGIN}/products/chicken-fillet`,
     art: goodsJiba,
-    alt: "一片大片雞肉乾裝在印著 Thank you very much 的紙袋裡",
+    alt: "情境示意圖：紅色雕版風格的插畫，一片大片雞肉乾裝在透明立袋裡，袋前散著幾條肉乾",
   },
   {
     name: "簡記・牛肉地瓜",
@@ -252,7 +257,7 @@ export const PRODUCTS: Product[] = [
     price: "NT$180",
     href: `${SHOP_ORIGIN}/products/jian-ji-niu-rou-di-gua-su`,
     art: goodsBeef,
-    alt: "匠寵牛肉地瓜的立袋，袋前散放著一堆深褐色的肉乾塊",
+    alt: "情境示意圖：紅色雕版風格的插畫，一堆牛肉地瓜凍乾塊堆在桌上",
   },
   {
     name: "青菜底加・混蔬菜凍乾",
@@ -260,7 +265,7 @@ export const PRODUCTS: Product[] = [
     price: "NT$180",
     href: `${SHOP_ORIGIN}/products/青菜底加-混蔬菜凍乾`,
     art: goodsVeg,
-    alt: "橘、紫、綠三色的蔬菜凍乾方塊排成格狀，後面是一只盛滿的小碗",
+    alt: "情境示意圖：紅色雕版風格的插畫，一地混蔬菜凍乾方塊，後面是一只傾倒的小碗",
   },
   {
     name: "唐老・鴨喉",
@@ -268,7 +273,7 @@ export const PRODUCTS: Product[] = [
     price: "NT$110",
     href: `${SHOP_ORIGIN}/products/tang-lao-ya-hou-zku85`,
     art: goodsDuck,
-    alt: "幾根長條的鴨喉零食插在玻璃杯裡",
+    alt: "情境示意圖：紅色雕版風格的插畫，幾根長條的鴨喉零食插在玻璃杯裡",
   },
 ];
 

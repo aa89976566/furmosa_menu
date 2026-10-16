@@ -92,8 +92,8 @@ body:has(.st-page) {
   --st-utility: 0.95cqw;
   --st-badge: 1.72cqw;
   --st-origin: 0.78cqw;
-  --st-word: 11.4cqw;
-  --st-brand: 6.2cqw;
+  --st-word: 8.8cqw;
+  --st-brand: 4.9cqw;
   --st-strap: 1.34cqw;
   --st-quote: 1.44cqw;
   --st-nav: 1.4cqw;
@@ -130,7 +130,7 @@ body:has(.st-page) {
 .st-seal--oval {
   border-radius: 50%;
   /* 關防的字是直書的兩個字，所以印面是立著的橢圓。 */
-  padding: 0.5em 0.34em;
+  padding: 0.56em 0.5em;
 }
 
 .st-seal--square {
@@ -153,6 +153,7 @@ body:has(.st-page) {
   display: block;
   width: 100%;
   height: 100%;
+  min-height: 0;
   object-fit: contain;
 }
 
@@ -246,16 +247,22 @@ body:has(.st-page) {
 
 /* ---------- 報頭 ---------- */
 
+/*
+ * 帶高照稿子給，不交給內容去撐：稿子是 885 寬 × 1778 高，報頭佔 190，
+ * 換算就是紙寬的 21.5%。字級與間距也都是 cqw，所以一條帶在任何寬度下的
+ * 比例都一樣，整頁疊起來就是稿子的那張開本。
+ */
 .st-masthead {
   position: relative;
   display: grid;
-  grid-template-columns: 9.6cqw 3.4cqw minmax(0, 1fr) 18.6cqw;
+  height: 21.5cqw;
+  grid-template-columns: 9.6cqw 3.4cqw auto minmax(0, 1fr) 18.6cqw;
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
-    "badge weave mark quote"
-    "badge weave strap quote";
+    "badge weave seal mark quote"
+    "badge weave seal strap quote";
   align-items: center;
-  gap: 0 1.6cqw;
+  gap: 0 1.5cqw;
   margin-top: var(--st-band-gap);
   padding: 1.5cqw;
   border: var(--st-hair) solid var(--st-ink);
@@ -316,14 +323,15 @@ body:has(.st-page) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.4cqw;
+  gap: 1cqw;
   color: inherit;
   text-decoration: none;
 }
 
+/* 關防自己佔一欄，不混在字標那一列裡，才不會壓到花邊或 F。 */
 .st-masthead__seal {
-  flex: none;
-  font-size: var(--st-badge);
+  grid-area: seal;
+  font-size: 2.5cqw;
 }
 
 .st-masthead__word {
@@ -381,6 +389,7 @@ body:has(.st-page) {
   font-weight: 500;
   line-height: 1.66;
   letter-spacing: 0.06em;
+  text-align: center;
 }
 
 .st-masthead__dog {
@@ -440,9 +449,15 @@ body:has(.st-page) {
 
 .st-hero {
   display: grid;
+  height: 38.8cqw;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 3.5fr) minmax(0, 1.78fr);
+  /* 列也要封頂，否則格子按 max-content 長高，整條帶就被內容頂破。 */
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--st-cell-gap);
-  min-height: 34cqw;
+}
+
+.st-hero > * {
+  min-height: 0;
 }
 
 .st-hero p,
@@ -469,6 +484,7 @@ body:has(.st-page) {
   font-weight: 700;
   line-height: 1.22;
   letter-spacing: 0.02em;
+  text-align: center;
 }
 
 .st-hero__claim-line {
@@ -487,12 +503,16 @@ body:has(.st-page) {
 
 .st-hero__plate {
   display: grid;
+  /* 框先封頂，圖才會縮進框裡；不封的話列按圖的原尺寸長高，紅墨會漏到帶外。 */
+  grid-template-rows: minmax(0, 1fr);
   padding: 0.7cqw;
   border: var(--st-rule) solid var(--st-red);
 }
 
+/* 稿子上的雕版是出血的，整格填滿；寧可裁掉邊上一點天空，也不要框內留白邊。 */
 .st-hero__art {
   max-height: 100%;
+  object-fit: cover;
 }
 
 .st-hero__copy {
@@ -625,7 +645,7 @@ body:has(.st-page) {
 
 .st-drop__art {
   align-self: center;
-  min-height: 7cqw;
+  min-height: 9.4cqw;
 }
 
 .st-drop__caption {
@@ -643,9 +663,14 @@ body:has(.st-page) {
 
 .st-about {
   display: grid;
+  height: 28.3cqw;
   grid-template-columns: minmax(0, 1fr) minmax(0, 3.4fr) minmax(0, 1.5fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--st-cell-gap);
-  min-height: 24cqw;
+}
+
+.st-about > * {
+  min-height: 0;
 }
 
 .st-about p {
@@ -669,8 +694,6 @@ body:has(.st-page) {
 .st-about__claim-text {
   grid-area: text;
   margin: 0;
-  display: flex;
-  justify-content: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   max-height: 100%;
@@ -679,6 +702,7 @@ body:has(.st-page) {
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: 0.04em;
+  text-align: center;
 }
 
 .st-about__claim-line {
@@ -698,12 +722,14 @@ body:has(.st-page) {
 
 .st-about__plate {
   display: grid;
+  grid-template-rows: minmax(0, 1fr);
   padding: 0.6cqw;
   border: var(--st-hair) solid var(--st-red-soft);
 }
 
 .st-about__art {
   max-height: 100%;
+  object-fit: cover;
 }
 
 .st-about__copy {
@@ -784,7 +810,6 @@ body:has(.st-page) {
 
 .st-goods__claim-text {
   margin: 0;
-  display: flex;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   max-height: 100%;
@@ -793,6 +818,16 @@ body:has(.st-page) {
   font-weight: 700;
   line-height: 1.34;
   letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* 直書裡一個 block 就是一欄，所以稿子上分兩欄的句子就寫成兩個 block。 */
+.st-hero__claim-text span,
+.st-hero__headline span,
+.st-about__claim-text span,
+.st-goods__claim-text span,
+.st-care__aside-text span {
+  display: block;
 }
 
 .st-goods__dog {
@@ -827,14 +862,15 @@ body:has(.st-page) {
 }
 
 /*
- * 商品照是全彩原圖，紙上只有兩支墨。用 multiply 疊上去，照片的白底就
- * 吃成紙色、商品留在紙上，不會在版面裡開一個白框。
+ * 四張商品雕版的長寬各不相同，圖框卻要一樣高，名稱與價格才會對齊成一列。
+ * 所以框的高度寫死，圖在框裡等比縮到放得下為止。
  */
 .st-product__shot {
   display: grid;
+  /* 列要封頂，圖的 height:100% 才有東西可以比；不然列按圖的原高長，圖就漏出框。 */
+  grid-template-rows: minmax(0, 1fr);
   place-items: center;
-  min-height: 9cqw;
-  mix-blend-mode: multiply;
+  height: 10.6cqw;
 }
 
 .st-product__shot img {
@@ -904,13 +940,20 @@ body:has(.st-page) {
   color: var(--st-red);
 }
 
+/* 稿子上這塊是「直書欄名｜圖」在上、說明與連結在下。 */
 .st-swap {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "title art"
+    "body body"
+    "cta cta";
   justify-items: center;
+  align-items: center;
   gap: 0.7cqw;
-  padding: 1.2cqw 1cqw;
+  padding: 1.3cqw 1.1cqw;
   border: var(--st-rule) solid var(--st-red);
   text-align: center;
 }
@@ -924,21 +967,25 @@ body:has(.st-page) {
 }
 
 .st-swap__title {
+  grid-area: title;
   margin: 0;
+  align-self: stretch;
   writing-mode: vertical-rl;
   text-orientation: upright;
-  max-height: 6cqw;
   color: var(--st-red);
   font-size: var(--st-lead);
   font-weight: 900;
   letter-spacing: 0.12em;
+  text-align: center;
 }
 
 .st-swap__art {
-  max-height: 8cqw;
+  grid-area: art;
+  max-height: 9cqw;
 }
 
 .st-swap__body {
+  grid-area: body;
   color: var(--st-ink);
   font-size: var(--st-copy);
   line-height: 1.7;
@@ -947,6 +994,10 @@ body:has(.st-page) {
 
 .st-swap__body p {
   margin: 0;
+}
+
+.st-swap__cta {
+  grid-area: cta;
 }
 
 /* ---------- 浪浪支持計畫與訂閱 ---------- */
@@ -1022,7 +1073,6 @@ body:has(.st-page) {
 
 .st-care__aside-text {
   margin: 0;
-  display: flex;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   max-height: 100%;
@@ -1031,6 +1081,7 @@ body:has(.st-page) {
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: 0.1em;
+  text-align: center;
 }
 
 .st-care__cat {
@@ -1312,12 +1363,12 @@ body:has(.st-page) {
   }
 
   .st-masthead {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     grid-template-areas:
-      "badge mark"
-      "badge strap"
-      "quote quote";
+      "badge seal mark"
+      "badge seal strap"
+      "quote quote quote";
     gap: 2.4cqw;
   }
 
@@ -1342,12 +1393,19 @@ body:has(.st-page) {
     padding-inline: 0;
   }
 
+  /* 窄螢幕不照稿子的開本了：帶高交還給內容，一條條往下疊。 */
+  .st-masthead,
+  .st-hero,
+  .st-about {
+    height: auto;
+  }
+
   .st-hero,
   .st-about,
   .st-care,
   .st-goods__row {
     grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
+    grid-template-rows: none;
   }
 
   .st-hero__copy,
@@ -1420,7 +1478,7 @@ body:has(.st-page) {
   }
 
   .st-product__shot {
-    min-height: 24cqw;
+    height: 26cqw;
   }
 
   .st-care__main {
