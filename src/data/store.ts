@@ -112,7 +112,8 @@ export const HERO = {
    * 直書排不了阿拉伯數字，所以這一頁的直書欄位一律不出現數字。
    */
   claim: ["吃好的，", "生活更野。"],
-  line: ["REAL FOOD FOR A", "WILDER LIFE"],
+  /** 稿子上這塊小字是三行，一行一個 span；斷成兩行會折成五行把直書那欄擠掉。 */
+  line: ["REAL FOOD", "FOR A", "WILDER LIFE"],
   seal: "匠寵",
   /** 頭條也是一個字串一欄：稿子是兩欄，斷在逗號上。 */
   headline: ["在牠的眼神裡，", "找得到人的影子"],
