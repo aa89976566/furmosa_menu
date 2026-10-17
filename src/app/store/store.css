@@ -657,6 +657,13 @@ body:has(.st-page) {
   height: 40.2cqw;
 
   /*
+   * 稿子上雕版的下框跟帶的下框是同一條（所以看起來是雙線），下緣不留內距；
+   * 左欄的羅馬字跟紅印、右欄那條紅線也跟著排到底下去。先前四邊給同一道
+   * 內距，整帶的東西就都離下緣十點。
+   */
+  padding-bottom: 0;
+
+  /*
    * 稿子上的框是 10..139 / 148..589 / 598..804，三格 129 / 441 / 206——
    * 雕版比先前量的又寬了二十來點，佔掉一半以上的帶寬。
    */
@@ -751,7 +758,11 @@ body:has(.st-page) {
     "body headline"
     "body cta";
   gap: 1cqw 1.3cqw;
-  padding-left: var(--st-cell-gap);
+  /*
+   * 稿子上這一欄的字是離帶的上緣 34 才起排的（大標的墨頂 34、內文 39），
+   * 不像左邊的直書那句貼著帶排。先前跟著帶的內距走，整欄就高了二十來點。
+   */
+  padding: 2.7cqw 0 0 var(--st-cell-gap);
   border-left: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -777,14 +788,22 @@ body:has(.st-page) {
   text-orientation: mixed;
   /* 稿子上這塊貼著內文欄的左邊起排（墨從 608 開始），不是靠著大標。 */
   justify-self: start;
-  max-height: 100%;
+  /*
+   * 稿子上這塊的墨只排到 287，底下留三十幾的白——一欄裝十七八個字，整段
+   * 剛好四欄。先前讓它吃滿整條帶的高，一欄就塞進二十一二個字，整段縮成
+   * 三欄，欄數跟稿子差一根。
+   */
+  align-self: start;
+  max-height: 30.5cqw;
   color: var(--st-ink-mid);
   /*
-   * 稿子上這段排成四根細欄，欄距 20.7、一欄裝得下十七八個字，所以字身是 14
-   * 不是 16；字身收小了欄距得同步放鬆，欄的位置才留在原處。
+   * 稿子上這段的字很小：一個字的墨只有 10 寬，欄距 21.3。這裡的字要排進
+   * 釘住的欄高，所以照墨寬給級數——最長那段是二十一個字，得留出餘裕，
+   * 差一兩點就會甩出一根只有一兩個字的欄。字身收小了欄距得同步放鬆，
+   * 欄的位置才留在原處。
    */
-  font-size: 1.72cqw;
-  line-height: 1.48;
+  font-size: 1.38cqw;
+  line-height: 1.9;
   letter-spacing: 0.02em;
 }
 
@@ -795,8 +814,10 @@ body:has(.st-page) {
 .st-hero__copy .st-link {
   grid-area: cta;
   align-self: end;
-  padding-bottom: 0.5cqw;
-  border-bottom: var(--st-hair) solid var(--st-red);
+  /* 稿子上這條紅線落在 322，離帶的下框還有 4.5；線本身也比髮絲粗一截。 */
+  margin-bottom: 0.5cqw;
+  padding-bottom: 0.15cqw;
+  border-bottom: var(--st-rule) solid var(--st-red);
   color: var(--st-ink);
   font-size: var(--st-note);
 }
@@ -1989,6 +2010,20 @@ body:has(.st-page) {
   .st-care__aside-text,
   .st-swap__title {
     max-height: 21rem;
+  }
+
+  /*
+   * 頭版那段內文的級數是照稿子的墨寬給的（紙寬的 1.38%），窄螢幕下只剩五個
+   * 像素，得換成固定級數才讀得出來。
+   */
+  .st-hero__body {
+    font-size: 0.72rem;
+    line-height: 1.8;
+  }
+
+  /* 桌機上雕版是出血到帶的下框的；窄螢幕一攤開，最後那條紅線就會貼上框。 */
+  .st-hero {
+    padding-bottom: var(--st-pad);
   }
 
   .st-drops__head,
