@@ -1033,13 +1033,19 @@ body:has(.st-page) {
   margin: 0;
   writing-mode: vertical-rl;
   text-orientation: mixed;
+  /* 稿子上這三欄是在格裡置中的；撐滿格寬的話直書會從右緣往左排，整疊偏右。 */
+  justify-self: center;
   max-height: 100%;
   color: var(--st-ink);
-  /* 稿子上這三欄的字比帶名小一截，欄距是字級的 1.5 倍；
-     最長那欄七個字要落在同一欄，字級得壓到欄高裝得下。 */
+  /*
+   * 稿子上這三欄的字墨寬 20、欄距 34.5。墨寬我們對上了，欄距先前只給 31，
+   * 三欄就擠在一起；級數不能再放（最長那欄七個字，一放就甩成四欄），所以
+   * 欄距改用行高撐到稿子的 34.5。字高還是比稿子矮三點——稿子那套字是窄長
+   * 的，墨比字身窄，我們的是方的，寬度對上了高度就只能差著。
+   */
   font-size: calc(var(--st-block) * 0.8);
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.66;
   letter-spacing: 0.04em;
   text-align: center;
 }
@@ -1095,11 +1101,11 @@ body:has(.st-page) {
 }
 
 /*
- * 稿子上這顆按鈕的框是 141 x 38：寬度是字撐出來的，在欄裡置中，
- * 不是拉開撐滿整欄；高度也比預設的扁一截。
+ * 稿子上這顆按鈕的框是 141 x 38：寬度是字撐出來的，不是拉開撐滿整欄；
+ * 左邊跟正文齊頭（都從 633 起），不是在欄裡置中。高度也比預設的扁一截。
  */
 .st-about__copy .st-button {
-  justify-self: center;
+  justify-self: start;
   padding-block: 0.42em;
 }
 
