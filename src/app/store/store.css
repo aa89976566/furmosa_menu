@@ -1232,12 +1232,14 @@ body:has(.st-page) {
 .st-product__link {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto auto;
-  gap: 0.5cqw;
   /*
-   * 稿子上價格那一列底下留了 20 的白，不是貼著帶的下緣。手上的商品圖是方的、
-   * 稿子上是橫的，圖框全讓給白邊的話圖就跟著變窄，所以只留一半多一點。
+   * 稿子上名稱、規格、價格三行是貼著排的（墨與墨之間 9 到 5），只有圖跟名稱
+   * 之間落一道 14。一律給同一道欄距的話，每下一行就多出四點，價格那一列會
+   * 被推到離帶的下緣只剩 18——稿子留的是 22。
    */
-  padding: 0 0.9cqw 1.3cqw;
+  gap: 0;
+  /* 稿子上價格那一列底下留了 20 的白，不是貼著帶的下緣。 */
+  padding: 0 0.9cqw 2.5cqw;
   color: inherit;
   text-decoration: none;
 }
@@ -1260,6 +1262,8 @@ body:has(.st-page) {
 }
 
 .st-product__name {
+  /* 圖跟名稱之間那道 14 的白全給在這裡，底下三行才貼得起來。 */
+  margin-top: 0.75cqw;
   color: var(--st-ink);
   font-size: var(--st-name);
   font-weight: 500;
