@@ -131,84 +131,6 @@ export const HERO = {
   alt: "情境示意圖：紅色雕版風格的插畫，一隻張嘴笑的牧羊犬與一隻虎斑貓並肩看著鏡頭",
 } as const;
 
-export type Drop = {
-  index: string;
-  title: string[];
-  caption: string;
-  href: string;
-  external?: boolean;
-  art: StaticImageData;
-  alt: string;
-};
-
-/*
- * 稿子上的「本期六大 DROP」就是首頁清單的第二到第七列——第一列「全部商品」
- * 是架本身，所以它留在導覽列與下面那條「查看全部商品」。
- * 卡片插圖是雕版情境示意圖，各自照那一列真正在賣的東西刻。
- */
-export const DROPS: Drop[] = [
-  {
-    index: "01",
-    title: ["嚎大大雞霸"],
-    caption: "真肉・真食・真開心",
-    href: rowHref(2),
-    art: cutJerky,
-    alt: "情境示意圖：紅色雕版風格的插畫，一疊大片雞肉乾",
-  },
-  {
-    index: "02",
-    title: ["浪浪交易所", "中秋限定盤"],
-    caption: "吃一口，幫助更多浪浪",
-    href: rowHref(3),
-    external: true,
-    art: cutMoon,
-    alt: "情境示意圖：紅色雕版風格的插畫，一隻狗與一隻貓並坐在滿月下",
-  },
-  {
-    index: "03",
-    title: ["chill嗨嗨ㄟ貓"],
-    caption: "貓咪的放鬆時光",
-    href: rowHref(4),
-    external: true,
-    art: cutCat,
-    alt: "情境示意圖：紅色雕版風格的插畫，一隻瞇著眼的虎斑貓與幾葉貓草",
-  },
-  {
-    index: "04",
-    title: ["再來一包", "毛孩人格抽驗"],
-    caption: "抽出牠的真實個性",
-    href: rowHref(5),
-    external: true,
-    art: cutSachets,
-    alt: "情境示意圖：紅色雕版風格的插畫，三包併排的零食鋁箔包",
-  },
-  {
-    index: "05",
-    title: ["預購！", "背景很硬的碗"],
-    caption: "為牠，選一個更好的碗",
-    href: rowHref(6),
-    external: true,
-    art: cutBowl,
-    alt: "情境示意圖：紅色雕版風格的插畫，一只回收藤編的淺口狗碗",
-  },
-  {
-    index: "06",
-    title: ["店家合作"],
-    caption: "一起讓更多毛孩吃到好東西",
-    href: rowHref(7),
-    external: true,
-    art: cutRetriever,
-    alt: "情境示意圖：紅色雕版風格的插畫，一隻黃金獵犬張嘴笑著看鏡頭",
-  },
-];
-
-export const DROPS_BAND = {
-  title: "本期六大 DROP",
-  note: "每一個毛孩，都是一份支持。",
-  seal: "匠寵",
-  cta: "探索商品",
-} as const;
-
 export const ABOUT = {
   /** 直書大標。稿子在逗號處斷欄，所以一欄寫一句，別讓它自己折在「也是旅／伴」。 */
   claim: ["毛孩不是寵物，", "是家人，", "也是旅伴。"],
@@ -334,6 +256,205 @@ export const CARE = {
     alt: "情境示意圖：紅色雕版風格的插畫，一小片樹林、草坡與遠處的山稜",
   },
 } as const;
+
+/* ---------------- 傳單的版型 ---------------- */
+
+/**
+ * 稿子上的爆炸星：一圈小字、一個很大的數字、一個單位。
+ * 數字與單位分開放，是因為稿子上數字大到單位的三倍，排在同一行會壓不住。
+ */
+export type Burst = { note: string; figure: string; unit: string };
+
+/**
+ * 頭一則故事：左上角壓出血的雕版、直書的招牌字、釘牌子的雕版，
+ * 右上角是報頭與整頁最大的那句直書大標。對應稿子上「酵素豬」那一則。
+ */
+export const LEAD = {
+  /** 壓過框線的那塊雕版，稿子上是一支斜插的香腸。 */
+  cut: {
+    art: cutJerky,
+    alt: "情境示意圖：紅色雕版風格的插畫，一疊大片雞肉乾",
+  },
+  /** 直書招牌字。稿子上是三個字一欄，所以這裡也給三個字。 */
+  mark: "真食材",
+  /** 招牌字左邊那幾行直書小字，一行一欄。 */
+  claims: ["低溫熱風烘乾", "不添香料色素", "慢工做的雞排"],
+  /** 主雕版與釘在它上緣的小牌子。 */
+  plate: {
+    art: heroDogCat,
+    alt: "情境示意圖：紅色雕版風格的插畫，一隻張嘴笑的牧羊犬與一隻虎斑貓並肩看著鏡頭",
+    tag: "台灣在地・小量製作",
+  },
+  /** 壓在主雕版下緣、溢到紙上的小塊商品雕版。 */
+  inset: {
+    art: goodsJiba,
+    alt: "情境示意圖：紅色雕版風格的插畫，一片大片雞肉乾裝在透明立袋裡",
+  },
+  /** 稿子上「七折」那一塊：兩行橫書小字配一顆爆炸星。 */
+  offer: {
+    lines: ["純雞肉做的大片雞排", "原味雞肉・淨重 50 克"],
+    burst: { note: "嚎大大・雞霸", figure: "165", unit: "元" },
+    href: `${SHOP_ORIGIN}/products/chicken-fillet`,
+  },
+  /** 稿子上左邊那顆爆炸星，壓在雕版的邊上。 */
+  burst: { note: "唐老・鴨喉", figure: "110", unit: "元" },
+  burstHref: `${SHOP_ORIGIN}/products/tang-lao-ya-hou-zku85`,
+  /** 密排的直書本文，一行一欄。 */
+  column: HERO.body,
+  /** 右上角那句大標：稿子上小的那欄在右、大的那欄在左。 */
+  headline: { small: "在牠的眼神裡，", large: "找得到人的影子" },
+  cta: "看更多",
+  href: "/real-food",
+} as const;
+
+/**
+ * 第二則故事：照稿子上「魚事在澎湖」那一則——左邊兩塊小雕版與密排直書，
+ * 中間是三欄不同級數的直書標，右邊一塊很寬的雕版釘著牌子。
+ */
+export const CARE_STORY = {
+  plates: [
+    {
+      art: catFace,
+      alt: "情境示意圖：紅色雕版風格的插畫，一隻正面看著鏡頭的虎斑貓",
+    },
+    {
+      art: cutJar,
+      alt: "情境示意圖：藍色雕版風格的插畫，一只裝著零食的玻璃保存罐",
+    },
+  ],
+  column: ABOUT.body,
+  /** 三欄直書標，級數不一，照稿子錯開排。 */
+  marks: ABOUT.claim,
+  scene: {
+    art: sceneRidge,
+    alt: "情境示意圖：紅色雕版風格的插畫，一個人與一隻狗並肩坐在草坡上，望向遠處的湖與山稜",
+    tag: "巴克幫－浪犬之家",
+  },
+  burst: { note: "每顆月餅提撥", figure: "10", unit: "元" },
+  cta: "了解更多",
+  href: CHARITY_URL,
+} as const;
+
+/** 牌子釘在格子的哪一角——稿子上每一攤都不一樣，所以一攤一個值。 */
+export type TagAt = "tl" | "tc" | "tr" | "bl";
+
+export type Stall = {
+  /** 《》裡的攤名。 */
+  name: string;
+  /** 攤名底下那句。 */
+  tagline: string;
+  /** 攤裡的小字，一行一句。 */
+  notes?: readonly string[];
+  art?: StaticImageData;
+  alt?: string;
+  /** 有價格的商品。稿子上一攤擺兩樣，價格用很大的空心數字。 */
+  goods?: Product[];
+  tagAt: TagAt;
+  burst?: Burst;
+  cta: string;
+  href: string;
+  external?: boolean;
+};
+
+/*
+ * 下半張那塊滿版墨色的攤位格。稿子上是兩列、每列三格且三格寬度都不等
+ * （量下來是 46.3／25.2／28.5 與 28.3／33.3／38.4）；這一頁的內容比稿子多
+ * 一列，所以第三列照第二列的比例反過來排，節奏才接得上。
+ */
+export const STALL_ROWS: Stall[][] = [
+  [
+    {
+      name: "嚴選商品",
+      tagline: "真食材，不調味。",
+      goods: PRODUCTS,
+      tagAt: "tl",
+      cta: "查看全部商品",
+      href: SHOP_URL,
+      external: true,
+    },
+    {
+      name: "換罐計畫",
+      tagline: "洗澡時帶一罐回家",
+      notes: GOODS_BAND.swap.body,
+      art: cutJar,
+      alt: GOODS_BAND.swap.alt,
+      tagAt: "tc",
+      cta: "了解更多",
+      href: ABOUT_URL,
+      external: true,
+    },
+    {
+      name: "浪浪交易所｜中秋限定盤",
+      tagline: "吃一口，幫助更多浪浪",
+      notes: [
+        "匠寵與巴克幫－浪犬之家合作。",
+        "每售出一顆月餅提撥十元。",
+        "中秋場次已結單。",
+      ],
+      art: cutMoon,
+      alt: "情境示意圖：紅色雕版風格的插畫，一隻狗與一隻貓並坐在滿月下",
+      tagAt: "tr",
+      cta: "看活動",
+      href: rowHref(3),
+      external: true,
+    },
+  ],
+  [
+    {
+      name: "嚎大大・雞霸",
+      tagline: "真肉・真食・真開心",
+      notes: ["純雞肉做的大片雞排。", "低溫熱風烘乾。"],
+      art: cutJerky,
+      alt: "情境示意圖：紅色雕版風格的插畫，一疊大片雞肉乾",
+      tagAt: "bl",
+      cta: "探索商品",
+      href: rowHref(2),
+    },
+    {
+      name: "chill嗨嗨ㄟ貓",
+      tagline: "貓咪的放鬆時光",
+      art: cutCat,
+      alt: "情境示意圖：紅色雕版風格的插畫，一隻瞇著眼的虎斑貓與幾葉貓草",
+      tagAt: "tc",
+      cta: "探索商品",
+      href: rowHref(4),
+      external: true,
+    },
+    {
+      name: "再來一包｜毛孩人格抽驗",
+      tagline: "抽出牠的真實個性",
+      art: cutSachets,
+      alt: "情境示意圖：紅色雕版風格的插畫，三包併排的零食鋁箔包",
+      tagAt: "tr",
+      cta: "探索商品",
+      href: rowHref(5),
+      external: true,
+    },
+  ],
+  [
+    {
+      name: "預購！背景很硬的碗",
+      tagline: "為牠，選一個更好的碗",
+      notes: ["預購中。"],
+      art: cutBowl,
+      alt: "情境示意圖：紅色雕版風格的插畫，一只回收藤編的淺口狗碗",
+      tagAt: "tl",
+      cta: "看預購",
+      href: rowHref(6),
+      external: true,
+    },
+    {
+      name: "店家合作",
+      tagline: "一起讓更多毛孩吃到好東西",
+      art: cutRetriever,
+      alt: "情境示意圖：紅色雕版風格的插畫，一隻黃金獵犬張嘴笑著看鏡頭",
+      tagAt: "tc",
+      cta: "聯絡我們",
+      href: rowHref(7),
+      external: true,
+    },
+  ],
+];
 
 export const FOOTER_NAV: NavItem[] = [
   { label: "關於匠寵", href: ABOUT_URL, external: true },

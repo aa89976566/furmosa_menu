@@ -1,38 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import Burst from "@/components/store/Burst";
 import Cut from "@/components/store/Cut";
-import Ornament from "@/components/store/Ornament";
 import Seal from "@/components/store/Seal";
 import {
-  ABOUT,
   CARE,
+  CARE_STORY,
   CART_URL,
-  DROPS,
-  DROPS_BAND,
   FOOTER,
   FOOTER_NAV,
-  GOODS_BAND,
-  HERO,
+  LEAD,
   LOGIN_URL,
   MASTHEAD,
   NAV,
   NEWSLETTER_ACTION,
-  PRODUCTS,
-  PRODUCT_TABS,
   SEARCH_URL,
   SOCIALS,
+  STALL_ROWS,
   UTILITY,
+  type Product,
+  type Stall,
 } from "@/data/store";
 
 /* 每一格佔整張紙的寬度，照版面的欄寬給，讓 next/image 不要抓過大的檔。 */
 const SIZES = {
-  hero: "(max-width: 900px) 92vw, 44vw",
-  drop: "(max-width: 900px) 40vw, 13vw",
+  plate: "(max-width: 900px) 92vw, 34vw",
   scene: "(max-width: 900px) 92vw, 46vw",
-  goods: "(max-width: 900px) 40vw, 14vw",
-  small: "(max-width: 900px) 30vw, 9vw",
-  tiny: "(max-width: 900px) 18vw, 5vw",
+  cut: "(max-width: 900px) 40vw, 17vw",
+  stall: "(max-width: 900px) 40vw, 15vw",
+  good: "(max-width: 900px) 30vw, 9vw",
+  small: "(max-width: 900px) 30vw, 11vw",
 } as const;
 
 /*
@@ -88,6 +86,90 @@ function Anchor({
   );
 }
 
+/*
+ * 稿子上的價格是「很大的數字」跟著「很小的單位」，所以 NT$165 得拆成 165 與元。
+ * 價格字串仍是資料裡唯一的出處，這裡只負責把數字挑出來。
+ */
+function figureOf(price: string): string {
+  return price.replace(/\D/g, "");
+}
+
+/** 攤位裡有標價的商品：一張小雕版、名稱、規格，再壓一個很大的空心數字。 */
+function Good({ product }: { product: Product }) {
+  return (
+    <li className="st-good">
+      <a
+        className="st-good__link"
+        href={product.href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span className="st-good__shot">
+          <Image src={product.art} alt={product.alt} sizes={SIZES.good} />
+        </span>
+        <span className="st-good__name">{product.name}</span>
+        <span className="st-good__spec">{product.spec}</span>
+        <span className="st-good__price">
+          <span className="st-good__figure">{figureOf(product.price)}</span>
+          <span className="st-good__unit">元</span>
+        </span>
+      </a>
+    </li>
+  );
+}
+
+/**
+ * 一格攤位。牌子釘在哪一角、格裡擺的是標價商品還是一塊雕版加幾行字，
+ * 都照稿子一攤一攤不同，所以版型由資料上的 tagAt 與欄位有無決定。
+ */
+function StallCell({ stall }: { stall: Stall }) {
+  return (
+    <article className={`st-stall st-stall--${stall.tagAt}`}>
+      <h3 className="st-stall__name">
+        <span className="st-stall__name-text">{stall.name}</span>
+      </h3>
+
+      <div className="st-stall__body">
+        <p className="st-stall__tagline">{stall.tagline}</p>
+
+        {stall.art && stall.alt ? (
+          <Cut
+            art={stall.art}
+            alt={stall.alt}
+            sizes={SIZES.stall}
+            className="st-stall__art"
+          />
+        ) : null}
+
+        {stall.notes ? (
+          <div className="st-stall__notes">
+            {stall.notes.map((note) => (
+              <p key={note}>{note}</p>
+            ))}
+          </div>
+        ) : null}
+
+        {stall.goods ? (
+          <ul className="st-stall__goods">
+            {stall.goods.map((product) => (
+              <Good key={product.name} product={product} />
+            ))}
+          </ul>
+        ) : null}
+
+        {stall.burst ? (
+          <Burst burst={stall.burst} className="st-stall__burst" />
+        ) : null}
+
+        <Anchor item={stall} className="st-stall__cta">
+          {stall.cta}
+          <span aria-hidden="true">→</span>
+        </Anchor>
+      </div>
+    </article>
+  );
+}
+
 export default function StorePage() {
   const year = new Date().getFullYear();
 
@@ -97,395 +179,270 @@ export default function StorePage() {
 
       <div className="st-sheet">
         <div className="st-sheet__body">
-          {/* ---------- 事務列 ---------- */}
-          <div className="st-utility">
-            <p className="st-utility__note">{UTILITY.left}</p>
-            <p className="st-utility__centre">{UTILITY.centre}</p>
-            <nav className="st-utility__links" aria-label="帳號與購物車">
-              <a href={LOGIN_URL} target="_blank" rel="noopener noreferrer">
-                登入 / 註冊
-              </a>
-              <a href={CART_URL} target="_blank" rel="noopener noreferrer">
-                購物車
-              </a>
-              <a
-                className="st-utility__search"
-                href={SEARCH_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="在商店裡搜尋"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <circle cx="10.5" cy="10.5" r="6.4" />
-                  <path d="M15.4 15.4 21 21" />
-                </svg>
-              </a>
+          {/* ---------- 框外的事務列與欄目列 ---------- */}
+          <div className="st-top">
+            <div className="st-utility">
+              <p className="st-utility__note">{UTILITY.left}</p>
+              <p className="st-utility__centre">{UTILITY.centre}</p>
+              <nav className="st-utility__links" aria-label="帳號與購物車">
+                <a href={LOGIN_URL} target="_blank" rel="noopener noreferrer">
+                  登入 / 註冊
+                </a>
+                <a href={CART_URL} target="_blank" rel="noopener noreferrer">
+                  購物車
+                </a>
+                <a
+                  className="st-utility__search"
+                  href={SEARCH_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="在商店裡搜尋"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="10.5" cy="10.5" r="6.4" />
+                    <path d="M15.4 15.4 21 21" />
+                  </svg>
+                </a>
+              </nav>
+            </div>
+
+            <nav className="st-nav" aria-label="主要導覽">
+              {NAV.map((item) => (
+                <Anchor key={item.label} item={item} className="st-nav__link" />
+              ))}
             </nav>
           </div>
 
-          {/* ---------- 報頭 ---------- */}
-          <header className="st-masthead">
-            <div className="st-masthead__badge">
-              <p className="st-masthead__badge-text">{MASTHEAD.badge}</p>
-              <p className="st-masthead__origin">
-                {MASTHEAD.origin.map((line) => (
-                  <span key={line}>{line}</span>
+          {/*
+            ---------- 傳單 ----------
+            一道粗框圈住整張傳單：上半是紙上的拼貼，下半是滿版墨色的攤位格。
+          */}
+          <div className="st-flyer">
+            {/* ---------- 頭一則：招牌商品 ---------- */}
+            <section className="st-lead" aria-labelledby="st-lead-title">
+              <Cut
+                art={LEAD.cut.art}
+                alt={LEAD.cut.alt}
+                sizes={SIZES.cut}
+                className="st-lead__cut"
+                priority
+              />
+
+              <div className="st-lead__mark">
+                <p className="st-lead__mark-text">{LEAD.mark}</p>
+                <p className="st-lead__claims">
+                  {LEAD.claims.map((claim) => (
+                    <span key={claim}>{claim}</span>
+                  ))}
+                </p>
+              </div>
+
+              <figure className="st-plate st-lead__plate">
+                <Cut
+                  art={LEAD.plate.art}
+                  alt={LEAD.plate.alt}
+                  sizes={SIZES.plate}
+                  className="st-plate__art"
+                  priority
+                />
+                <figcaption className="st-tag">{LEAD.plate.tag}</figcaption>
+              </figure>
+
+              <Cut
+                art={LEAD.inset.art}
+                alt={LEAD.inset.alt}
+                sizes={SIZES.small}
+                className="st-lead__inset"
+              />
+
+              <Burst
+                burst={LEAD.burst}
+                href={LEAD.burstHref}
+                className="st-lead__burst"
+              />
+
+              <div className="st-lead__offer">
+                <div className="st-lead__offer-lines">
+                  {LEAD.offer.lines.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+                <Burst
+                  burst={LEAD.offer.burst}
+                  href={LEAD.offer.href}
+                  className="st-lead__offer-burst"
+                />
+              </div>
+
+              <div className="st-lead__column">
+                {LEAD.column.map((line) => (
+                  <p key={line}>{line}</p>
                 ))}
-              </p>
-            </div>
+              </div>
 
-            <Ornament className="st-masthead__weave" />
-
-            <Seal text={MASTHEAD.seal} className="st-masthead__seal" />
-
-            <Link className="st-masthead__mark" href="/store" aria-label="匠寵 FURMOSA 首頁">
-              <span className="st-masthead__word">{MASTHEAD.wordmark}</span>
-              <span className="st-masthead__brand">{MASTHEAD.brand}</span>
-            </Link>
-
-            <p className="st-masthead__line">{MASTHEAD.line}</p>
-
-            <div className="st-masthead__quote">
-              <p className="st-masthead__quote-text">
+              <p className="st-lead__quote">
                 {MASTHEAD.quote.map((line) => (
                   <span key={line}>{line}</span>
                 ))}
               </p>
-              <Cut
-                art={MASTHEAD.art}
-                alt={MASTHEAD.alt}
-                sizes={SIZES.tiny}
-                className="st-masthead__dog"
-              />
-            </div>
-          </header>
 
-          {/* ---------- 導覽 ---------- */}
-          <nav className="st-nav" aria-label="主要導覽">
-            {NAV.map((item) => (
-              <Anchor key={item.label} item={item} className="st-nav__link" />
-            ))}
-          </nav>
+              <header className="st-masthead">
+                <Link
+                  className="st-masthead__mark"
+                  href="/store"
+                  aria-label="匠寵 FURMOSA 首頁"
+                >
+                  <span className="st-masthead__brand">{MASTHEAD.brand}</span>
+                  <span className="st-masthead__word">{MASTHEAD.wordmark}</span>
+                </Link>
+                <p className="st-masthead__line">{MASTHEAD.line}</p>
+              </header>
 
-          {/* ---------- 頭版 ---------- */}
-          <section className="st-hero" aria-labelledby="st-hero-title">
-            <div className="st-hero__claim">
-              <p className="st-hero__claim-text">
-                {HERO.claim.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </p>
-              <p className="st-hero__claim-line">
-                {HERO.line.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </p>
-              <Seal text={HERO.seal} shape="square" className="st-hero__seal" />
-            </div>
-
-            <div className="st-hero__plate">
-              <Cut
-                art={HERO.art}
-                alt={HERO.alt}
-                sizes={SIZES.hero}
-                className="st-hero__art"
-                priority
-              />
-            </div>
-
-            <div className="st-hero__copy">
-              <h1 className="st-hero__headline" id="st-hero-title">
-                {HERO.headline.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
+              <h1 className="st-display" id="st-lead-title">
+                <span className="st-display__small">
+                  {LEAD.headline.small}
+                </span>
+                <span className="st-display__large">
+                  {LEAD.headline.large}
+                </span>
               </h1>
-              <div className="st-hero__body">
-                {HERO.body.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-              <Link className="st-link" href="/real-food">
-                {HERO.cta}
+
+              <Link className="st-link st-lead__cta" href={LEAD.href}>
+                {LEAD.cta}
                 <span aria-hidden="true">→</span>
               </Link>
-            </div>
-          </section>
 
-          {/* ---------- 本期六大 DROP ---------- */}
-          <section className="st-drops" aria-labelledby="st-drops-title">
-            <header className="st-drops__head">
-              <h2 className="st-drops__title" id="st-drops-title">
-                {DROPS_BAND.title}
-              </h2>
-              <p className="st-drops__note">
-                <span>{DROPS_BAND.note}</span>
-              </p>
-              <Seal
-                text={DROPS_BAND.seal}
-                shape="square"
-                className="st-drops__seal"
-              />
-            </header>
+              <Seal text={MASTHEAD.seal} className="st-lead__seal" />
+            </section>
 
-            <ol className="st-drops__list">
-              {DROPS.map((drop) => (
-                <li className="st-drop" key={drop.index}>
-                  <p className="st-drop__index">{drop.index}</p>
-                  <h3 className="st-drop__title">
-                    {drop.title.map((line) => (
-                      <span key={line}>{line}</span>
-                    ))}
-                  </h3>
-                  <Cut
-                    art={drop.art}
-                    alt={drop.alt}
-                    sizes={SIZES.drop}
-                    className="st-drop__art"
-                  />
-                  <p className="st-drop__caption">{drop.caption}</p>
-                  <Anchor item={drop} className="st-link st-drop__cta">
-                    {DROPS_BAND.cta}
-                    <span aria-hidden="true">→</span>
-                  </Anchor>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          {/* ---------- 關於 ---------- */}
-          <section className="st-about" aria-labelledby="st-about-title">
-            <div className="st-about__claim">
-              <h2 className="st-about__claim-text" id="st-about-title">
-                {ABOUT.claim.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </h2>
-              <p className="st-about__claim-line">
-                {ABOUT.line.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </p>
-              <Seal
-                text={ABOUT.seal}
-                shape="square"
-                className="st-about__seal"
-              />
-            </div>
-
-            <div className="st-about__plate">
-              <Cut
-                art={ABOUT.art}
-                alt={ABOUT.alt}
-                sizes={SIZES.scene}
-                className="st-about__art"
-              />
-            </div>
-
-            <div className="st-about__copy">
-              <div className="st-about__body">
-                {ABOUT.body.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-              <a
-                className="st-button"
-                href={ABOUT.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {ABOUT.cta}
-                <span aria-hidden="true">→</span>
-              </a>
-            </div>
-          </section>
-
-          {/* ---------- 嚴選商品 ---------- */}
-          <section className="st-goods" aria-labelledby="st-goods-title">
-            <header className="st-goods__head">
-              <h2 className="st-goods__title" id="st-goods-title">
-                {GOODS_BAND.title}
-              </h2>
-              <nav className="st-goods__tabs" aria-label="商品分類">
-                {PRODUCT_TABS.map((tab) => (
-                  <Anchor key={tab.label} item={tab} className="st-goods__tab" />
-                ))}
-              </nav>
-              <a
-                className="st-link st-goods__all"
-                href={GOODS_BAND.shopHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {GOODS_BAND.cta}
-                <span aria-hidden="true">→</span>
-              </a>
-            </header>
-
-            <div className="st-goods__row">
-              <div className="st-goods__claim">
-                <p className="st-goods__claim-text">
-                  {GOODS_BAND.claim.map((line) => (
-                    <span key={line}>{line}</span>
-                  ))}
-                </p>
-                <Cut
-                  art={GOODS_BAND.art}
-                  alt={GOODS_BAND.alt}
-                  sizes={SIZES.small}
-                  className="st-goods__dog"
-                />
-              </div>
-
-              <ul className="st-goods__list">
-                {PRODUCTS.map((product) => (
-                  <li className="st-product" key={product.name}>
-                    <a
-                      className="st-product__link"
-                      href={product.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span className="st-product__shot">
-                        <Image
-                          src={product.art}
-                          alt={product.alt}
-                          sizes={SIZES.goods}
-                        />
-                      </span>
-                      <span className="st-product__name">{product.name}</span>
-                      <span className="st-product__spec">{product.spec}</span>
-                      <span className="st-product__foot">
-                        <span className="st-product__price">
-                          {product.price}
-                        </span>
-                        <span className="st-product__cart" aria-hidden="true">
-                          <svg viewBox="0 0 24 24" focusable="false">
-                            <path d="M2.5 3h3l2.6 11.2h10.1l2.3-8.2H7" />
-                            <circle cx="10" cy="19.4" r="1.7" />
-                            <circle cx="17.6" cy="19.4" r="1.7" />
-                          </svg>
-                        </span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="st-swap">
-                <h3 className="st-swap__title">{GOODS_BAND.swap.title}</h3>
-                <Cut
-                  art={GOODS_BAND.swap.art}
-                  alt={GOODS_BAND.swap.alt}
-                  sizes={SIZES.small}
-                  className="st-swap__art"
-                />
-                <div className="st-swap__body">
-                  {GOODS_BAND.swap.body.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
-                <a
-                  className="st-link st-swap__cta"
-                  href={GOODS_BAND.swap.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {GOODS_BAND.swap.cta}
-                  <span aria-hidden="true">→</span>
-                </a>
-              </div>
-            </div>
-          </section>
-
-          {/* ---------- 浪浪支持計畫與訂閱 ---------- */}
-          <section className="st-care" aria-labelledby="st-care-title">
-            <div className="st-care__main">
+            {/* ---------- 第二則：浪浪支持計畫 ---------- */}
+            <section className="st-care" aria-labelledby="st-care-title">
               <h2 className="st-care__title" id="st-care-title">
                 {CARE.title}
               </h2>
+
               <Cut
-                art={CARE.art}
-                alt={CARE.alt}
+                art={CARE_STORY.plates[0].art}
+                alt={CARE_STORY.plates[0].alt}
                 sizes={SIZES.small}
-                className="st-care__art"
+                className="st-care__cut"
               />
-              <div className="st-care__body">
-                {CARE.body.map((line) => (
+
+              <Burst burst={CARE_STORY.burst} className="st-care__burst" />
+
+              <figure className="st-plate st-care__jar">
+                <Cut
+                  art={CARE_STORY.plates[1].art}
+                  alt={CARE_STORY.plates[1].alt}
+                  sizes={SIZES.small}
+                  className="st-plate__art"
+                />
+              </figure>
+
+              <div className="st-care__column">
+                {CARE_STORY.column.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
               </div>
+
+              <div className="st-care__marks">
+                {CARE_STORY.marks.map((mark) => (
+                  <p className="st-care__mark" key={mark}>
+                    {mark}
+                  </p>
+                ))}
+              </div>
+
+              <figure className="st-plate st-care__scene">
+                <Cut
+                  art={CARE_STORY.scene.art}
+                  alt={CARE_STORY.scene.alt}
+                  sizes={SIZES.scene}
+                  className="st-plate__art"
+                />
+                <figcaption className="st-tag">
+                  {CARE_STORY.scene.tag}
+                </figcaption>
+              </figure>
+
               <a
-                className="st-button st-care__cta"
-                href={CARE.href}
+                className="st-link st-care__cta"
+                href={CARE_STORY.href}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {CARE.cta}
+                {CARE_STORY.cta}
                 <span aria-hidden="true">→</span>
               </a>
-            </div>
+            </section>
 
-            <aside className="st-care__aside">
-              <Cut
-                art={CARE.asideArt}
-                alt={CARE.asideAlt}
-                sizes={SIZES.small}
-                className="st-care__cat"
-              />
-              <p className="st-care__aside-text">
-                {CARE.aside.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </p>
-            </aside>
+            {/* ---------- 下半張：攤位格 ---------- */}
+            <div className="st-stalls">
+              {STALL_ROWS.map((row, index) => (
+                <div
+                  className={`st-stalls__row st-stalls__row--${index + 1}`}
+                  key={row[0].name}
+                >
+                  {row.map((stall) => (
+                    <StallCell key={stall.name} stall={stall} />
+                  ))}
 
-            <div className="st-news">
-              <h3 className="st-news__title">
-                {CARE.news.title.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </h3>
-              <Cut
-                art={CARE.news.art}
-                alt={CARE.news.alt}
-                sizes={SIZES.small}
-                className="st-news__art"
-              />
-              <form
-                className="st-news__form"
-                action={NEWSLETTER_ACTION}
-                method="post"
-                acceptCharset="UTF-8"
-                target="_blank"
-              >
-                <input type="hidden" name="form_type" value="customer" />
-                <input type="hidden" name="utf8" value="✓" />
-                <input
-                  type="hidden"
-                  name="contact[tags]"
-                  value="newsletter"
-                />
-                <label className="st-news__label" htmlFor="st-news-email">
-                  {CARE.news.placeholder}
-                </label>
-                <input
-                  className="st-news__input"
-                  id="st-news-email"
-                  type="email"
-                  name="contact[email]"
-                  autoComplete="email"
-                  required
-                  placeholder={CARE.news.placeholder}
-                />
-                <button className="st-news__submit" type="submit">
-                  <span className="st-news__submit-label">
-                    {CARE.news.submit}
-                  </span>
-                  <span aria-hidden="true">→</span>
-                </button>
-              </form>
+                  {/* 最後一列的第三格是訂閱券。 */}
+                  {index === STALL_ROWS.length - 1 ? (
+                    <section className="st-stall st-coupon" aria-label="訂閱最新消息">
+                      <h3 className="st-stall__name">
+                        <span className="st-stall__name-text">最新消息</span>
+                      </h3>
+
+                      <div className="st-stall__body">
+                        <Cut
+                          art={CARE.news.art}
+                          alt={CARE.news.alt}
+                          sizes={SIZES.small}
+                          className="st-coupon__art"
+                        />
+
+                        <form
+                          className="st-coupon__form"
+                          action={NEWSLETTER_ACTION}
+                          method="post"
+                          acceptCharset="UTF-8"
+                          target="_blank"
+                        >
+                          <input type="hidden" name="form_type" value="customer" />
+                          <input type="hidden" name="utf8" value="✓" />
+                          <input
+                            type="hidden"
+                            name="contact[tags]"
+                            value="newsletter"
+                          />
+                          <label
+                            className="st-coupon__label"
+                            htmlFor="st-news-email"
+                          >
+                            {CARE.news.placeholder}
+                          </label>
+                          <input
+                            className="st-coupon__input"
+                            id="st-news-email"
+                            type="email"
+                            name="contact[email]"
+                            autoComplete="email"
+                            required
+                            placeholder={CARE.news.placeholder}
+                          />
+                          <button className="st-coupon__submit" type="submit">
+                            <span>{CARE.news.submit}</span>
+                            <span aria-hidden="true">→</span>
+                          </button>
+                        </form>
+                      </div>
+                    </section>
+                  ) : null}
+                </div>
+              ))}
             </div>
-          </section>
+          </div>
 
           {/* ---------- 報尾 ---------- */}
           <footer className="st-footer">
@@ -499,7 +456,11 @@ export default function StorePage() {
 
             <nav className="st-footer__nav" aria-label="其他頁面">
               {FOOTER_NAV.map((item) => (
-                <Anchor key={item.label} item={item} className="st-footer__link" />
+                <Anchor
+                  key={item.label}
+                  item={item}
+                  className="st-footer__link"
+                />
               ))}
             </nav>
 
