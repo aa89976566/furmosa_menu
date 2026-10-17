@@ -91,7 +91,8 @@ body:has(.st-page) {
   /* 格線、留白、欄距。 */
   --st-hair: max(1px, 0.07cqw);
   --st-rule: max(1px, 0.14cqw);
-  --st-band-gap: 1.35cqw;
+  /* 稿子上帶與帶之間落 13（11 到 15 之間擺動），不是先前給的 11。 */
+  --st-band-gap: 1.63cqw;
   --st-pad: 1.15cqw;
   --st-cell-gap: 1.1cqw;
 
@@ -591,19 +592,24 @@ body:has(.st-page) {
   align-items: center;
   justify-content: space-between;
   gap: 0.9cqw;
-  margin-top: var(--st-band-gap);
-  padding: 0 1.5cqw 1.05cqw;
+  /*
+   * 稿子上欄目列是貼著報頭排的——報頭的底線就是欄目列的頂線，中間不落空；
+   * 先前照別條帶給了一個帶距，整列就被推下去十一點，底線剛好壓在頭版該起排
+   * 的位置上，看起來像沒有欄距。
+   */
+  margin-top: 0;
+  padding: 0 1.5cqw;
   border-bottom: var(--st-hair) solid var(--st-ink);
 
-  /* 稿子上欄目列是 237..288（含底下那道雙線），高 51。 */
-  height: 6.3cqw;
+  /* 稿子上欄目列是 237..283，高 46；欄目在列裡對半置中。 */
+  height: 5.72cqw;
 }
 
-/* 導覽下面是雙線，第二條壓在欄距裡。 */
+/* 導覽下面是雙線，第二條落在底線下 4.5。 */
 .st-nav::after {
   content: "";
   position: absolute;
-  inset: auto 0 calc(var(--st-band-gap) * -0.42) 0;
+  inset: auto 0 -0.55cqw 0;
   border-top: var(--st-hair) solid var(--st-ink-soft);
 }
 
