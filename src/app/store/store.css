@@ -1402,16 +1402,17 @@ body:has(.st-page) {
  */
 .st-care__main {
   display: grid;
-  /* 稿子上狗的墨寬 122、正文 202。 */
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.66fr);
+  /* 稿子上狗那一格是 20..157、正文是 157..351，正文一路排到格的右緣。 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.516fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "title title"
     "art   body"
     "art   cta";
   align-items: start;
-  gap: 0.6cqw 0.5cqw;
-  padding: 0.8cqw 1.2cqw 0.9cqw 0.3cqw;
+  /* 稿子上帶名到正文之間落 11、正文到紅框之間落 9，紅框幾乎貼著格的下緣。 */
+  gap: 0.7cqw 0.5cqw;
+  padding: 0.8cqw 0 0.25cqw 0.3cqw;
   border-left: var(--st-rule) solid var(--st-red);
 }
 
@@ -1446,10 +1447,15 @@ body:has(.st-page) {
   grid-area: body;
   align-self: start;
   color: var(--st-ink);
-  font-size: 1.3cqw;
+  /*
+   * 稿子上最長那行是二十個字排 194 寬，一個字佔 9.7。手上的字是方的，字身
+   * 就是字寬，所以級數照 9.7 給；大一號我們這幾行就會折行，折出來的那一行
+   * 會壓到底下那只紅框。
+   */
+  font-size: 1.19cqw;
   font-weight: 700;
   /* 稿子上四行的行距量出來是 17.6。 */
-  line-height: 1.62;
+  line-height: 1.81;
   letter-spacing: 0;
 }
 
@@ -1457,13 +1463,15 @@ body:has(.st-page) {
   margin: 0;
 }
 
+/* 稿子上這只紅框是 81 x 23：框裡的字跟正文同一級，上下的內距比左右的鬆。 */
 .st-care__cta {
   grid-area: cta;
   justify-self: start;
+  align-self: end;
   padding: 0.32em 0.9em;
   border-color: var(--st-red);
   color: var(--st-red);
-  font-size: var(--st-copy);
+  font-size: 1.2cqw;
 }
 
 .st-care__cta:hover,
@@ -1476,9 +1484,12 @@ body:has(.st-page) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  /* 稿子上貓佔了這一格快一半的寬，內距與欄距都收緊讓給牠。 */
+  /*
+   * 稿子上貓佔了這一格快一半的寬，欄距收緊讓給牠；直書那兩欄排完以後，
+   * 右邊還留著 24 的空白，不是貼著框排。
+   */
   gap: 0.5cqw;
-  padding: 0.6cqw;
+  padding: 0.6cqw 3cqw 0.6cqw 0.6cqw;
   border: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -1488,11 +1499,15 @@ body:has(.st-page) {
   text-orientation: mixed;
   max-height: 100%;
   color: var(--st-ink);
-  font-size: var(--st-note);
+  /*
+   * 格子的淨高只有 129，我們最長那句是八個字；手上的字是方的，字身就是
+   * 一個字佔的高，所以級數得留出餘裕——差個一兩點，最後一個字就被甩成
+   * 第三欄。字距同理，一放寬就排不進一欄。
+   */
+  font-size: 1.85cqw;
   font-weight: 500;
   line-height: 1.5;
-  /* 字距放寬會讓八個字的那一句排不進一欄，最後一個字就被甩成第三欄。 */
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-align: center;
 }
 
@@ -1529,8 +1544,11 @@ body:has(.st-page) {
   display: grid;
   gap: 0.1em;
   color: var(--st-ink);
-  /* 稿子上這兩行是貼著排的大字，不是行距鬆開的中字；五個字要容得進左半格。 */
-  font-size: 2.5cqw;
+  /*
+   * 稿子上這兩行是貼著排的大字，不是行距鬆開的中字；五個字橫量 72，
+   * 字寬就是 14.4，級數照字寬給才排得進左半格。
+   */
+  font-size: 2.22cqw;
   font-weight: 700;
   line-height: 1.22;
   letter-spacing: 0.02em;
