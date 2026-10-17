@@ -817,6 +817,11 @@ body:has(.st-page) {
   /* 稿子上這條帶的框是 640..998，帶高 358。標頭給自然高，卡片列收剩下的。 */
   height: 44cqw;
   grid-template-rows: auto minmax(0, 1fr);
+  /*
+   * 稿子上六張卡是 2..812，左右幾乎貼著帶框（所以框線看起來是雙的）；
+   * 下緣也只留 4，不是別條帶那樣的 --st-pad。
+   */
+  padding: var(--st-pad) 0.25cqw 0.5cqw;
 }
 
 .st-drops__head {
@@ -1040,7 +1045,8 @@ body:has(.st-page) {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   gap: 1.2cqw;
-  padding: 2.7cqw 0 1.7cqw var(--st-cell-gap);
+  /* 稿子上正文是從 633 起排的，離那道豎線有 20，不是貼著線。 */
+  padding: 2.7cqw 0 1.7cqw 2.5cqw;
   border-left: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -1054,9 +1060,12 @@ body:has(.st-page) {
   letter-spacing: 0.06em;
 }
 
-/* 稿子上這顆按鈕的框只有 37 高，比預設的扁一截。 */
+/*
+ * 稿子上這顆按鈕的框是 141 x 38：寬度是字撐出來的，在欄裡置中，
+ * 不是拉開撐滿整欄；高度也比預設的扁一截。
+ */
 .st-about__copy .st-button {
-  justify-self: stretch;
+  justify-self: center;
   padding-block: 0.42em;
 }
 
@@ -1102,10 +1111,11 @@ body:has(.st-page) {
   letter-spacing: 0.02em;
 }
 
+/* 稿子上這幾個欄名之間落 69，是散開排的，不是擠成一小串。 */
 .st-goods__tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6cqw 2.6cqw;
+  gap: 0.6cqw 8.5cqw;
   padding-left: 4.8cqw;
 }
 
@@ -1157,7 +1167,8 @@ body:has(.st-page) {
   text-orientation: mixed;
   max-height: 100%;
   color: var(--st-ink);
-  font-size: var(--st-lead);
+  /* 稿子上一欄四個字排 92 高，一個字佔 23；欄距 29 就是這一級的一點三四倍。 */
+  font-size: 2.67cqw;
   font-weight: 700;
   line-height: 1.34;
   letter-spacing: 0.06em;
@@ -1176,10 +1187,13 @@ body:has(.st-page) {
   display: block;
 }
 
-/* 稿子上這隻狗只佔欄底一小截；不封頂的話它會把直書那句擠成一字一欄。 */
+/*
+ * 稿子上這隻狗的墨是 67 x 49，佔欄底一小截；不封頂的話它會把直書那句
+ * 擠成一字一欄。
+ */
 .st-goods__dog {
   height: auto;
-  max-height: 4.4cqw;
+  max-height: 6cqw;
 }
 
 .st-goods__list {
