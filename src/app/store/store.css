@@ -108,9 +108,9 @@ body:has(.st-page) {
   /*
    * 頭條是直書的七個字，級數不能單看好不好看：一欄排得下七個字需要
    * 7 × 級數 × 行高的高度，超過欄高就折成兩欄。這一級配
-   * .st-front__headline 的 40cqw 欄高剛好排成一欄。
+   * .st-front__headline 的 44cqw 欄高剛好排成一欄。
    */
-  --st-t-display: 4.1cqw;
+  --st-t-display: 4.4cqw;
   /* 刊名那兩個字是整頁唯一比頭條還重的墨。 */
   --st-t-brand: 5.4cqw;
   --st-t-bar: 1.72cqw;
@@ -447,7 +447,8 @@ body:has(.st-page) {
  */
 .st-front {
   display: grid;
-  grid-template-columns: 27fr 45fr 22fr;
+  /* 圖版那一欄放寬：照片是這一版的主角，欄寬就該給到一半。 */
+  grid-template-columns: 25fr 49fr 22fr;
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     "text figure head"
@@ -519,19 +520,32 @@ body:has(.st-page) {
 }
 
 /*
- * 兩道欄線就是這一格的左右邊：align-self: stretch 讓線跑滿整個頭版的高，
- * 線才像報紙的欄線，而不是圈住圖的一只框。圖本身仍釘在欄的上緣。
+ * 頭版的圖版是一塊實心紅底，不是一只框：色塊的兩道硬邊自己就是欄線，
+ * 所以這一格不再畫髮線。align-self: stretch 讓色塊吃滿整個頭版的高，
+ * 圖說留在色塊下面的紙上。
  */
 .st-front__figure {
   grid-area: figure;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   align-self: stretch;
   margin: 0;
-  padding-inline: var(--st-gap);
-  border-inline: var(--st-hair) solid var(--st-ink-soft);
 }
 
+/*
+ * 去背的實拍鋪在紅底上（紅是 img 自己的背景，從透明處透出來）。
+ * 用 contain 而不是 cover：這一張不能裁——裁上緣狗頭會像被切掉，
+ * 裁下緣會切掉拿袋子的手。所以改成貼齊下緣、上面留一段頭上空間，
+ * 手正好踩在色塊的下邊線上，左右多出來的紅就是色塊本身。
+ */
 .st-front__art {
-  height: 33cqw;
+  width: 100%;
+  height: 100%;
+  min-height: 26cqw;
+  padding: 2.2cqw 1.4cqw 0;
+  background: var(--st-red);
+  object-fit: contain;
+  object-position: center bottom;
 }
 
 /*
@@ -540,8 +554,8 @@ body:has(.st-page) {
  */
 .st-front__headline {
   grid-area: head;
-  /* 直書要有欄高才知道哪裡斷欄；這一塊同時決定整個頭版的高。 */
-  height: 40cqw;
+  /* 直書要有欄高才知道哪裡斷欄；這一塊同時決定整個頭版與紅色塊的高。 */
+  height: 44cqw;
   margin: 0;
   justify-self: end;
   writing-mode: vertical-rl;
@@ -1198,15 +1212,10 @@ body:has(.st-page) {
     letter-spacing: 0.18em;
   }
 
-  .st-front__figure {
-    padding-block: 1.1rem;
-    padding-inline: 0;
-    border-inline: 0;
-    border-block: var(--st-hair) solid var(--st-ink-soft);
-  }
-
+  /* 一欄寬的時候色塊沒有旁邊的欄撐高，高度得自己給。 */
   .st-front__art {
-    height: 46cqw;
+    height: 92cqw;
+    min-height: 0;
   }
 
   .st-front__seal {
@@ -1365,7 +1374,7 @@ body:has(.st-page) {
   }
 
   .st-front__art {
-    height: 56cqw;
+    height: 112cqw;
   }
 
   .st-care__art {

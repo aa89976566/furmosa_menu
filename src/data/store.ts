@@ -13,7 +13,7 @@ import goodsBeef from "@/assets/store/goods-2-beef.webp";
 import goodsDuck from "@/assets/store/goods-4-duck.webp";
 import goodsJiba from "@/assets/store/goods-1-jiba.webp";
 import goodsVeg from "@/assets/store/goods-3-veg.webp";
-import heroDogCat from "@/assets/store/hero-dog-cat.webp";
+import photoHeroJiba from "@/assets/store/photo-hero-jiba.webp";
 import sceneRidge from "@/assets/store/scene-ridge.webp";
 
 import { SHOP_URL, WORKS_ROWS } from "@/data/works";
@@ -195,9 +195,15 @@ export const FRONT = {
   ],
   /** 欄底那三行規格，一行一條，前面壓一個小圓點。 */
   claims: ["低溫熱風烘乾", "不添香料色素", "慢工做的雞排"],
-  art: heroDogCat,
-  alt: "情境示意圖：紅色雕版風格的插畫，一隻張嘴笑的牧羊犬與一隻虎斑貓並肩看著鏡頭",
-  caption: "台灣在地・小量製作",
+  /*
+   * 頭版這一張是去背的實拍，不是雕版——全頁唯一的全彩，也是唯一的照片。
+   * 去背後有個明度問題：狗是近黑的，紙袋是奶油白、跟紙色幾乎同一個值，
+   * 所以放米白上袋子的邊會消失、放藏青上狗會消失。底色因此走紅——
+   * 紅是中明度，黑毛往下分離、奶油袋往上分離，金黃的雞排又跟紅同色族。
+   */
+  art: photoHeroJiba,
+  alt: "實拍：一隻臘腸狗張嘴咬住從匠寵紙袋裡探出來的大片雞肉乾，一隻手拿著紙袋，袋上印著匠寵的紅色印章與商品勾選欄",
+  caption: "嚎大大・雞霸｜台灣在地・小量製作",
   cta: "看更多",
   href: "/real-food",
 } as const;

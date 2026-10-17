@@ -28,7 +28,7 @@ import {
 
 /* 每一塊圖版佔整張紙的寬度，照它所在的欄寬給，讓 next/image 不要抓過大的檔。 */
 const SIZES = {
-  front: "(max-width: 900px) 92vw, 44vw",
+  front: "(max-width: 900px) 92vw, 40vw",
   scene: "(max-width: 900px) 92vw, 48vw",
   good: "(max-width: 900px) 44vw, 20vw",
 } as const;
