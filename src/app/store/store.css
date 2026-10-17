@@ -516,10 +516,10 @@ a.st-burst:focus-visible {
   grid-area: cut;
   align-self: start;
   z-index: 2;
-  width: calc(100% + 2.4cqw);
+  width: calc(100% + 3.8cqw);
   height: auto;
-  margin: calc((var(--st-frame-pad) + var(--st-frame) + 0.6cqw) * -1) 0 0
-    calc((var(--st-frame-pad) + var(--st-frame) + 0.6cqw) * -1);
+  margin: calc((var(--st-frame-pad) + var(--st-frame) + 1.5cqw) * -1) 0 0
+    calc((var(--st-frame-pad) + var(--st-frame) + 1.5cqw) * -1);
 }
 
 /* 招牌字在右、說明的小字在左，兩塊都是直書：所以反向排才接得上稿子。 */
