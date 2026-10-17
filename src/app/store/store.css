@@ -136,8 +136,15 @@ body:has(.st-page) {
   --st-note: 2cqw;
   --st-name: 1.7cqw;
   --st-caption: 1.5cqw;
-  /* 稿子上報尾那組字標橫量 152：要跟稿子一樣寬，級數只能照字寬給。 */
-  --st-footword: 2.3cqw;
+  /*
+   * 稿子上報尾那組 FURMOSA 的墨是 70 寬、17 高——跟報頭的字標一樣是窄長體
+   * （一個字母佔字高的 0.59，手上這套是 0.8）。所以照字高給級數，再橫壓到
+   * 那個寬，跟報頭同一手法；單照字寬給的話字會矮掉一截。
+   */
+  --st-footword: 2.6cqw;
+  --st-footword-squeeze: 0.64;
+  /* 稿子上報尾那條副題是粗的、字距是緊的，整行橫量 152，跟字標一樣寬。 */
+  --st-footline: 1.1cqw;
   /* 稿子上 DROP 卡的號碼墨高 17，比原先量的小一號。 */
   --st-index: 2.8cqw;
   /*
@@ -1666,8 +1673,11 @@ body:has(.st-page) {
   /* 稿子上標語離上面那一列只有 17，其中大半是字本身的行高。 */
   gap: 0.54cqw 2cqw;
   margin-top: var(--st-band-gap);
-  /* 稿子上標語收在 72、頁尾的框到 102：靠 align-content 把三十的白留在底下。 */
-  padding: 1.4cqw 0.4cqw 0;
+  /*
+   * 稿子上這一列的基線落在 28（離框 28），先前給的上內距把整列壓低了五點。
+   * 標語收在 72、頁尾的框到 102：靠 align-content 把三十的白留在底下。
+   */
+  padding: 0.79cqw 0.4cqw 0;
   border-top: var(--st-rule) solid var(--st-ink);
 
   /* 稿子上頁尾的框是 1673..1778，高 105。 */
@@ -1680,7 +1690,8 @@ body:has(.st-page) {
 
 .st-footer__brand {
   display: grid;
-  gap: 0.3cqw;
+  /* 稿子上副題的基線離字標的基線只有 16，中間容不下一道欄距。 */
+  gap: 0;
 }
 
 .st-footer__mark {
@@ -1690,36 +1701,49 @@ body:has(.st-page) {
 }
 
 .st-footer__word {
+  display: block;
+  /* 橫壓之後的墨寬就是這個框寬，底下的匠寵才接得上，不會隔著一截空。 */
+  width: 8.6cqw;
   font-family: var(--st-font-didone), serif;
   font-size: var(--st-footword);
   font-weight: 900;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  transform: scaleX(var(--st-footword-squeeze));
+  transform-origin: left center;
 }
 
+/* 稿子上這兩個字的墨是 23 寬，比字標的字高小一半——不是跟著它等比放大。 */
 .st-footer__cjk {
-  font-size: calc(var(--st-footword) * 0.72);
+  font-size: calc(var(--st-footword) * 0.52);
   font-weight: 900;
   letter-spacing: 0.04em;
 }
 
 .st-footer__line {
   font-family: var(--st-font-didone), serif;
-  font-size: var(--st-origin);
+  font-size: var(--st-footline);
+  font-weight: 700;
   /* 稿子上這一行橫量 152：要跟字標一樣寬，字距只能收到這裡。 */
-  letter-spacing: 0.117em;
+  letter-spacing: 0.035em;
 }
 
 .st-footer__nav {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.7cqw 2.2cqw;
+  /* 稿子上欄目之間落 28，比先前給的鬆一半——字收小了，空才撐得開。 */
+  gap: 0.7cqw 3.33cqw;
 }
 
+/*
+ * 稿子上這幾個欄目的字很小：一個字連字距佔 9（墨高 8），先前照內文那一級
+ * 給，整列的墨比稿子重了快一半，看起來像正文不像報尾。
+ */
 .st-footer__link {
   color: var(--st-ink-mid);
-  font-size: var(--st-copy);
-  letter-spacing: 0.14em;
+  font-size: 1.08cqw;
+  letter-spacing: 0.1em;
   text-decoration: none;
   transition: color 0.18s ease;
 }
@@ -1825,6 +1849,7 @@ body:has(.st-page) {
     --st-utility: 0.62rem;
     --st-badge: 0.95rem;
     --st-origin: 0.52rem;
+    --st-footline: 0.52rem;
     --st-word: 2.9rem;
     --st-brand: 1.5rem;
     --st-strap: 0.6rem;
@@ -2036,11 +2061,20 @@ body:has(.st-page) {
   .st-footer {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
+    /* 窄螢幕的報尾疊成四列，桌機那道兩點的列距會讓圖標貼上欄目的字腳。 */
+    row-gap: 0.7rem;
   }
 
   .st-footer__nav {
     grid-column: 1 / -1;
     justify-content: flex-start;
+    gap: 0.4rem 1.1rem;
+  }
+
+  /* 報尾的欄目在桌機是照稿子的 9 給的，換成紙寬的比例在手機只剩四個像素。 */
+  .st-footer__link {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
   }
 
   .st-footer__rights {
