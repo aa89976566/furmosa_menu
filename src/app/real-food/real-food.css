@@ -1,0 +1,1255 @@
+/*
+ * 毛孩的真食堂 — 直接照海報稿排的一張紙。
+ *
+ * 版面的量測單位是「紙寬」而不是視窗：海報上的本文只有紙寬的 1.6%，
+ * 所以整張紙包成一個 container，所有尺寸與字級都寫成 cqw，
+ * 縮放時比例完全不變，像印刷品被等比縮小一樣。
+ *
+ * 藍色格線不是 border，而是 .rf-collage 的藍底從格與格之間的 gap 透出來；
+ * 每一格自己鋪紙色並留內距，格線因此一律同寬，也不會在轉角疊成兩倍。
+ *
+ * 所有類別以 rf- 前綴，沿用 works-/furmosa- 的命名慣例。
+ */
+
+:root {
+  --rf-paper: #f4f1ea;
+  --rf-paper-deep: #e9e3d6;
+  --rf-blue: #0b74bd;
+  --rf-blue-bright: #28a4e0;
+  --rf-navy: #04497e;
+  --rf-yellow: #fbd50a;
+  --rf-ink: #123a56;
+  --rf-red: #e2231a;
+
+  /* 紙寬。海報是直式開本，寬度封頂後整張紙置中。 */
+  --rf-sheet-w: min(95vw, 66rem);
+  /* 外框在海報上是紙寬的 0.83%，border 吃不到百分比，只好自己算。 */
+  --rf-frame-rule: calc(var(--rf-sheet-w) * 0.0083);
+
+  --rf-halftone: radial-gradient(
+    var(--rf-blue-bright) 1.05px,
+    transparent 1.15px
+  );
+  --rf-halftone-size: 4.5px 4.5px;
+
+  --rf-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* globals.css 讓全站是黑底，這頁是一張紙，必須把底色換回來。 */
+html:has(.rf-page),
+body:has(.rf-page) {
+  background: #e4ded2;
+  color: #123a56;
+}
+
+.rf-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding: clamp(0.8rem, 2.4vw, 2.4rem) 0 clamp(2rem, 5vw, 4rem);
+  background: #e4ded2;
+  color: var(--rf-ink);
+  font-family: var(--rf-font-serif), "Noto Serif TC", "Songti TC", serif;
+  font-weight: 500;
+  overflow-x: clip;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+}
+
+.rf-page ::selection {
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+}
+
+.rf-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.3;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+/* ---------- 紙張與外框 ---------- */
+
+.rf-sheet {
+  position: relative;
+  z-index: 2;
+  width: var(--rf-sheet-w);
+  margin: 0 auto;
+}
+
+.rf-frame {
+  /* 左緣標語條要破框出去，所以這裡不能設 overflow。 */
+  padding-top: calc(var(--rf-sheet-w) * 0.0052);
+  background: var(--rf-paper);
+  border: var(--rf-frame-rule) solid var(--rf-blue);
+  box-shadow: 0 1.2rem 3rem rgb(18 58 86 / 0.18);
+}
+
+/*
+ * 版面容器。以下所有 cqw 都以這一塊的內容寬為 100。
+ * 注意：自己的屬性不能用 cqw（容器不能查詢自己），邊框與上內距因此留在 .rf-frame。
+ */
+.rf-sheet__body {
+  container-type: inline-size;
+
+  /* 字級與間距一律走變數，窄螢幕只要換掉這一組就能整頁改制。 */
+  --rf-copy: 1.42cqw;
+  --rf-copy-leading: 1.62;
+  --rf-tag: 3.3cqw;
+  --rf-tag-leading: 1.26;
+  --rf-tag-gap: 0.2cqw;
+  --rf-ribbon: 4cqw;
+  --rf-spine: 14.4cqw;
+  --rf-claim: 4.1cqw;
+  --rf-rail: 4.4cqw;
+
+  /* 格內留白、格線寬、格內元素間距。 */
+  --rf-pad: 0.62cqw;
+  --rf-rule: 0.26cqw;
+  --rf-inner-gap: 0.95cqw;
+}
+
+/* ---------- 報頭 ---------- */
+
+.rf-masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 23.5cqw;
+  gap: 0.52cqw;
+  height: 7.28cqw;
+}
+
+.rf-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  margin: 0;
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.21cqw solid var(--rf-navy);
+}
+
+/* 報頭兩端的 ※ 是海報上的裝飾，不是內容，所以交給樣式。 */
+.rf-ribbon::before,
+.rf-ribbon::after {
+  content: "※";
+  color: var(--rf-paper);
+  font-size: calc(var(--rf-ribbon) * 0.62);
+  opacity: 0.9;
+}
+
+.rf-ribbon__text {
+  color: var(--rf-paper);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-ribbon);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.05em var(--rf-navy);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.05em 0 var(--rf-navy);
+}
+
+.rf-mark {
+  display: grid;
+  gap: 0.2em;
+  align-content: center;
+  justify-items: center;
+  border: 0.26cqw solid var(--rf-blue);
+  color: var(--rf-blue);
+  text-decoration: none;
+}
+
+.rf-mark__word {
+  font-size: 3.9cqw;
+}
+
+.rf-mark__line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  white-space: nowrap;
+}
+
+.rf-mark__brand {
+  color: var(--rf-red);
+  font-size: 1.75cqw;
+  font-weight: 900;
+  letter-spacing: 0.26em;
+}
+
+.rf-mark__category {
+  color: var(--rf-navy);
+  font-size: 1.1cqw;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- FURMOSA 字標 ---------- */
+
+.rf-wordmark {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--rf-font-latin), "Baloo 2", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.rf-wordmark__o {
+  width: 0.84em;
+  height: 0.84em;
+  margin: 0 0.015em;
+  flex: none;
+}
+
+/* ---------- 拼貼：四條帶、右側書脊、左下標語條 ---------- */
+
+/*
+ * 列高取自海報的實測像素（438 / 295 / 291 / 274），用 fr 寫成比例；
+ * 整塊高度也鎖成紙寬的倍數，所以放大縮小都還是同一張海報。
+ */
+.rf-collage {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 6.14cqw minmax(0, 1fr) 25.1cqw;
+  /* fr 的自動最小值是 min-content，不包 minmax(0,…) 的話內容會把列撐高。 */
+  grid-template-rows:
+    minmax(0, 438fr) minmax(0, 295fr)
+    minmax(0, 291fr) minmax(0, 274fr);
+  grid-template-areas:
+    "one   one   spine"
+    "two   two   spine"
+    "rail  three spine"
+    "rail  four  four";
+  gap: var(--rf-rule);
+  height: 136.22cqw;
+  margin-top: 0.31cqw;
+  /* 上內距就是報頭下那條較粗的藍線——藍底透出來即是格線。 */
+  padding-top: 0.42cqw;
+  background: var(--rf-blue);
+}
+
+.rf-band {
+  display: grid;
+  gap: var(--rf-rule);
+}
+
+.rf-band--one {
+  grid-area: one;
+  grid-template-columns: 367fr 348fr;
+}
+
+.rf-band--two {
+  grid-area: two;
+  grid-template-columns: minmax(0, 1fr) 18.3cqw;
+}
+
+.rf-band--three {
+  grid-area: three;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rf-band--four {
+  grid-area: four;
+}
+
+/*
+ * 報紙式編排：一條帶就是一個主題。
+ *
+ * 拼貼版的帶裡可以塞兩三格（主題會跨欄，孤照也沒有主題），讀起來不整齊；
+ * 這個修飾子把每一條帶收成單格，四條帶＝四個主題，
+ * 並把格線加寬到看得出來——顏色仍是同一支藍，只是不再是一條髮線。
+ */
+.rf-collage--news {
+  --rf-rule: 0.46cqw;
+  /*
+   * 本文放到海報原稿的兩倍：直書一行的字數＝帶高÷字級，
+   * 所以字級一變，每一帶的每行字數、行數與照片寬度全部跟著重算。
+   */
+  --rf-copy: 2.84cqw;
+  /* 每一帶的標籤一律同級，只有頭條例外（見下），版面才有層級。 */
+  --rf-tag: 3.8cqw;
+  --rf-copy-leading: 1.62;
+
+  /*
+   * 公益帶之後再往下接七帶（首頁清單的七列）。七帶沿用公益帶的列高
+   * 274fr，字數的算法才和上面同一套；整塊的高度也跟著重算，
+   * 1fr ＝ 0.10336cqw 不變，所以上面四帶在紙上還是原來的大小。
+   */
+  grid-template-rows:
+    minmax(0, 438fr) minmax(0, 295fr)
+    minmax(0, 291fr) minmax(0, 274fr)
+    repeat(7, minmax(0, 274fr));
+  height: 337.68cqw;
+}
+
+/*
+ * 往下接的七帶：一帶吃滿整個紙寬（書脊與標語條只占前四列）。
+ * 前四列的格子都有東西佔著，所以自動排版會從第五列開始放，
+ * 七帶依序落在第五到第十一列。
+ */
+.rf-band--drop {
+  grid-column: 1 / -1;
+}
+
+/* 只收 .rf-band 這層外框；第四帶本身就是一格，不在此列。 */
+.rf-collage--news .rf-band {
+  grid-template-columns: minmax(0, 1fr);
+  /* 帶高來自拼貼的列比例，所以帶裡那一列也要寫死成 1fr，不能讓內容反推。 */
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/*
+ * 帶高早就被拼貼的列比例鎖死了，格位裡那一列要跟著填滿（1fr）。
+ * 留成 auto 的話照片的 height: 100% 沒有可解的高度，會退回原圖比例，
+ * 於是「換一張比例不一樣的照片」就會把整條帶撐破——照片該被裁進格位，
+ * 而不是反過來決定帶高。
+ */
+.rf-collage--news .rf-panel {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* 格位自己宣告的字級要一起收齊，否則同一頁會出現三種標籤大小。 */
+.rf-collage--news .rf-panel--wide {
+  --rf-tag: 3.8cqw;
+  --rf-copy-leading: 1.62;
+
+  /*
+   * 兩張照片併在左邊，標籤一律落在整條帶的最右側。
+   * 拼貼版把小照片排在標籤之後，標籤會被擠到帶的中間，
+   * 四條帶的標籤因此各在一個位置——這是最明顯的不整齊。
+   */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.96fr) auto auto;
+  grid-template-areas: "lead aside lines tag";
+}
+
+/*
+ * 製程三連拍：三張同寬的照片按順序並排，本文與標籤仍落在帶的最右側。
+ * 三張一樣寬，讀起來才是一個順序，而不是一張主圖配兩張配圖。
+ */
+.rf-collage--news .rf-panel--trio {
+  --rf-tag: 3.8cqw;
+  --rf-copy-leading: 1.62;
+
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
+    auto auto;
+  grid-template-areas: "lead aside third lines tag";
+}
+
+/* 頭條：最大的照片、最大的標籤，下緣再補一道比別處更粗的分界線。 */
+.rf-collage--news .rf-band--one {
+  --rf-tag: 5cqw;
+  margin-bottom: 0.26cqw;
+}
+
+/* 每一格都自己鋪紙並留內距，格線才會只來自 gap。 */
+.rf-cell,
+.rf-panel {
+  min-width: 0;
+  background: var(--rf-paper);
+  padding: var(--rf-pad);
+}
+
+/* 碗那張單圖只占格子上半，底下是刻意留白的紙。 */
+.rf-cell--plate {
+  display: grid;
+  align-content: start;
+}
+
+.rf-cell--plate .rf-photo {
+  height: auto;
+  aspect-ratio: 169 / 192;
+}
+
+/* ---------- 格位的四種編排 ---------- */
+
+.rf-panel {
+  display: grid;
+  column-gap: var(--rf-inner-gap);
+  row-gap: var(--rf-pad);
+}
+
+/* 照片與標籤並排，直書本文落在照片下方。 */
+.rf-panel--stack {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 211fr) minmax(0, 208fr);
+  grid-template-areas:
+    "lead  tag"
+    "lines tag";
+}
+
+/* 照片｜本文｜標籤。 */
+.rf-panel--row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "lead lines tag";
+}
+
+/* 只有本文與標籤，照片是同一條帶裡的另一格。 */
+.rf-panel--copy {
+  grid-template-columns: auto auto;
+  grid-template-areas: "lines tag";
+}
+
+/* 照片｜本文｜標籤｜小照片，吃掉整條帶。 */
+.rf-panel--wide {
+  grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 0.96fr);
+  grid-template-areas: "lead lines tag aside";
+  --rf-tag: 2.5cqw;
+  --rf-copy-leading: 1.52;
+}
+
+/*
+ * 兩張同寬的照片｜本文｜標籤。--wide 的小照片是配圖（0.96fr 且排在標籤
+ * 之後），這裡兩張一樣大、一樣在左邊：一張是東西，一張是吃的那一位。
+ * 字級與行距一律繼承 .rf-collage--news，格位自己不另宣告，
+ * 七帶的標籤才和上面四帶同一級。
+ */
+.rf-panel--duo {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  grid-template-areas: "lead aside lines tag";
+}
+
+/* 第一條帶的本文排得比別處鬆，照海報留著。 */
+.rf-panel--stack {
+  --rf-copy-leading: 2.35;
+}
+
+.rf-photo--lead {
+  grid-area: lead;
+}
+
+.rf-photo--third {
+  grid-area: third;
+}
+
+.rf-photo--aside {
+  grid-area: aside;
+}
+
+/*
+ * 直書區塊一律 align-self: start：高度交給內容，
+ * 被格列拉伸的話行長會被截短，斷行就跑掉了。
+ */
+/*
+ * 標題是一疊直書的欄：vertical-rl 裡 flex 的 column 方向就是欄的方向
+ * （由右而左），所以一欄一個 flex 項目，欄與欄之間留 --rf-tag-gap。
+ * 早先是同一段文字用 box-decoration-break: clone 切開，但那時候每一欄
+ * 的黃底是「字寬＋左右內距」，比欄距還寬，相鄰兩欄的色塊就會疊到彼此
+ * 的字上，整塊也溢出格位壓到本文。
+ */
+.rf-tag {
+  grid-area: tag;
+  align-self: start;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rf-tag-gap);
+  width: fit-content;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-tag);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: var(--rf-tag-leading);
+}
+
+/*
+ * 色塊左右不另外加內距：直書的行高（1.26em）本來就讓色塊比字寬一點，
+ * 再加內距只會把標籤欄撐寬、把照片擠窄。上下的 0.18em 是色塊收頭的留白。
+ */
+.rf-tag__main,
+.rf-tag__sub {
+  padding: 0.18em 0;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+}
+
+/*
+ * 副標比主標小一號，報紙的標題才有主從。
+ * 用 em（相對主標）而不是 cqw：格線在算 auto 欄寬時，欄裡的 cqw 字級
+ * 會被當成主標的尺寸，標籤欄就會多撐出一截空白紙。
+ */
+.rf-tag__sub {
+  font-size: 0.68em;
+}
+
+/*
+ * 有活動頁的那幾帶，標籤本身就是連結（報紙的欄名本身可點）。靜止時和
+ * 其他帶的標籤一模一樣——同一支黃、同一個墨色、不加底線——壓上去才把
+ * 黃與藍對調。連結得自己當欄的容器，一欄一個 flex 項目的排法才接得下去。
+ */
+.rf-tag__link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rf-tag-gap);
+  width: fit-content;
+  color: inherit;
+  text-decoration: none;
+}
+
+.rf-tag__link:hover .rf-tag__main,
+.rf-tag__link:hover .rf-tag__sub,
+.rf-tag__link:focus-visible .rf-tag__main,
+.rf-tag__link:focus-visible .rf-tag__sub {
+  background: var(--rf-navy);
+  color: var(--rf-yellow);
+}
+
+.rf-lines {
+  grid-area: lines;
+  align-self: start;
+  justify-self: start;
+  width: fit-content;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--rf-ink);
+  font-size: var(--rf-copy);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: var(--rf-copy-leading);
+}
+
+/* ---------- 照片 ---------- */
+
+/*
+ * 海報上的照片都被裁進格位而不是依原比例流動——
+ * 這正是整張紙看起來緊實的原因。所以一律填滿格高並裁切。
+ */
+.rf-photo {
+  position: relative;
+  display: block;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--rf-paper-deep);
+}
+
+/* 去背的照片直接壓在紙上：透明處要是格子的紙色，照片格自己不留底。 */
+.rf-photo--cutout {
+  background: transparent;
+}
+
+.rf-photo__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.03);
+}
+
+/* 去背的剪影不能被裁，所以照原比例擺進格子，四周留的是紙。 */
+.rf-photo--cutout .rf-photo__img {
+  object-fit: contain;
+}
+
+/* ---------- 書脊：匠寵FURMOSA 與黃色標語 ---------- */
+
+.rf-spine-panel {
+  grid-area: spine;
+  /* 左側較寬的留白是海報上書脊與拼貼之間那道紙白。 */
+  padding: var(--rf-pad) var(--rf-pad) var(--rf-pad) 2.2cqw;
+  background: var(--rf-paper);
+}
+
+.rf-spine-panel__inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0.6cqw 0.4cqw;
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.26cqw solid var(--rf-navy);
+  outline: 0.36cqw solid var(--rf-blue);
+  outline-offset: 0.42cqw;
+}
+
+.rf-spine-panel__title {
+  flex: none;
+  margin: 0;
+}
+
+/*
+ * 直書大標。拉丁字母由 writing-mode 自然側倒，不另外旋轉。
+ * nowrap 是必要的：九個字一旦折成兩欄，書脊會把黃色標語整條擠出紙外。
+ */
+.rf-spine {
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-spine);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--rf-paper);
+  -webkit-text-stroke: 0.08em var(--rf-navy);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.05em 0 var(--rf-navy);
+}
+
+.rf-claim {
+  flex: none;
+  margin: 0;
+  align-self: flex-start;
+}
+
+.rf-claim__text {
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-claim);
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  line-height: 1.05;
+  color: var(--rf-yellow);
+  -webkit-text-stroke: 0.07em var(--rf-navy);
+  paint-order: stroke fill;
+}
+
+.rf-claim__text::before {
+  content: "「";
+}
+
+.rf-claim__text::after {
+  content: "」";
+}
+
+/* ---------- 左下標語條：海報上唯一刻意破框的元素 ---------- */
+
+.rf-rail {
+  grid-area: rail;
+  align-self: start;
+  /* 往左凸出外框，往下壓過紙緣。 */
+  width: 6.6cqw;
+  height: 61cqw;
+  margin: 1cqw 0 0 -2cqw;
+}
+
+.rf-rail__text {
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  padding: 0.9cqw 0.5cqw;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.26cqw solid var(--rf-navy);
+  outline: 0.3cqw solid var(--rf-blue);
+  outline-offset: 0.36cqw;
+  color: var(--rf-paper);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: var(--rf-rail);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.12;
+  /* 標語條只有一欄寬，折行會把後半句甩到紙外，寧可讓它多破出一點框。 */
+  white-space: nowrap;
+  -webkit-text-stroke: 0.075em var(--rf-navy);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.05em 0 var(--rf-navy);
+}
+
+/* ---------- 紙的背面：同一張紙往下續印 ---------- */
+
+/*
+ * 背面不另開版型：一樣的紙寬、一樣的外框、一樣由藍底透出來的格線，
+ * 只有直書換成橫書——規格、金額與導覽要讀得完，不能硬排成直書。
+ */
+.rf-sheet--back {
+  /* 兩塊之間只留一道摺線的距離，看起來是同一份印刷品繼續往下。 */
+  margin-top: calc(var(--rf-frame-rule) * 1.6);
+}
+
+/* 背面的報頭右邊不再掛字標（正面已經有了），改成一枚版次印。 */
+.rf-stamp {
+  display: grid;
+  gap: 0.25em;
+  align-content: center;
+  justify-items: center;
+  margin: 0;
+  border: 0.26cqw solid var(--rf-blue);
+  text-align: center;
+}
+
+.rf-stamp__mark {
+  padding: 0.1em 0.5em;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: 2.1cqw;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+}
+
+.rf-stamp__note {
+  color: var(--rf-blue);
+  font-size: 1.1cqw;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/*
+ * 和 .rf-collage 同一個做法：藍底、格與格之間留 gap，格線就是藍底透出來的。
+ * 右欄寬度直接沿用正面書脊那一欄（25.1cqw），縱向節奏才接得上。
+ */
+.rf-backside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 25.1cqw;
+  grid-template-areas:
+    "lede  act"
+    "specs act"
+    "foot  foot";
+  align-content: start;
+  gap: var(--rf-rule);
+  margin-top: 0.31cqw;
+  /* 上內距就是報頭下那條較粗的藍線，和正面一致。 */
+  padding-top: 0.42cqw;
+  background: var(--rf-blue);
+}
+
+/* 橫書要讀得下去，格內留白比正面的直書格寬。 */
+.rf-backside .rf-cell {
+  padding: clamp(0.7rem, 1.6cqw, 1.3rem);
+}
+
+.rf-backside__lede {
+  grid-area: lede;
+  display: grid;
+  align-content: center;
+}
+
+.rf-backside__lede-text {
+  margin: 0;
+  max-width: 26em;
+  color: var(--rf-ink);
+  font-size: clamp(1rem, 1.9cqw, 1.26rem);
+  line-height: 1.95;
+  letter-spacing: 0.03em;
+  text-wrap: pretty;
+}
+
+/* 規格欄：一列一格紙，黃色標籤沿用正面的標籤色塊。 */
+.rf-specs {
+  grid-area: specs;
+  display: grid;
+  gap: var(--rf-rule);
+  margin: 0;
+}
+
+.rf-specs__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: clamp(0.6rem, 1.4cqw, 1.2rem);
+  padding: clamp(0.55rem, 1.1cqw, 0.95rem) clamp(0.7rem, 1.6cqw, 1.3rem);
+  background: var(--rf-paper);
+}
+
+.rf-specs__label {
+  margin: 0;
+  padding: 0.1em 0.45em;
+  background: var(--rf-yellow);
+  color: var(--rf-navy);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.72rem, 1.25cqw, 0.9rem);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  white-space: nowrap;
+}
+
+.rf-specs__value {
+  margin: 0;
+  color: var(--rf-ink);
+  font-size: clamp(0.88rem, 1.5cqw, 1.08rem);
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+  text-wrap: pretty;
+}
+
+/* 右欄是收尾格：交代責任歸屬，再給一個出口。 */
+.rf-backside__act {
+  grid-area: act;
+  display: grid;
+  align-content: space-between;
+  gap: clamp(0.9rem, 1.8cqw, 1.5rem);
+}
+
+.rf-backside__body {
+  margin: 0;
+  color: var(--rf-ink);
+  font-size: clamp(0.84rem, 1.3cqw, 1rem);
+  line-height: 1.9;
+  letter-spacing: 0.03em;
+  text-wrap: pretty;
+}
+
+.rf-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.5em;
+  padding: 0.6em 0.95em;
+  background: var(--rf-yellow);
+  border: 0.17cqw solid var(--rf-navy);
+  box-shadow: 0.22em 0.26em 0 var(--rf-navy);
+  color: var(--rf-navy);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.9rem, 1.45cqw, 1.1rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+
+.rf-cta:hover,
+.rf-cta:focus-visible {
+  background: var(--rf-paper);
+  box-shadow: 0.08em 0.1em 0 var(--rf-navy);
+  transform: translate(0.14em, 0.16em);
+}
+
+/* ---------- 報尾：和書脊同一個裝置，藍底墨條收掉整張紙 ---------- */
+
+.rf-footer {
+  grid-area: foot;
+  background: var(--rf-paper);
+  padding: var(--rf-pad);
+}
+
+.rf-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem clamp(1rem, 3cqw, 2rem);
+  padding: clamp(0.5rem, 1cqw, 0.9rem) clamp(0.6rem, 1.2cqw, 1.1rem);
+  background-color: var(--rf-blue);
+  background-image: var(--rf-halftone);
+  background-size: var(--rf-halftone-size);
+  border: 0.21cqw solid var(--rf-navy);
+}
+
+.rf-footer__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7em;
+  margin: 0;
+  /* 字標的 O 是挖空的爪印，墨底上要換成底色才看得出來。 */
+  --rf-wordmark-knockout: var(--rf-blue);
+  color: var(--rf-paper);
+  font-size: clamp(0.68rem, 1.05cqw, 0.82rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.rf-footer__word {
+  font-size: clamp(0.95rem, 1.75cqw, 1.3rem);
+}
+
+.rf-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.8rem, 2.2cqw, 1.7rem);
+}
+
+.rf-footer__nav a {
+  color: var(--rf-paper);
+  font-family: var(--rf-font-sans), "Noto Sans TC", sans-serif;
+  font-size: clamp(0.78rem, 1.2cqw, 0.95rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.rf-footer__nav a:hover,
+.rf-footer__nav a:focus-visible {
+  border-bottom-color: var(--rf-yellow);
+  color: var(--rf-yellow);
+}
+
+.rf-page :focus-visible {
+  outline: 3px solid var(--rf-red);
+  outline-offset: 3px;
+}
+
+/* ---------- 揭露：唯一的動態語言是「套印對位」 ---------- */
+
+[data-rf-reveal="out"] .rf-photo__img {
+  clip-path: inset(0 100% 0 0);
+}
+
+[data-rf-reveal="out"] .rf-lines {
+  opacity: 0;
+  transform: translateX(0.6cqw);
+}
+
+[data-rf-reveal="out"] .rf-tag > * {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-rf-reveal="in"] .rf-photo__img {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.66s var(--rf-ease);
+  }
+
+  [data-rf-reveal="in"] .rf-lines {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s ease 0.14s,
+      transform 0.7s var(--rf-ease) 0.14s;
+  }
+
+  [data-rf-reveal="in"] .rf-tag > * {
+    opacity: 1;
+    transition: opacity 0.45s ease 0.2s;
+  }
+
+  .rf-cta {
+    transition:
+      background-color 0.18s ease,
+      box-shadow 0.18s ease,
+      transform 0.18s ease;
+  }
+}
+
+/* 使用者要求減少動態時，直接給最終狀態，連 hydration 前也不藏內容。 */
+@media (prefers-reduced-motion: reduce) {
+  [data-rf-reveal] .rf-photo__img,
+  [data-rf-reveal] .rf-lines,
+  [data-rf-reveal] .rf-tag > * {
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------- 窄螢幕：紙寬不夠，海報改成一條一條往下讀 ---------- */
+
+/*
+ * 1.6% 的本文在 820px 以下會掉到 13px 以下，再縮就讀不了了。
+ * 所以這裡換掉整組字級變數並把拼貼攤成單欄，直書也回到橫書。
+ */
+@media (max-width: 820px) {
+  :root {
+    --rf-sheet-w: min(100vw - 1.6rem, 34rem);
+    --rf-frame-rule: 4px;
+  }
+
+  .rf-sheet__body {
+    --rf-copy: 1rem;
+    --rf-copy-leading: 2;
+    --rf-tag: 1.3rem;
+    --rf-tag-leading: 1.3;
+    --rf-tag-gap: 3px;
+    --rf-ribbon: clamp(0.95rem, 4.2vw, 1.4rem);
+    /*
+     * 窄螢幕的紙寬會被 34rem 封頂，用 vw 算會算出一個比紙還寬的書脊；
+     * 書脊與標語都是 nowrap，所以這兩個字級只能跟著紙寬走。
+     */
+    --rf-spine: calc(var(--rf-sheet-w) * 0.113);
+    --rf-claim: clamp(0.95rem, calc(var(--rf-sheet-w) * 0.04), 1.3rem);
+    --rf-rail: clamp(1.3rem, 5.4vw, 1.9rem);
+    --rf-pad: 0.7rem;
+    --rf-rule: 2px;
+    --rf-inner-gap: 0.9rem;
+  }
+
+  .rf-frame {
+    padding-top: 4px;
+  }
+
+  .rf-masthead {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    height: auto;
+  }
+
+  .rf-ribbon {
+    padding: 0.5em 0.6em;
+    border-width: 2px;
+  }
+
+  .rf-ribbon__text {
+    white-space: normal;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .rf-mark {
+    gap: 0.3em;
+    padding: 0.5em 0.8em;
+    border-width: 2px;
+  }
+
+  .rf-mark__word {
+    font-size: clamp(1.3rem, 7vw, 2rem);
+  }
+
+  .rf-mark__brand {
+    font-size: clamp(0.78rem, 3.2vw, 1rem);
+  }
+
+  .rf-mark__category {
+    font-size: clamp(0.56rem, 2vw, 0.7rem);
+  }
+
+  /* 書脊先讀，再一條一條往下；標語條收到最後當結尾橫幅。 */
+  .rf-collage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "spine"
+      "one"
+      "two"
+      "three"
+      "four"
+      "rail";
+    height: auto;
+    padding-top: 2px;
+  }
+
+  .rf-band--one,
+  .rf-band--two,
+  .rf-band--three {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rf-panel--stack,
+  .rf-panel--row,
+  .rf-panel--copy,
+  .rf-panel--wide {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "tag"
+      "lead"
+      "lines"
+      "aside";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  /* 直書在窄螢幕上閱讀成本太高，標籤與本文一併回到橫書。 */
+  .rf-tag,
+  .rf-lines {
+    writing-mode: horizontal-tb;
+    width: auto;
+    justify-self: start;
+  }
+
+  .rf-tag__main,
+  .rf-tag__sub {
+    padding: 0.14em 0.4em;
+  }
+
+  /* 格高不再由海報決定，照片改用固定比例。 */
+  .rf-photo {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  .rf-cell--plate .rf-photo,
+  .rf-photo--aside {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* 去背的照片在窄螢幕也照原比例，橫幅的格子會把剪影切掉。 */
+  .rf-photo--cutout {
+    aspect-ratio: 109 / 154;
+  }
+
+  .rf-spine-panel {
+    padding: var(--rf-pad);
+  }
+
+  .rf-spine-panel__inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 0.6rem;
+    border-width: 2px;
+    outline-width: 2px;
+    outline-offset: 4px;
+  }
+
+  .rf-spine {
+    writing-mode: horizontal-tb;
+    letter-spacing: 0.01em;
+    line-height: 1.02;
+    text-align: center;
+  }
+
+  .rf-claim {
+    align-self: center;
+  }
+
+  .rf-claim__text {
+    writing-mode: horizontal-tb;
+    white-space: normal;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* 標語條回到版內，橫著當結尾橫幅。 */
+  .rf-rail {
+    width: auto;
+    height: auto;
+    margin: 0;
+  }
+
+  .rf-rail__text {
+    height: auto;
+    padding: 0.7rem 0.9rem;
+    writing-mode: horizontal-tb;
+    white-space: normal;
+    border-width: 2px;
+    outline-width: 2px;
+    outline-offset: 4px;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /*
+   * 報紙式編排的桌機覆蓋是「.rf-collage--news .rf-panel--wide」，
+   * 權重比這一段的單欄規則高，所以這裡要原樣再寫一次，否則窄螢幕不會攤平。
+   */
+  .rf-collage--news {
+    /* 主題之間的分界線在手機上也要看得出來。 */
+    --rf-rule: 3px;
+    /* 直書換成橫書後，字級由這一段的變數決定，cqw 在這個寬度會算出 10px。 */
+    --rf-copy: 1.02rem;
+    --rf-tag: 1.3rem;
+  }
+
+  .rf-collage--news .rf-panel--wide {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "lead"
+      "lines"
+      "aside";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  /* 製程三連拍要讀得出順序，所以三張連著排，本文接在後面。 */
+  .rf-collage--news .rf-panel--trio {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "lead"
+      "aside"
+      "third"
+      "lines";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  .rf-panel--trio .rf-photo {
+    aspect-ratio: 3 / 4;
+  }
+
+  /* 往下接的七帶：兩張照片先後落下，本文接在後面。 */
+  .rf-collage--news .rf-panel--duo {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tag"
+      "lead"
+      "aside"
+      "lines";
+    --rf-tag: 1.3rem;
+    --rf-copy-leading: 2;
+  }
+
+  /* 這七帶的圖是照正方的照片格裁的，窄螢幕就照正方放。 */
+  .rf-panel--duo .rf-photo {
+    aspect-ratio: 1 / 1;
+  }
+
+  .rf-collage--news .rf-band--one {
+    --rf-tag: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  /*
+   * 本文的斷行是為了直書的欄長手排的，換成橫書就只是一段參差的窄字。
+   * 中文接排不需要空格，所以這裡直接把斷行收起來，讓它照欄寬自然重排。
+   */
+  .rf-collage--news .rf-lines br {
+    display: none;
+  }
+
+  /* 背面同樣攤成單欄，規格的標籤改排在內容上方。 */
+  .rf-stamp {
+    padding: 0.5em 0.8em;
+    border-width: 2px;
+  }
+
+  .rf-stamp__mark {
+    font-size: clamp(0.95rem, 4vw, 1.3rem);
+  }
+
+  .rf-stamp__note {
+    font-size: clamp(0.62rem, 2.4vw, 0.8rem);
+  }
+
+  .rf-backside {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "lede"
+      "specs"
+      "act"
+      "foot";
+    padding-top: 2px;
+  }
+
+  .rf-specs__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    justify-items: start;
+  }
+
+  .rf-cta {
+    border-width: 2px;
+  }
+
+  .rf-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    border-width: 2px;
+  }
+
+  [data-rf-reveal="out"] .rf-lines {
+    transform: translateY(10px);
+  }
+}
