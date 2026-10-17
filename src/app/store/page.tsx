@@ -252,13 +252,16 @@ export default function StorePage() {
             </div>
 
             <figure className="st-front__figure">
-              <Cut
-                art={FRONT.art}
-                alt={FRONT.alt}
-                sizes={SIZES.front}
-                className="st-front__art"
-                priority
-              />
+              {/* 色塊與圖分成兩層：底色在外層，接地陰影才能只跟著去背的輪廓走。 */}
+              <span className="st-front__panel">
+                <Cut
+                  art={FRONT.art}
+                  alt={FRONT.alt}
+                  sizes={SIZES.front}
+                  className="st-front__art"
+                  priority
+                />
+              </span>
               <figcaption>{FRONT.caption}</figcaption>
             </figure>
 

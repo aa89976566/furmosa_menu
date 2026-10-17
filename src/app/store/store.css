@@ -18,6 +18,8 @@
   --st-ink-mid: #2c628c;
   --st-ink-soft: #7c9cb4;
   --st-red: #c63e3a;
+  /* 圖版的白。比紙亮一階，實拍擺在上面像棚內打的燈，不是紙上開的天窗。 */
+  --st-shot: #fff;
 
   /* 紙寬。封頂後整張紙置中。 */
   --st-sheet-w: min(96vw, 86rem);
@@ -533,19 +535,33 @@ body:has(.st-page) {
 }
 
 /*
- * 去背的實拍鋪在紅底上（紅是 img 自己的背景，從透明處透出來）。
+ * 圖版是一塊白底。白比紙亮一階，所以靠一道髮線界定它的邊，
+ * 不然在奶油色的紙上會讀成一片沒上樣式的空白。
+ * overflow 收住，是為了讓下面那層接地陰影停在白底裡，不要溢到紙上。
+ */
+.st-front__panel {
+  display: grid;
+  min-height: 26cqw;
+  padding: 2.2cqw 1.4cqw 0;
+  overflow: hidden;
+  border: var(--st-hair) solid var(--st-ink-soft);
+  background: var(--st-shot);
+}
+
+/*
  * 用 contain 而不是 cover：這一張不能裁——裁上緣狗頭會像被切掉，
- * 裁下緣會切掉拿袋子的手。所以改成貼齊下緣、上面留一段頭上空間，
- * 手正好踩在色塊的下邊線上，左右多出來的紅就是色塊本身。
+ * 裁下緣會切掉拿袋子的手。所以貼齊下緣、上面留一段頭上空間，
+ * 手正好踩在白底的下邊線上。
+ *
+ * drop-shadow 跟著 alpha 走，所以陰影只繞著去背的輪廓。這一層是必要的：
+ * 紙袋本身是米白的，貼在純白上邊緣會溶掉，商業照的做法就是補一層接地影。
  */
 .st-front__art {
   width: 100%;
   height: 100%;
-  min-height: 26cqw;
-  padding: 2.2cqw 1.4cqw 0;
-  background: var(--st-red);
   object-fit: contain;
   object-position: center bottom;
+  filter: drop-shadow(0 0.5cqw 1.1cqw rgb(13 69 113 / 0.22));
 }
 
 /*
@@ -1212,8 +1228,8 @@ body:has(.st-page) {
     letter-spacing: 0.18em;
   }
 
-  /* 一欄寬的時候色塊沒有旁邊的欄撐高，高度得自己給。 */
-  .st-front__art {
+  /* 一欄寬的時候圖版沒有旁邊的欄撐高，高度得自己給。 */
+  .st-front__panel {
     height: 92cqw;
     min-height: 0;
   }
@@ -1373,7 +1389,7 @@ body:has(.st-page) {
     border-right: 0;
   }
 
-  .st-front__art {
+  .st-front__panel {
     height: 112cqw;
   }
 
