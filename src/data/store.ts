@@ -1,21 +1,24 @@
 import type { StaticImageData } from "next/image";
 
 /*
- * 門市版首頁的插圖是單色雕版（一支紅墨、一支藍墨），存成帶 alpha 的 webp：
- * 墨色是圖檔自己的顏色，空白處透明，所以紙色與紙紋從底下透上來，
- * 每一張圖都像直接印在同一張紙上，而不是貼一塊方形圖片。
+ * 這一頁只用專案裡既有的真實照片，沒有雕版、沒有線描、沒有生成的圖。
  *
- * 全頁的圖都是情境示意圖，所以 alt 一律標出來。goods-* 是照 furmosa.com 的
- * 商品照一張一張描成雕版的，畫的是該商品本身；商品的名稱、規格與價格另外取自
- * 店裡的商品頁，不從圖上讀。
+ * 因此會出現「有事實、但沒有照片」的格子（兩項商品、七隻狗狗裡的三隻）。
+ * 那些格子一律排成灰階的具名占位框——寫出該放什麼、標明照片待補，
+ * 而不是找一張像的照片頂替，也不是畫一張插圖填滿版面。
+ * 版面可以有缺口，資料不能有假的。
  */
-import goodsBeef from "@/assets/store/goods-2-beef.webp";
-import goodsDuck from "@/assets/store/goods-4-duck.webp";
-import goodsJiba from "@/assets/store/goods-1-jiba.webp";
-import goodsVeg from "@/assets/store/goods-3-veg.webp";
-import photoHeroJiba from "@/assets/store/photo-hero-jiba.webp";
-import sceneRidge from "@/assets/store/scene-ridge.webp";
+import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
+import charityReceipt from "@/assets/poster/charity-receipt-wide.png";
+import cutletBag from "@/assets/poster/cutlet-bag.jpg";
+import dogDada from "@/assets/poster/dog-dada.jpg";
+import dogHeitang from "@/assets/poster/dog-heitang.jpg";
+import dogSasa from "@/assets/poster/dog-sasa.jpg";
+import dogSiaohuei from "@/assets/poster/stray-dog-siaohuei.jpg";
+import mooncakePacks from "@/assets/poster/mooncake-packs-pair.jpg";
+import heroJiba from "@/assets/store/photo-hero-jiba.webp";
 
+import { SWAP_REGIONS } from "@/data/about";
 import { SHOP_URL, WORKS_ROWS } from "@/data/works";
 
 /* furmosa.com 上實際存在的頁面，全部回過 200；沒有的（運送、退換貨、條款）就不列。 */
@@ -47,12 +50,6 @@ export const UTILITY = {
   centre: "真食材・不調味・陪牠看更大的世界",
 } as const;
 
-/*
- * 導覽列就是首頁那份編號清單，加上同站的真食堂一頁，共九項——
- * 和稿子上的九項對齊。長欄名（「浪浪交易所｜中秋限定盤」、
- * 「再來一包｜毛孩人格抽驗」）照「｜」拆成兩項，網址仍指同一頁，
- * 所以點哪一項都到得了，欄名也還是首頁寫的那個。
- */
 const ROW_HREFS = new Map(
   WORKS_ROWS.flatMap((row) =>
     row.kind === "link" ? [[row.index, row.href] as const] : [],
@@ -67,87 +64,23 @@ function rowHref(index: number): string {
 
 export type NavItem = { label: string; href: string; external?: boolean };
 
+/* 導覽列是首頁那份編號清單，長欄名照「｜」拆開，網址仍指同一頁。 */
 export const NAV: NavItem[] = [
   { label: "全部商品", href: rowHref(1), external: true },
   /* /haodada 是本站的改寫路徑（見 next.config.ts），不是外部網址。 */
   { label: "嚎大大雞霸", href: rowHref(2) },
   { label: "浪浪交易所", href: rowHref(3), external: true },
-  { label: "中秋限定盤", href: rowHref(3), external: true },
   { label: "chill嗨嗨ㄟ貓", href: rowHref(4), external: true },
   { label: "再來一包", href: rowHref(5), external: true },
-  { label: "毛孩人格抽驗", href: rowHref(5), external: true },
   { label: "背景很硬的碗", href: rowHref(6), external: true },
   { label: "店家合作", href: rowHref(7), external: true },
 ];
 
-export type Product = {
-  name: string;
-  spec: string;
-  price: string;
-  href: string;
-  art: StaticImageData;
-  alt: string;
-};
-
-/*
- * 四項商品的名稱、規格與價格都取自 furmosa.com 的商品資料，不是稿子上的示意數字
- * （稿子寫的 NT$99 / NT$156 / NT$96 在店裡查不到）。改價請回店裡對一次。
- */
-export const PRODUCTS: Product[] = [
-  {
-    name: "嚎大大・雞霸",
-    spec: "雞肉原味",
-    price: "NT$165",
-    href: `${SHOP_ORIGIN}/products/chicken-fillet`,
-    art: goodsJiba,
-    alt: "情境示意圖：紅色雕版風格的插畫，一片大片雞肉乾裝在透明立袋裡，袋前散著幾條肉乾",
-  },
-  {
-    name: "簡記・牛肉地瓜",
-    spec: "30 克",
-    price: "NT$180",
-    href: `${SHOP_ORIGIN}/products/jian-ji-niu-rou-di-gua-su`,
-    art: goodsBeef,
-    alt: "情境示意圖：紅色雕版風格的插畫，一堆牛肉地瓜凍乾塊堆在桌上",
-  },
-  {
-    name: "青菜底加・混蔬菜凍乾",
-    spec: "30 克",
-    price: "NT$180",
-    href: `${SHOP_ORIGIN}/products/青菜底加-混蔬菜凍乾`,
-    art: goodsVeg,
-    alt: "情境示意圖：紅色雕版風格的插畫，一地混蔬菜凍乾方塊，後面是一只傾倒的小碗",
-  },
-  {
-    name: "唐老・鴨喉",
-    spec: "30 克",
-    price: "NT$110",
-    href: `${SHOP_ORIGIN}/products/tang-lao-ya-hou-zku85`,
-    art: goodsDuck,
-    alt: "情境示意圖：紅色雕版風格的插畫，幾根長條的鴨喉零食插在玻璃杯裡",
-  },
-];
-
-/* ---------------- 報紙的版型 ---------------- */
-
-/*
- * 這一頁的版面走台灣舊報紙的規矩，不是超市傳單：
- *
- *   一、報頭橫跨全寬，底下一道粗線封住，刊名、產地、紀年各佔一格。
- *   二、所有東西貼欄線。線只有兩級——粗線分版，細髮線分欄與條目。
- *   三、一主一輔一點：藍墨排字與線，奶油色是紙，紅只留給關防、價格、
- *       和報頭上那一處。紅不鋪滿，否則紙面會吵。
- *   四、圖版等於欄寬，底下附圖說，不出血、不重疊、不浮動。整頁只在
- *       頭版、商品版、社會版出現圖，分類廣告是純文字——報紙的廣告版
- *       本來就是排字排出來的。
- */
+/* ---------------- 報頭 ---------------- */
 
 const CJK_DIGITS = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
 
-/**
- * 報頭右格的紀年。舊報紙寫的是民國年，數字也是中文的，
- * 所以把西元年換算後逐位轉成中文數字（二〇二六 → 一一五）。
- */
+/** 報頭的紀年。舊報紙寫民國年，數字也是中文的（二〇二六 → 一一五）。 */
 export function minguo(year: number): string {
   return String(year - 1911)
     .split("")
@@ -156,149 +89,251 @@ export function minguo(year: number): string {
 }
 
 export const NAMEPLATE = {
-  /** 刊名左格的直書小標，一欄一個詞。 */
-  origin: ["台灣製造", "毛孩選物"],
   brand: "匠寵",
   wordmark: "FURMOSA",
   line: "REAL FOOD FOR A WILDER LIFE",
-  seal: "匠寵",
-  /** 紀年後面那一句，說明這份是誰發的。 */
+  origin: "台灣製造・毛孩選物",
   issuer: "匠寵發行",
+  seal: "匠寵",
 } as const;
 
-/**
- * 版名條：舊報紙每一版的上緣壓一條反白的版名。
- * 這三條是整頁唯一的深色塊，負責把節奏切開，也當視覺的落點。
- */
-export type SectionBar = { label: string; note: string };
-
-export const BARS = {
-  goods: { label: "商品版", note: "真食材・不調味" },
-  /* 版名條的註記不要跟版裡的標題重複，所以這一條寫的是合作的單位。 */
-  care: { label: "社會版", note: "匠寵 × 巴克幫－浪犬之家" },
-  notices: { label: "分類廣告", note: "各欄詳見內頁" },
-} as const satisfies Record<string, SectionBar>;
+/* ---------------- 頭版 ---------------- */
 
 /**
- * 頭版頭條。整頁最大的那句是直書的，而且只有這一句直書——
- * 直書是語氣最重的手法，一頁用一次最強。
+ * 頭版只有三塊：主標、左欄短文與買的按鈕、一張最大面積的實拍。
+ *
+ * 主標橫書。右側原本那條直書欄拿掉了——直書欄寬要跟字數配，
+ * 一佔就是一整欄的寬，而這一頁要把寬度讓給照片。
  */
-export const FRONT = {
+export const HERO = {
   kicker: "頭版",
-  /** 直書的兩欄：第一欄是眉題，第二欄是主題。斷在逗號上。 */
-  headline: ["在牠的眼神裡，", "找得到人的影子"],
-  /** 導言。第一句是起手，排得比後面兩句重一級。 */
-  lead: [
-    "我們相信，一包食物不只是零食；",
-    "那是你每天回家時，牠願意把頭靠過來的理由。",
-    "真食材、不調味，讓牠陪你走更遠的路。",
-  ],
-  /** 欄底那三行規格，一行一條，前面壓一個小圓點。 */
-  claims: ["低溫熱風烘乾", "不添香料色素", "慢工做的雞排"],
-  /*
-   * 頭版這一張是去背的實拍，不是雕版——全頁唯一的全彩，也是唯一的照片。
-   * 擺在白圖版上：狗是近黑的，往下分離得很乾淨；紙袋是奶油白，調色時
-   * 已經把高光壓到 247 以下，摺痕才不會在純白上溶掉，再補一層接地陰影收邊。
-   */
-  art: photoHeroJiba,
+  /** 兩行橫書。斷點自己指定，不交給自動折行。 */
+  headline: ["雞霸不是零食", "是台灣狗的雞排"],
+  lead: "真食材 不調味 陪牠看更大的世界",
+  /** 欄底三行規格，全部是 /real-food 上寫過的製程事實。 */
+  claims: ["低溫熱風烘乾", "不添香料色素", "台灣在地新鮮雞肉"],
+  cta: { label: "立即買雞霸", href: `${SHOP_ORIGIN}/products/chicken-fillet` },
+  art: heroJiba,
   alt: "實拍：一隻臘腸狗張嘴咬住從匠寵紙袋裡探出來的大片雞肉乾，一隻手拿著紙袋，袋上印著匠寵的紅色印章與商品勾選欄",
   caption: "嚎大大・雞霸｜台灣在地・小量製作",
-  cta: "看更多",
-  href: "/real-food",
 } as const;
 
-/** 商品版：四項商品排成四欄，欄間一道髮線，價格貼在欄底。 */
-export const GOODS = {
-  items: PRODUCTS,
-  cta: "查看全部商品",
-  href: SHOP_URL,
-} as const;
+/* ---------------- 細新聞條 ---------------- */
 
-/** 社會版：一張寬圖版配一欄字，是整頁第二個留白大的地方。 */
-export const CARE_PAGE = {
-  title: "浪浪支持計畫",
-  /** 中秋尋家合作計畫的事實照 /real-food 的規格欄，活動已結單要寫清楚。 */
-  body: [
-    "匠寵與巴克幫－浪犬之家合作，",
-    "把七隻等家狗狗的故事放進月餅裡。",
-    "每售出一顆月餅，提撥十元支持浪犬之家。",
-    "中秋場次已結單，七隻狗狗仍在等家。",
-  ],
-  art: sceneRidge,
-  alt: "情境示意圖：紅色雕版風格的插畫，一個人與一隻狗並肩坐在草坡上，望向遠處的湖與山稜",
-  caption: "巴克幫－浪犬之家",
-  /** 提撥的金額用跟商品版同一套價格語言寫，不另發明一種。 */
-  figure: { note: "每顆月餅提撥", amount: "10", unit: "元" },
-  cta: "了解更多",
-  href: CHARITY_URL,
-} as const;
+const SWAP_TOTAL = SWAP_REGIONS.reduce((sum, region) => sum + region.count, 0);
 
 /**
- * 分類廣告。純文字排版，一格一則，共用同一套髮線格。
- * 文案全部沿用站上既有的說法，沒有新編的促銷字。
+ * 頭條下面那一條。只有一行高，字級是全頁最小的一級，
+ * 作用是把頭版的大與下面的三欄接起來，不是又一個版。
+ * 四則都是站上既有的數字，沒有一個是為了湊版面寫的。
  */
-export type Notice = {
-  name: string;
-  tagline: string;
-  notes?: readonly string[];
+export const TICKER = {
+  label: "快訊",
+  items: [
+    { text: `換罐計畫合作店家 ${SWAP_TOTAL} 家`, href: ABOUT_URL, external: true },
+    { text: "已有 333 人換過罐", href: ABOUT_URL, external: true },
+    { text: "中秋場次已結單・七隻狗狗仍在等家", href: CHARITY_URL, external: true },
+    { text: "背景很硬的碗・預購中", href: rowHref(6), external: true },
+  ],
+} as const;
+
+/* ---------------- 三個不等寬新聞欄 ---------------- */
+
+/**
+ * 三欄，寬度與字級都不一樣——這是整頁的編輯節奏所在。
+ *
+ *   主欄（最寬）：有眉題、有大標、有內文、有數字。
+ *   次欄（中）：有標題、有內文，沒有數字。
+ *   短欄（最窄）：只有一串標題與一行說明，當索引用。
+ *
+ * 三欄同寬同字級的話，讀者就沒有進入順序，整頁會變回格子。
+ */
+export type NewsFigure = { value: string; unit: string; note: string };
+
+export type NewsLead = {
+  kicker: string;
+  title: string;
+  body: readonly string[];
+  figure: NewsFigure;
+  regions: readonly { label: string; count: number; spots: string }[];
+  cta: string;
+  href: string;
+};
+
+export const NEWS_LEAD: NewsLead = {
+  kicker: "換罐計畫",
+  title: "洗澡時帶一罐回家，吃完把空罐帶回來",
+  body: [
+    "零食裝在可重複使用的玻璃瓶裡。空罐不進垃圾場，",
+    "洗乾淨再裝下一輪，所以同一個罐子會來回很多次。",
+  ],
+  figure: { value: String(SWAP_TOTAL), unit: "家", note: "合作店家" },
+  regions: SWAP_REGIONS.map((region) => ({
+    label: region.label,
+    count: region.count,
+    spots: region.spots.join("、"),
+  })),
+  cta: "了解換罐計畫",
+  href: ABOUT_URL,
+};
+
+export type NewsSecond = {
+  kicker: string;
+  title: string;
+  body: readonly string[];
   cta: string;
   href: string;
   external?: boolean;
 };
 
-export const NOTICES: Notice[] = [
-  {
-    name: "換罐計畫",
-    tagline: "洗澡時帶一罐回家",
-    /* 「換罐計畫」是關於匠寵那一頁寫的事，不是我們編的。 */
-    notes: [
-      "零食裝在可重複使用的玻璃瓶。",
-      "洗澡時帶一罐回家，",
-      "吃完把空罐帶回來。",
-    ],
-    cta: "了解更多",
-    href: ABOUT_URL,
-    external: true,
-  },
+export const NEWS_SECOND: NewsSecond = {
+  kicker: "製程",
+  title: "一片雞肉從產地到碗裡，經過幾雙手",
+  body: [
+    "選用台灣在地新鮮雞肉，由匠寵團隊手工修整、低溫乾燥，",
+    "保留肉質的原始風味與營養。一種肉，沒有「風味」。",
+  ],
+  cta: "看製程",
+  href: "/real-food",
+};
+
+export type NewsBrief = { name: string; note: string; href: string; external?: boolean };
+
+export const NEWS_BRIEFS = {
+  kicker: "其他欄目",
+  items: [
+    { name: "chill嗨嗨ㄟ貓", note: "貓咪的放鬆時光", href: rowHref(4), external: true },
+    { name: "再來一包", note: "毛孩人格抽驗", href: rowHref(5), external: true },
+    { name: "背景很硬的碗", note: "預購中", href: rowHref(6), external: true },
+    { name: "店家合作", note: "一起讓更多毛孩吃到好東西", href: rowHref(7), external: true },
+  ] satisfies NewsBrief[],
+} as const;
+
+/* ---------------- 商品 ---------------- */
+
+/**
+ * 名稱、規格、價格、網址都取自 furmosa.com 的商品頁。
+ *
+ * art 只在專案裡確實有該商品的實拍時才給；沒有的留 undefined，
+ * 由版面排成灰階占位框。拿一張別的商品照頂替，等於在資料裡說謊。
+ */
+export type Product = {
+  name: string;
+  spec: string;
+  price: string;
+  href: string;
+  art?: StaticImageData;
+  alt?: string;
+  /** 沒有實拍時，占位框上寫的是「該放哪一張」。 */
+  pending?: string;
+};
+
+export const PRODUCTS: Product[] = [
   {
     name: "嚎大大・雞霸",
-    tagline: "真肉・真食・真開心",
-    notes: ["純雞肉做的大片雞排。", "低溫熱風烘乾。"],
-    cta: "探索商品",
-    href: rowHref(2),
+    spec: "雞肉原味",
+    price: "NT$165",
+    href: `${SHOP_ORIGIN}/products/chicken-fillet`,
+    art: cutletBag,
+    alt: "實拍：一片大雞肉乾插在印著匠寵圖章與 Thank you very much 的紙袋裡",
   },
   {
-    name: "chill嗨嗨ㄟ貓",
-    tagline: "貓咪的放鬆時光",
-    cta: "探索商品",
-    href: rowHref(4),
-    external: true,
+    name: "簡記・牛肉地瓜",
+    spec: "30 克",
+    price: "NT$180",
+    href: `${SHOP_ORIGIN}/products/jian-ji-niu-rou-di-gua-su`,
+    art: beefCubes,
+    alt: "實拍：牛肉丁凍乾排成一條 LOADING 進度條",
   },
   {
-    name: "再來一包｜毛孩人格抽驗",
-    tagline: "抽出牠的真實個性",
-    cta: "探索商品",
-    href: rowHref(5),
-    external: true,
+    name: "青菜底加・混蔬菜凍乾",
+    spec: "30 克",
+    price: "NT$180",
+    href: `${SHOP_ORIGIN}/products/青菜底加-混蔬菜凍乾`,
+    pending: "混蔬菜凍乾商品照",
   },
   {
-    name: "預購！背景很硬的碗",
-    tagline: "為牠，選一個更好的碗",
-    notes: ["預購中。"],
-    cta: "看預購",
-    href: rowHref(6),
-    external: true,
-  },
-  {
-    name: "店家合作",
-    tagline: "一起讓更多毛孩吃到好東西",
-    cta: "聯絡我們",
-    href: rowHref(7),
-    external: true,
+    name: "唐老・鴨喉",
+    spec: "30 克",
+    price: "NT$110",
+    href: `${SHOP_ORIGIN}/products/tang-lao-ya-hou-zku85`,
+    pending: "鴨喉商品照",
   },
 ];
 
-/** 報尾的訂閱欄，照報紙的「讀者服務」小框排。 */
+export const GOODS = {
+  bar: { label: "本日狗食分類廣告", note: "價格以商品頁為準" },
+  items: PRODUCTS,
+  /** 商品頁才有加入購物車的按鈕，所以模組上的動作寫「選購」而不是「加入購物車」。 */
+  action: "選購",
+  cta: "查看全部商品",
+  href: SHOP_URL,
+  cartLabel: "購物車",
+  cartHref: CART_URL,
+} as const;
+
+/* ---------------- 公益 ---------------- */
+
+export type StrayDog = {
+  name: string;
+  art?: StaticImageData;
+  alt?: string;
+};
+
+/**
+ * 七隻狗狗的名字來自 /mooncake 的規格欄，照抄不改。
+ * 四隻有照片（alt 也照抄原處），三隻沒有——那三格排成灰階具名占位框。
+ */
+export const STRAY_DOGS: StrayDog[] = [
+  { name: "小輝", art: dogSiaohuei, alt: "等家的米克斯小輝在草坡步道上張嘴笑著" },
+  { name: "善美" },
+  { name: "黑糖", art: dogHeitang, alt: "黑糖從推車裡抬頭看鏡頭，咖啡色捲毛貴賓犬" },
+  { name: "達達", art: dogDada, alt: "達達坐在庭院裡，黑色拉布拉多混米克斯犬伸著舌頭" },
+  { name: "雪莉" },
+  { name: "莎莎", art: dogSasa, alt: "莎莎的正面大頭照，黑色米克斯犬舔著鼻子" },
+  { name: "佩佩" },
+];
+
+/**
+ * 公益版。金額、收據編號與日期逐字轉錄自受贈單位開立的收執聯，
+ * 民國紀年照抄不換算。這是全頁唯一出現捐款金額的地方。
+ */
+export const CARE = {
+  bar: { label: "浪浪支持計畫", note: "匠寵 × 巴克幫－浪犬之家" },
+  title: "月餅結束了，找家的事還沒",
+  body: [
+    "匠寵與巴克幫－浪犬之家合作，把七隻等家狗狗的故事放進月餅裡。",
+    "每售出一顆月餅，由匠寵提撥十元支持浪犬之家。",
+    "中秋場次已結單，七隻狗狗仍在等家。",
+  ],
+  photo: {
+    art: mooncakePacks,
+    alt: "實拍：兩款中秋月餅包裝，左邊印著「牠的月餅」與一隻黑白狗，右邊印著「牠的故事」與七塊畫上狗臉的月餅",
+    caption: "七個包裝・七個等家的故事",
+  },
+  receipt: {
+    art: charityReceipt,
+    alt: "社團法人臺灣巴克動物懷善救援協會開立的捐款收據，金額 NT$11,480",
+    caption: "捐款收據・收執聯",
+    figure: { value: "11,480", unit: "元", note: "已捐贈" },
+    fields: [
+      { label: "受贈", value: "社團法人臺灣巴克動物懷善救援協會" },
+      { label: "編號", value: "2026BK70323" },
+      { label: "日期", value: "中華民國 115 年 10 月 6 日" },
+      { label: "用途", value: "不指定" },
+    ],
+    note: "金額與編號逐字轉錄自受贈單位開立的收執聯。",
+  },
+  dogs: { label: "七隻都還在等家", items: STRAY_DOGS },
+  cta: "看七隻狗狗的故事",
+  href: CHARITY_URL,
+} as const;
+
+/** 沒有照片的格子上統一寫這一行，不另外編字。 */
+export const PENDING_NOTE = "照片待補";
+
+/* ---------------- 報尾 ---------------- */
+
 export const SUBSCRIBE = {
   label: "讀者服務",
   title: "最新消息，訂閱。",
