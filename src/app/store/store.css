@@ -1,7 +1,8 @@
 /*
  * 匠寵門市版首頁 — 照設計稿排的一張兩色印刷品。
  *
- * 只有兩支墨：藍（排字、細格線）與紅（雕版插圖、關防、價格）。紙是奶油色，
+ * 只有兩支墨：藍（排字、細格線）與紅（雕版插圖、關防、價格）。紙是白的，
+ * 但帶一點暖與一層紙紋、幾道摺痕，所以是舊紙的白，不是螢幕的白。
  * 插圖的空白處是透明的，所以紙色與紙紋從底下透上來，整頁像同一次過版印的。
  *
  * 版面的量測單位是「紙寬」而不是視窗：稿子是 885 寬，上面的本文只有紙寬的
@@ -12,13 +13,24 @@
  */
 
 :root {
-  --st-paper: #ede8da;
-  --st-paper-lit: #f3efe4;
+  /*
+   * 紙是白的。這一階偏暖一點點、又壓在 255 之上，是因為紙紋是 multiply，
+   * 只會往下壓——基準不留這點餘裕的話，疊完紙紋整頁就灰掉了。
+   * 實際出來的紙面亮度落在 248 上下：讀作白，但不是螢幕的那種死白。
+   */
+  --st-paper: #fffdf6;
+  /* 紙外面的桌面。比紙暗一階，整張紙才浮得起來，不然頁邊就消失了。 */
+  --st-desk: #ebe6dc;
+  /* 可填的欄位。比紙暗一點，是壓進紙裡的，不是浮在紙上的。 */
+  --st-field: #f6f3ec;
   --st-ink: #0d4571;
   --st-ink-mid: #2c628c;
   --st-ink-soft: #7c9cb4;
   --st-red: #c63e3a;
-  /* 圖版的白。比紙亮一階，實拍擺在上面像棚內打的燈，不是紙上開的天窗。 */
+  /*
+   * 圖版的白。紙上壓了紙紋，這一塊沒壓——同樣是白，它就乾淨一階，
+   * 實拍擺在上面像棚內打的燈，而不是紙上開的天窗。
+   */
   --st-shot: #fff;
 
   /* 紙寬。封頂後整張紙置中。 */
@@ -28,7 +40,7 @@
 /* globals.css 讓全站是黑底，這一頁是一張紙，必須把底色換回來。 */
 html:has(.st-page),
 body:has(.st-page) {
-  background: #e3dccd;
+  background: var(--st-desk);
   color: var(--st-ink);
 }
 
@@ -37,7 +49,7 @@ body:has(.st-page) {
   isolation: isolate;
   min-height: 100svh;
   padding: clamp(0.6rem, 2vw, 2rem) 0 clamp(1.6rem, 4vw, 3.2rem);
-  background: #e3dccd;
+  background: var(--st-desk);
   color: var(--st-ink);
   font-family: var(--st-font-serif), "Noto Serif TC", "Songti TC", serif;
   overflow-x: clip;
@@ -50,31 +62,108 @@ body:has(.st-page) {
   color: var(--st-paper);
 }
 
+/* ---------- 紙張 ---------- */
+
 /*
- * 紙紋。整頁一層，壓在內容之上以 multiply 疊色，讓墨色吃到紙的顆粒。
- * 兩層疊著用：細的那層是纖維的顆粒，粗的那層是手工紙上大塊的濃淡，
+ * 紙紋。鋪在紙上、壓在墨的下面——紙是白的時候這個順序很要緊：
+ * 疊在字上面會讓藍墨發灰、讓實拍變髒；疊在下面則只有紙面有顆粒，
+ * 字還是實心的，剛好就是印得好的報紙該有的樣子。
+ *
+ * 兩層疊著用：細的那層是纖維的顆粒，粗的那層是放久了的濃淡不勻，
  * 只有細的那層時紙面會太均勻，看起來像螢幕而不像紙。
+ *
+ * 透明度壓得很低，但不能更低了。紙紋是 multiply，加重就是把紙弄灰；
+ * 量過一輪：振幅不到一階時紙面已經是螢幕的白，兩階上下才讀得出是紙，
+ * 再往上紙色就掉到 240 以下、從「白紙」變成「牛皮紙」。
+ * 所以粗的那層給得比細的那層重——大塊的濃淡不勻看起來是舊紙，
+ * 細顆粒加重則只是螢幕雜訊。
  */
 .st-grain {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0.22;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='520' height='520' filter='url(%23m)' opacity='0.3'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.28'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='520' height='520' filter='url(%23m)' opacity='0.5'/%3E%3C/svg%3E");
   background-size: 180px 180px, 520px 520px;
 }
 
-/* ---------- 紙張 ---------- */
+/*
+ * 摺痕。這一層反過來，壓在墨的上面——摺紙是把印好的面折彎，
+ * 摺痕的影子會蓋過字、也蓋過照片，壓在下面就不成立。
+ *
+ * 寬度與對稱是這一層的全部難處，兩次都踩到：
+ *
+ * 第一版把影子散到 7rem、而且左右不對稱，摺縫兩側的紙色差了 4 階又一路
+ * 平著過去，整頁被讀成一塊塊的面。第二版收窄到 2rem、中間壓一條 1px 的
+ * 深線，結果更糟——這一頁的語言本來就是細線，再多幾條就只是多幾條線。
+ *
+ * 成立的做法是「對稱的寬谷」：左右衰減一樣長，所以紙色回到同一階、不分面；
+ * 谷只有三四階深，所以是光而不是線；中央那道反光細到 1px、亮度只差一階，
+ * 近看才看得出紙在這裡折起來過。
+ *
+ * 數量也收掉了。對折一次就只有一道直摺，不是三道；橫摺每 56rem 一道，
+ * 整張紙上看得到兩三道。摺痕是細節，排成格子就變成裝飾。
+ */
+.st-creases {
+  /* 摺的半寬。窄螢幕上紙只有三百多寬，同一個絕對值就會寬到佔掉四分之一。 */
+  --st-fold: 2.6rem;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image:
+    /* 中央對折。 */
+    linear-gradient(
+      90deg,
+      transparent calc(50% - var(--st-fold)),
+      rgb(13 69 113 / 0.012) calc(50% - var(--st-fold) * 0.42),
+      rgb(13 69 113 / 0.03) calc(50% - var(--st-fold) * 0.085),
+      rgb(255 255 255 / 0.5) 50%,
+      rgb(13 69 113 / 0.03) calc(50% + var(--st-fold) * 0.085),
+      rgb(13 69 113 / 0.012) calc(50% + var(--st-fold) * 0.42),
+      transparent calc(50% + var(--st-fold))
+    ),
+    /* 橫摺。一個 tile 一道，tile 的高就是摺距。 */
+      linear-gradient(
+        180deg,
+        transparent calc(50% - var(--st-fold)),
+        rgb(13 69 113 / 0.01) calc(50% - var(--st-fold) * 0.4),
+        rgb(13 69 113 / 0.026) calc(50% - var(--st-fold) * 0.08),
+        rgb(255 255 255 / 0.42) 50%,
+        rgb(13 69 113 / 0.026) calc(50% + var(--st-fold) * 0.08),
+        rgb(13 69 113 / 0.01) calc(50% + var(--st-fold) * 0.4),
+        transparent calc(50% + var(--st-fold))
+      );
+  background-size: 100% 100%, 100% 56rem;
+  background-repeat: no-repeat, repeat-y;
+}
 
+/*
+ * 紙本身。自成一個疊層群組，紙紋的 multiply 才只吃到紙色，
+ * 不會連桌面一起壓暗；順序也就鎖在紙裡：紙 → 紙紋 → 墨 → 摺痕。
+ */
 .st-sheet {
   position: relative;
-  z-index: 2;
+  isolation: isolate;
   width: var(--st-sheet-w);
   margin: 0 auto;
-  background: var(--st-paper);
+  /*
+   * 兩道長邊泛黃。舊紙是從外緣開始黃的，這一道比任何顆粒都更像舊紙，
+   * 而且是色調不是線條——這一頁的細線額度已經用在格線上了，不能再加。
+   */
+  background-color: var(--st-paper);
+  background-image: linear-gradient(
+    90deg,
+    rgb(158 126 70 / 0.075),
+    rgb(158 126 70 / 0.012) min(1rem, 3%),
+    transparent min(2.4rem, 7%),
+    transparent calc(100% - min(2.4rem, 7%)),
+    rgb(158 126 70 / 0.012) calc(100% - min(1rem, 3%)),
+    rgb(158 126 70 / 0.075)
+  );
   box-shadow: 0 1rem 2.6rem rgb(13 69 113 / 0.16);
 }
 
@@ -84,6 +173,9 @@ body:has(.st-page) {
  */
 .st-sheet__body {
   container-type: inline-size;
+  /* 夾在紙紋（0）與摺痕（3）之間。 */
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   /* 稿子上帶子幾乎貼著紙邊，上下留白只有紙寬的 1% 出頭。 */
@@ -907,7 +999,7 @@ body:has(.st-page) {
   padding: 0.72cqw 1cqw;
   border: var(--st-hair) solid var(--st-ink);
   border-right: 0;
-  background: var(--st-paper-lit);
+  background: var(--st-field);
   color: var(--st-ink);
   font: inherit;
   font-size: var(--st-t-body);
@@ -1123,6 +1215,10 @@ body:has(.st-page) {
  * 商品版四欄減成兩欄，分類廣告三欄減成兩欄。
  */
 @media (max-width: 900px) {
+  .st-creases {
+    --st-fold: 1.5rem;
+  }
+
   .st-sheet__body {
     padding: 4.4% 5%;
 

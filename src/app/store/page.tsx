@@ -159,9 +159,11 @@ export default function StorePage() {
 
   return (
     <div className="st-page">
-      <span className="st-grain" aria-hidden="true" />
-
       <div className="st-sheet">
+        {/* 紙紋在墨下、摺痕在墨上，所以是兩層而不是一層。 */}
+        <span className="st-grain" aria-hidden="true" />
+        <span className="st-creases" aria-hidden="true" />
+
         <div className="st-sheet__body">
           {/* ---------- 事務列與欄目列 ---------- */}
           <div className="st-top">
