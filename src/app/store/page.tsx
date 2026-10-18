@@ -406,11 +406,12 @@ export default function StorePage() {
               左半排字、右半放商品實拍。
             */}
             <aside className="st-feature" aria-labelledby="st-feature-label">
-              <div className="st-feature__text">
-                <p className="st-feature__label" id="st-feature-label">
-                  {FEATURE.label}
-                </p>
+              {/* 欄名與免運都橫過整盒，所以它們是盒子的直接子元素，不在字欄裡。 */}
+              <p className="st-feature__label" id="st-feature-label">
+                {FEATURE.label}
+              </p>
 
+              <div className="st-feature__text">
                 <p className="st-feature__name">{FEATURE.name}</p>
                 <p className="st-feature__sub">{FEATURE.sub}</p>
 
@@ -446,26 +447,6 @@ export default function StorePage() {
                   </svg>
                   {FEATURE.cta}
                 </a>
-
-                <p className="st-ship">
-                  <svg
-                    className="st-ship__truck"
-                    viewBox="0 0 28 18"
-                    aria-hidden="true"
-                    focusable="false"
-                  >
-                    <path d="M1 3h14v9H1z" />
-                    <path d="M15 6h5.4L25 9.4V12h-10z" />
-                    <circle cx="7" cy="14.4" r="2" />
-                    <circle cx="20" cy="14.4" r="2" />
-                  </svg>
-
-                  <span className="st-ship__text">
-                    {FEATURE.ship.map((line) => (
-                      <span key={line}>{line}</span>
-                    ))}
-                  </span>
-                </p>
               </div>
 
               <Plate
@@ -474,6 +455,26 @@ export default function StorePage() {
                 sizes={SIZES.feature}
                 className="st-feature__plate"
               />
+
+              <p className="st-ship">
+                <svg
+                  className="st-ship__truck"
+                  viewBox="0 0 28 18"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M1 3h14v9H1z" />
+                  <path d="M15 6h5.4L25 9.4V12h-10z" />
+                  <circle cx="7" cy="14.4" r="2" />
+                  <circle cx="20" cy="14.4" r="2" />
+                </svg>
+
+                <span className="st-ship__text">
+                  {FEATURE.ship.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </span>
+              </p>
             </aside>
 
             {/* 第一版最右邊那條直排小欄。 */}
@@ -540,49 +541,89 @@ export default function StorePage() {
                   className="st-receipt__plate"
                 />
               </figure>
-
-              <div className="st-receipt__foot">
-                <p className="st-figure">
-                  <span className="st-figure__value">
-                    {SECOND.receipt.figure.value}
-                  </span>
-                  <span className="st-figure__unit">
-                    {SECOND.receipt.figure.unit}
-                  </span>
-                  <span className="st-figure__note">
-                    {SECOND.receipt.figure.note}
-                  </span>
-                </p>
-
-                <dl className="st-receipt__fields">
-                  {SECOND.receipt.fields.map((field) => (
-                    <div key={field.label} className="st-receipt__row">
-                      <dt>{field.label}</dt>
-                      <dd>{field.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-
-              <p className="st-receipt__note">{SECOND.receipt.note}</p>
             </div>
 
-            {/* 公益帶最右邊那一欄。參考圖這裡是一張線描插畫，這一版只排字。 */}
-            <aside className="st-aside">
-              <p className="st-aside__kicker">{SWAP.kicker}</p>
-              <h2 className="st-aside__title">{SWAP.title}</h2>
+            {/*
+              公益帶最右邊那一窄欄。參考圖這裡是一張線描插畫；這一版不畫插畫，
+              改排收據上的字——金額與四個欄位逐字轉錄，放在原件照片旁邊，
+              讀的人可以一欄一欄對回去。
+            */}
+            <aside className="st-ledger">
+              <p className="st-ledger__kicker">{SECOND.receipt.ledger}</p>
 
-              <p className="st-figure st-figure--aside">
-                <span className="st-figure__value">{SWAP.figure.value}</span>
-                <span className="st-figure__unit">{SWAP.figure.unit}</span>
-                <span className="st-figure__note">{SWAP.figure.note}</span>
+              <p className="st-figure st-figure--ledger">
+                <span className="st-figure__value">
+                  {SECOND.receipt.figure.value}
+                </span>
+                <span className="st-figure__unit">
+                  {SECOND.receipt.figure.unit}
+                </span>
+                <span className="st-figure__note">
+                  {SECOND.receipt.figure.note}
+                </span>
               </p>
 
-              <div className="st-aside__body">
+              <dl className="st-ledger__fields">
+                {SECOND.receipt.fields.map((field) => (
+                  <div key={field.label} className="st-ledger__row">
+                    <dt>{field.label}</dt>
+                    <dd>{field.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <p className="st-ledger__note">{SECOND.receipt.note}</p>
+            </aside>
+
+            {/* 七隻狗狗。公益帶的腳註，所以收在同一帶的最下面。 */}
+            <div className="st-dogs">
+              <p className="st-kicker">{SECOND.dogs.label}</p>
+
+              <ul className="st-dogs__list">
+                {SECOND.dogs.items.map((dog) => (
+                  <DogCell key={dog.name} dog={dog} />
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/*
+            ---------- 換罐計畫 ----------
+            這一塊在參考圖上沒有對應的欄位（參考圖那一格是插畫）。
+            它是這一頁的另一條公益線，資料本來就有，所以給它一條自己的帶：
+            整幅三欄，直排眉題接橫排內文，右邊是家數與分區名單。
+          */}
+          <section className="st-swap" aria-labelledby="st-swap-title">
+            <p className="st-kicker st-kicker--v">{SWAP.kicker}</p>
+
+            <div className="st-swap__main">
+              <h2 className="st-swap__title" id="st-swap-title">
+                {SWAP.title}
+              </h2>
+
+              <div className="st-swap__body">
                 {SWAP.body.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
               </div>
+
+              <a
+                className="st-link"
+                href={SWAP.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {SWAP.cta}
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div className="st-swap__data">
+              <p className="st-figure">
+                <span className="st-figure__value">{SWAP.figure.value}</span>
+                <span className="st-figure__unit">{SWAP.figure.unit}</span>
+                <span className="st-figure__note">{SWAP.figure.note}</span>
+              </p>
 
               <dl className="st-regions">
                 {SWAP.regions.map((region) => (
@@ -595,32 +636,6 @@ export default function StorePage() {
                   </div>
                 ))}
               </dl>
-
-              <a
-                className="st-link"
-                href={SWAP.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {SWAP.cta}
-                <span aria-hidden="true">→</span>
-              </a>
-
-              <p className="st-aside__sign">
-                <span>{`${NAMEPLATE.wordmark} ${NAMEPLATE.brand}`}</span>
-                <span>{NAMEPLATE.mottos[1]}</span>
-              </p>
-            </aside>
-
-            {/* 七隻狗狗。公益帶的腳註，所以收在同一帶的最下面。 */}
-            <div className="st-dogs">
-              <p className="st-kicker">{SECOND.dogs.label}</p>
-
-              <ul className="st-dogs__list">
-                {SECOND.dogs.items.map((dog) => (
-                  <DogCell key={dog.name} dog={dog} />
-                ))}
-              </ul>
             </div>
           </section>
 
