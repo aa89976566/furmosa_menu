@@ -190,7 +190,11 @@ export const FEATURE = {
   price: "165",
   cta: "立即買雞霸",
   href: `${SHOP_ORIGIN}/products/chicken-fillet`,
-  ship: "六片雞霸 7-ELEVEN 免運",
+  /*
+   * 免運條件。刊頭欄那條窄欄只有紙寬的 11.6%，這一行一定會折成兩行，
+   * 所以斷點自己指定——交給瀏覽器會折在 7-ELEVEN 的連字號上。
+   */
+  ship: ["六片雞霸", "7-ELEVEN 免運"],
 } as const;
 
 /* ---------------- 快訊 ---------------- */

@@ -359,8 +359,9 @@ export default function StorePage() {
 
           {/*
             ---------- 第一版 ----------
-            四欄，寬度全不一樣：窄高切口 → 直排主標 → 主圖 → 直排規格。
-            主標兩行一藍一紅，紅那一行是重點引文。主圖上壓一枚紅關防。
+            四欄兩列，寬度全不一樣：
+            最左那一欄上面是窄高切口、下面是直排導言；接著直排主標、
+            主圖，最右邊是直排規格。主標兩行一藍一紅，紅那一行是重點引文。
 
             DOM 的順序是手機要的順序：主標 → 導言 → 主圖 → 窄高切口 → 規格，
             桌機只是用 grid-area 把它們重新放位。
@@ -383,13 +384,14 @@ export default function StorePage() {
                   </span>
                 ))}
               </span>
-
-              <span className="st-front__lead">
-                {HERO.lead.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </span>
             </h1>
+
+            {/* 導言排在窄高切口底下，跟參考圖一樣是最左那一欄的下半。 */}
+            <p className="st-front__lead">
+              {HERO.lead.map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </p>
 
             <figure className="st-front__figure">
               <Plate
@@ -494,7 +496,12 @@ export default function StorePage() {
                 <circle cx="7" cy="14.4" r="2" />
                 <circle cx="20" cy="14.4" r="2" />
               </svg>
-              {FEATURE.ship}
+
+              <span className="st-ship__text">
+                {FEATURE.ship.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </span>
             </p>
           </section>
 
