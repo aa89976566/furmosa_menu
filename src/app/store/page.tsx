@@ -3,28 +3,28 @@ import Link from "next/link";
 
 import Seal from "@/components/store/Seal";
 import {
-  CARE,
+  ADS,
+  ADS_BAR,
+  BRIEFS,
   CART_URL,
+  FEATURE,
   FOOTER,
   FOOTER_NAV,
-  GOODS,
   HERO,
+  ISSUE,
   LOGIN_URL,
   NAMEPLATE,
   NAV,
   NEWSLETTER_ACTION,
-  NEWS_BRIEFS,
-  NEWS_LEAD,
-  NEWS_SECOND,
   PENDING_NOTE,
   SEARCH_URL,
+  SECOND,
   SOCIALS,
-  STICKERS,
   SUBSCRIBE,
+  SWAP,
   TICKER,
-  UTILITY,
-  issueOf,
-  type Product,
+  datelineOf,
+  type Ad,
   type StrayDog,
 } from "@/data/store";
 
@@ -33,10 +33,12 @@ import {
  * 桌機上右側刊頭柱吃掉將近四分之一，所以內容欄的實際寬度比直覺窄一截。
  */
 const SIZES = {
-  hero: "(max-width: 900px) 92vw, 36vw",
-  care: "(max-width: 900px) 92vw, 30vw",
-  receipt: "(max-width: 900px) 92vw, 34vw",
-  good: "(max-width: 560px) 44vw, (max-width: 900px) 30vw, 16vw",
+  hero: "(max-width: 900px) 92vw, 26vw",
+  side: "(max-width: 900px) 30vw, 11vw",
+  mooncake: "(max-width: 900px) 92vw, 24vw",
+  receipt: "(max-width: 900px) 92vw, 26vw",
+  adLead: "(max-width: 560px) 92vw, (max-width: 900px) 44vw, 22vw",
+  ad: "(max-width: 560px) 44vw, (max-width: 900px) 30vw, 15vw",
   dog: "(max-width: 900px) 24vw, 10vw",
 } as const;
 
@@ -157,42 +159,47 @@ function figureOf(price: string): string {
 }
 
 /**
- * 分類廣告的一格。
+ * 分類廣告的一則。
  *
- * 不是商品卡：沒有外框、沒有底色、沒有圓角。圖是窄高的切口，
- * 品名直排豎在切口右側，價格是一塊紅色實地的小貼紙，壓在切口的腳上。
- * 四格的欄寬由 CSS 給成四個不同的值，所以切口高度也各不相同。
+ * 三種級別排出來的大小本來就不一樣：lead 有實拍與內文、plain 只有占位框、
+ * text 連圖都沒有。所以這一列不會變成四張同尺寸的商品卡。
  */
-function GoodCell({ product }: { product: Product }) {
+function AdCell({ ad }: { ad: Ad }) {
+  const lead = ad.kind === "lead";
+
   return (
-    <li className="st-good">
+    <li className={`st-ad st-ad--${ad.kind}`}>
       <a
-        className="st-good__link"
-        href={product.href}
+        className="st-ad__link"
+        href={ad.href}
         target="_blank"
         rel="noopener noreferrer"
       >
-        <Plate
-          art={product.art}
-          alt={product.alt}
-          pending={product.pending}
-          sizes={SIZES.good}
-          className="st-good__plate"
-        />
+        {ad.kind === "text" ? null : (
+          <Plate
+            art={ad.art}
+            alt={ad.alt}
+            pending={ad.pending}
+            sizes={lead ? SIZES.adLead : SIZES.ad}
+            className="st-ad__plate"
+          />
+        )}
 
-        <span className="st-good__price">
-          <span className="st-good__figure">{figureOf(product.price)}</span>
-          <span className="st-good__unit">元</span>
-        </span>
+        <span className="st-ad__name">{ad.name}</span>
+        <span className="st-ad__spec">{ad.spec}</span>
 
-        <span className="st-good__meta">
-          <span className="st-good__name">{product.name}</span>
-          <span className="st-good__spec">{product.spec}</span>
-        </span>
+        {ad.body ? <span className="st-ad__body">{ad.body}</span> : null}
 
-        <span className="st-good__action">
-          {GOODS.action}
-          <span aria-hidden="true">→</span>
+        <span className="st-ad__foot">
+          <span className="st-ad__price">
+            <span className="st-ad__figure">{figureOf(ad.price)}</span>
+            <span className="st-ad__unit">元</span>
+          </span>
+
+          <span className="st-ad__action">
+            {ad.note ?? ADS_BAR.action}
+            <span aria-hidden="true">→</span>
+          </span>
         </span>
       </a>
     </li>
@@ -218,7 +225,7 @@ function DogCell({ dog }: { dog: StrayDog }) {
 export default function StorePage() {
   const now = new Date();
   const year = now.getFullYear();
-  const issue = issueOf(now);
+  const dateline = datelineOf(now);
 
   return (
     <div className="st-page">
@@ -229,100 +236,133 @@ export default function StorePage() {
 
         <div className="st-sheet__body">
           {/*
-            ---------- 右側直式刊頭柱 ----------
-            刊名不在版面中央。它立在右邊那條貫穿全頁的直欄裡，
-            由上往下是刊名、日期天氣卡、兩塊紅貼紙、直排導覽、事務連結。
-            手機上這一整柱收成一塊靠右的刊頭，仍然不置中。
+            ---------- 報眉 ----------
+            報紙最上面那一條事務列：小字標、欄目、查詢與購物、日期天氣。
+            這裡的欄目是報紙的版面索引，所以排成一行細字，
+            不做成有底色、有膠囊、有陰影的商店導覽列。
           */}
-          <header className="st-rail">
+          <header className="st-head">
             <Link
-              className="st-rail__mark"
+              className="st-head__mark"
               href="/store"
               aria-label={`${NAMEPLATE.brand} ${NAMEPLATE.wordmark} 首頁`}
             >
-              <span className="st-rail__frame">
-                <span className="st-rail__brand">{NAMEPLATE.brand}</span>
-              </span>
-              <span className="st-rail__word">{NAMEPLATE.wordmark}</span>
+              <span className="st-head__word">{NAMEPLATE.wordmark}</span>
+              <span className="st-head__brand">{NAMEPLATE.brand}</span>
+              <span className="st-head__motto">{NAMEPLATE.mottos[0]}</span>
             </Link>
 
-            <div className="st-rail__stack">
-              <p className="st-rail__column">{NAMEPLATE.column}</p>
-
-              <div className="st-issue">
-                <p className="st-issue__era">{issue.era}</p>
-
-                <p className="st-issue__date">
-                  <span className="st-issue__weekday">{issue.weekday}</span>
-                  <span className="st-issue__day">{issue.day}</span>
-                  <span className="st-issue__month">{issue.month}</span>
-                </p>
-
-                <p className="st-issue__weather">
-                  <span className="st-issue__wlabel">
-                    {issue.weather.label}
-                  </span>
-                  <span className="st-issue__wvalue">
-                    {issue.weather.value}
-                  </span>
-                  <span className="st-issue__wnote">{issue.weather.note}</span>
-                </p>
-
-                <p className="st-issue__issuer">{issue.issuer}</p>
-              </div>
-
-              <ul className="st-stickers">
-                {STICKERS.map((sticker) => (
-                  <li key={sticker}>{sticker}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 導覽直排。標題字數不一樣，所以欄底本來就是不齊的。 */}
-            <nav className="st-railnav" aria-label="主要導覽">
+            <nav className="st-head__nav" aria-label="版面索引">
               {NAV.map((item) => (
-                <Anchor
-                  key={item.label}
-                  item={item}
-                  className="st-railnav__link"
-                />
+                <Anchor key={item.label} item={item} className="st-head__link" />
               ))}
             </nav>
 
-            <div className="st-rail__foot">
-              <Seal text={NAMEPLATE.seal} shape="oval" />
+            <nav className="st-head__tools" aria-label="帳號與購物車">
+              <a
+                className="st-head__icon"
+                href={SEARCH_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="在商店裡搜尋"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="10.5" cy="10.5" r="6.4" />
+                  <path d="M15.4 15.4 21 21" />
+                </svg>
+              </a>
 
-              <nav className="st-rail__links" aria-label="帳號與購物車">
-                <a href={LOGIN_URL} target="_blank" rel="noopener noreferrer">
-                  登入 / 註冊
-                </a>
-                <a href={CART_URL} target="_blank" rel="noopener noreferrer">
-                  {GOODS.cartLabel}
-                </a>
-                <a
-                  className="st-rail__search"
-                  href={SEARCH_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="在商店裡搜尋"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <circle cx="10.5" cy="10.5" r="6.4" />
-                    <path d="M15.4 15.4 21 21" />
-                  </svg>
-                </a>
-              </nav>
+              <a
+                className="st-head__icon"
+                href={LOGIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="登入或註冊"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="8.4" r="3.9" />
+                  <path d="M4.8 20.2c0-3.6 3.2-6.1 7.2-6.1s7.2 2.5 7.2 6.1" />
+                </svg>
+              </a>
 
-              <p className="st-rail__origin">{UTILITY.left}</p>
+              <a
+                className="st-head__icon"
+                href={CART_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={ADS_BAR.cartLabel}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M3.4 4.4h2.5l2.5 10.4h9.4" />
+                  <path d="M7.4 7.8h13l-1.9 6.1" />
+                  <circle cx="9.6" cy="19" r="1.5" />
+                  <circle cx="17.4" cy="19" r="1.5" />
+                </svg>
+              </a>
+            </nav>
+
+            <div className="st-dateline">
+              <p className="st-dateline__date">{dateline.date}</p>
+              <p className="st-dateline__row">
+                <span>{dateline.weekday}</span>
+                <span>{dateline.era}</span>
+              </p>
+              <p className="st-dateline__weather">
+                <span className="st-dateline__wlabel">
+                  {dateline.weather.label}
+                </span>
+                <span className="st-dateline__wvalue">
+                  {dateline.weather.value}
+                </span>
+                <span className="st-dateline__wnote">
+                  {dateline.weather.note}
+                </span>
+              </p>
             </div>
           </header>
 
-          {/*
-            ---------- 頭版 ----------
-            左欄短文與價格、中欄照片、右欄直排主標，三欄寬度全不一樣。
-            主標貼在內容區最右邊緊挨刊頭柱——直書從右往左讀，那是它該站的位置。
+          {/* ---------- 期號條 ---------- */}
+          <p className="st-issue">
+            <span className="st-issue__no">
+              {ISSUE.number}
+              <i aria-hidden="true">／</i>
+              {ISSUE.origin}
+            </span>
+            <span className="st-issue__line">{ISSUE.line}</span>
+            <span className="st-issue__daily">{ISSUE.daily}</span>
+          </p>
 
-            DOM 的順序就是手機要的順序：主標 → 短文 → 照片 → 購買按鈕。
+          {/*
+            ---------- 刊頭柱 ----------
+            刊名立在右側那條四分之一寬的直欄裡，不在版面中央。
+            雙線框、直排紅字、拉丁字標墊在上面，底下兩行標語與一枚關防。
+          */}
+          <aside className="st-mast">
+            <Link
+              className="st-mast__mark"
+              href="/store"
+              aria-label={`${NAMEPLATE.brand} ${NAMEPLATE.wordmark}`}
+            >
+              <span className="st-mast__frame">
+                <span className="st-mast__word">{NAMEPLATE.wordmark}</span>
+                <span className="st-mast__brand">{NAMEPLATE.brand}</span>
+                <span className="st-mast__column">{NAMEPLATE.column}</span>
+              </span>
+            </Link>
+
+            <div className="st-mast__foot">
+              {NAMEPLATE.mottos.map((motto) => (
+                <p key={motto}>{motto}</p>
+              ))}
+            </div>
+          </aside>
+
+          {/*
+            ---------- 第一版 ----------
+            四欄，寬度全不一樣：窄高切口 → 直排主標 → 主圖 → 直排規格。
+            主標兩行一藍一紅，紅那一行是重點引文。主圖上壓一枚紅關防。
+
+            DOM 的順序是手機要的順序：主標 → 導言 → 主圖 → 窄高切口 → 規格，
             桌機只是用 grid-area 把它們重新放位。
           */}
           <section className="st-front" aria-labelledby="st-front-title">
@@ -330,27 +370,26 @@ export default function StorePage() {
               <span className="st-front__kicker">{HERO.kicker}</span>
 
               <span className="st-front__lines">
-                {HERO.headline.map((line) => (
-                  <span key={line} className="st-front__line">
+                {HERO.headline.map((line, index) => (
+                  <span
+                    key={line}
+                    className={
+                      index === 0
+                        ? "st-front__line"
+                        : "st-front__line st-front__line--red"
+                    }
+                  >
                     {line}
                   </span>
                 ))}
               </span>
-            </h1>
 
-            <div className="st-front__text">
-              <p className="st-front__lead">
+              <span className="st-front__lead">
                 {HERO.lead.map((line) => (
                   <span key={line}>{line}</span>
                 ))}
-              </p>
-
-              <ul className="st-front__claims">
-                {HERO.claims.map((claim) => (
-                  <li key={claim}>{claim}</li>
-                ))}
-              </ul>
-            </div>
+              </span>
+            </h1>
 
             <figure className="st-front__figure">
               <Plate
@@ -360,36 +399,109 @@ export default function StorePage() {
                 className="st-front__plate"
                 priority
               />
+
+              {/* 整頁唯一刻意跨到圖上的字。 */}
+              <Seal
+                text={HERO.seal}
+                shape="oval"
+                className="st-front__seal"
+              />
+
               <figcaption>{HERO.caption}</figcaption>
             </figure>
 
-            <div className="st-front__act">
-              <p className="st-price">
-                <span className="st-price__spec">{HERO.spec}</span>
-                <span className="st-price__figure">
-                  {figureOf(HERO.price)}
-                </span>
-                <span className="st-price__unit">元</span>
+            <figure className="st-front__side">
+              <Plate
+                art={HERO.side.art}
+                alt={HERO.side.alt}
+                sizes={SIZES.side}
+                className="st-front__sideplate"
+              />
+              <figcaption>{HERO.side.caption}</figcaption>
+            </figure>
+
+            <div className="st-front__spec">
+              <p className="st-front__specdisplay">
+                {HERO.spec.display.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
               </p>
 
-              <a
-                className="st-buy"
-                href={HERO.cta.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {HERO.cta.label}
-                <span aria-hidden="true">→</span>
-              </a>
+              <p className="st-front__specbody">
+                {HERO.spec.body.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </p>
 
-              <p className="st-ship">{HERO.ship}</p>
+              <ul className="st-front__claims">
+                {HERO.spec.claims.map((claim) => (
+                  <li key={claim}>{claim}</li>
+                ))}
+              </ul>
             </div>
           </section>
 
           {/*
-            ---------- 細新聞條 ----------
-            一行高，全頁最小的一級字。它的工作是把頭版的大接到下面的三欄，
-            所以它不能是第二個版——只給上下兩道線，沒有底色。
+            ---------- 今日主打 ----------
+            排在刊頭柱底下，和參考圖一樣是一盒加紅框的廣告：
+            品名、價格、買的動作、出貨條件。
+          */}
+          <section className="st-feature" aria-labelledby="st-feature-label">
+            <p className="st-feature__label" id="st-feature-label">
+              {FEATURE.label}
+            </p>
+
+            <p className="st-feature__name">{FEATURE.name}</p>
+            <p className="st-feature__sub">
+              <span>{FEATURE.sub}</span>
+              <span>{FEATURE.spec}</span>
+            </p>
+
+            <p className="st-feature__price">
+              <span className="st-feature__currency">{FEATURE.currency}</span>
+              <span className="st-feature__figure">{FEATURE.price}</span>
+            </p>
+
+            <a
+              className="st-buy"
+              href={FEATURE.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                className="st-buy__cart"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M3.4 4.4h2.5l2.5 10.4h9.4" />
+                <path d="M7.4 7.8h13l-1.9 6.1" />
+                <circle cx="9.6" cy="19" r="1.5" />
+                <circle cx="17.4" cy="19" r="1.5" />
+              </svg>
+              {FEATURE.cta}
+            </a>
+
+            <p className="st-ship">
+              <svg
+                className="st-ship__truck"
+                viewBox="0 0 28 18"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M1 3h14v9H1z" />
+                <path d="M15 6h5.4L25 9.4V12h-10z" />
+                <circle cx="7" cy="14.4" r="2" />
+                <circle cx="20" cy="14.4" r="2" />
+              </svg>
+              {FEATURE.ship}
+            </p>
+          </section>
+
+          {/*
+            ---------- 快訊 ----------
+            一行高，全頁最小的一級字。它的工作是把第一版接到分類廣告，
+            所以只給上下兩道線、沒有底色——有底色它就變成第二個版了。
           */}
           <nav className="st-ticker" aria-label={TICKER.label}>
             <span className="st-ticker__label">{TICKER.label}</span>
@@ -405,210 +517,134 @@ export default function StorePage() {
           </nav>
 
           {/*
-            ---------- 三個不等寬新聞欄 ----------
-            寬度與字級都不一樣，讀者才有進入順序：
-            主欄的眉題是直排的，有大標、內文與數字；次欄只有標題與內文；
-            短欄只有一串標題。三欄同寬同字級就會變回格子。
-          */}
-          <div className="st-news">
-            <article className="st-news__lead">
-              <p className="st-kicker st-kicker--v">{NEWS_LEAD.kicker}</p>
-
-              <div className="st-news__main">
-                <h3 className="st-news__title">{NEWS_LEAD.title}</h3>
-
-                <div className="st-news__body">
-                  {NEWS_LEAD.body.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
-
-                <div className="st-news__data">
-                  <p className="st-figure">
-                    <span className="st-figure__value">
-                      {NEWS_LEAD.figure.value}
-                    </span>
-                    <span className="st-figure__unit">
-                      {NEWS_LEAD.figure.unit}
-                    </span>
-                    <span className="st-figure__note">
-                      {NEWS_LEAD.figure.note}
-                    </span>
-                  </p>
-
-                  <dl className="st-regions">
-                    {NEWS_LEAD.regions.map((region) => (
-                      <div key={region.label} className="st-regions__row">
-                        <dt>
-                          {region.label}
-                          <span>{region.count}</span>
-                        </dt>
-                        <dd>{region.spots}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-
-                <a
-                  className="st-link"
-                  href={NEWS_LEAD.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {NEWS_LEAD.cta}
-                  <span aria-hidden="true">→</span>
-                </a>
-              </div>
-            </article>
-
-            <article className="st-news__second">
-              <p className="st-kicker">{NEWS_SECOND.kicker}</p>
-              <h3 className="st-news__title">{NEWS_SECOND.title}</h3>
-
-              <div className="st-news__body">
-                {NEWS_SECOND.body.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-
-              <Anchor item={NEWS_SECOND} className="st-link">
-                {NEWS_SECOND.cta}
-                <span aria-hidden="true">→</span>
-              </Anchor>
-            </article>
-
-            <aside className="st-briefs">
-              <p className="st-kicker">{NEWS_BRIEFS.kicker}</p>
-
-              <ul className="st-briefs__list">
-                {NEWS_BRIEFS.items.map((brief) => (
-                  <li key={brief.name}>
-                    <Anchor item={brief} className="st-briefs__link">
-                      <span className="st-briefs__name">{brief.name}</span>
-                      <span className="st-briefs__note">{brief.note}</span>
-                    </Anchor>
-                  </li>
-                ))}
-              </ul>
-            </aside>
-          </div>
-
-          {/*
             ---------- 分類廣告 ----------
-            四格的欄寬是四個不同的值，切口都比寬的還高。
+            四則廣告的級別不一樣，所以尺寸也不一樣；最右邊再掛一條索引。
             商品照維持原彩，不染單色——客人要看到的是肉乾本來的顏色。
           */}
-          <section className="st-goods" aria-labelledby="st-goods-bar">
-            <Bar bar={GOODS.bar} id="st-goods-bar" />
+          <section className="st-ads" aria-labelledby="st-ads-bar">
+            <Bar bar={ADS_BAR} id="st-ads-bar" />
 
-            <ul className="st-goods__list">
-              {GOODS.items.map((product) => (
-                <GoodCell key={product.name} product={product} />
-              ))}
-            </ul>
+            <div className="st-ads__body">
+              <ul className="st-ads__list">
+                {ADS.map((ad) => (
+                  <AdCell key={ad.name} ad={ad} />
+                ))}
+              </ul>
 
-            <div className="st-goods__foot">
-              <a
-                className="st-link"
-                href={GOODS.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {GOODS.cta}
-                <span aria-hidden="true">→</span>
-              </a>
+              <aside className="st-briefs">
+                <p className="st-kicker">{BRIEFS.label}</p>
 
-              <a
-                className="st-link"
-                href={GOODS.cartHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {GOODS.cartLabel}
-                <span aria-hidden="true">→</span>
-              </a>
+                <ul className="st-briefs__list">
+                  {BRIEFS.items.map((brief) => (
+                    <li key={brief.name}>
+                      <Anchor item={brief} className="st-briefs__link">
+                        <span className="st-briefs__name">{brief.name}</span>
+                        <span className="st-briefs__note">{brief.note}</span>
+                      </Anchor>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="st-briefs__foot">
+                  <a
+                    className="st-link"
+                    href={ADS_BAR.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {ADS_BAR.cta}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+              </aside>
             </div>
           </section>
 
           {/*
-            ---------- 第二個大報導：浪浪支持計畫 ----------
-            主標直排立在右邊，和頭版押同一個韻；內文也是直排，
-            中間被一條橫向的紅色引文切過去——那是全頁第二個視覺事件。
-            收據是整頁唯一加裝飾框的區塊，因為它是文件。
+            ---------- 第二版：中秋月餅公益 ----------
+            五欄，由左到右：紅框直排版名 → 直排內文 → 月餅實拍 →
+            直排導言與橫向紅色引文 → 捐款收據。
+            收據與月餅照都維持原彩，欄位逐字轉錄。
           */}
-          <section className="st-care" aria-labelledby="st-care-bar">
-            <Bar bar={CARE.bar} id="st-care-bar" />
+          <section className="st-second" aria-labelledby="st-second-bar">
+            <Bar bar={SECOND.bar} id="st-second-bar" />
 
-            <div className="st-care__report">
-              <h3 className="st-care__title">
-                <span className="st-care__kicker">{CARE.kicker}</span>
-                <span className="st-care__titleline">{CARE.title}</span>
-              </h3>
-
-              <div className="st-care__text">
-                <p className="st-care__lead">{CARE.lead}</p>
-
-                <div className="st-care__body">
-                  {CARE.body.map((line) => (
-                    <p key={line}>{line}</p>
+            <div className="st-second__body">
+              <div className="st-second__title">
+                <p className="st-second__kicker">{SECOND.kicker}</p>
+                <p className="st-second__titleline">
+                  {SECOND.title.map((line) => (
+                    <span key={line}>{line}</span>
                   ))}
-                </div>
+                </p>
+              </div>
+
+              <div className="st-second__text">
+                {SECOND.body.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </div>
+
+              <figure className="st-second__figure">
+                <Plate
+                  art={SECOND.photo.art}
+                  alt={SECOND.photo.alt}
+                  sizes={SIZES.mooncake}
+                  className="st-second__plate"
+                />
+
+                {/* 橫向紅色引文，壓在月餅照的腳上、往右越過欄距。 */}
+                <p className="st-second__pull">{SECOND.pull}</p>
+
+                <figcaption>{SECOND.photo.caption}</figcaption>
+              </figure>
+
+              <div className="st-second__lead">
+                <p className="st-second__leadline">
+                  {SECOND.lead.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </p>
 
                 <a
                   className="st-link"
-                  href={CARE.href}
+                  href={SECOND.href}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {CARE.cta}
+                  {SECOND.cta}
                   <span aria-hidden="true">→</span>
                 </a>
               </div>
 
-              <figure className="st-care__figure">
-                <Plate
-                  art={CARE.photo.art}
-                  alt={CARE.photo.alt}
-                  sizes={SIZES.care}
-                  className="st-care__plate"
-                />
+              {/* 整頁唯一加裝飾框的區塊，因為它是一份文件。 */}
+              <div className="st-receipt">
+                <p className="st-receipt__header">{SECOND.receipt.header}</p>
 
-                {/*
-                  橫向的紅色實地引文，壓在月餅照的腳上、往右越過欄距咬進直排導言。
-                  捐款比例整頁只說在這一條上。
-                */}
-                <p className="st-care__pull">{CARE.pull}</p>
+                <figure className="st-receipt__figure">
+                  <Plate
+                    art={SECOND.receipt.art}
+                    alt={SECOND.receipt.alt}
+                    sizes={SIZES.receipt}
+                    className="st-receipt__plate"
+                  />
+                  <figcaption>{SECOND.receipt.caption}</figcaption>
+                </figure>
 
-                <figcaption>{CARE.photo.caption}</figcaption>
-              </figure>
-            </div>
-
-            <div className="st-receipt">
-              <figure className="st-receipt__figure">
-                <Plate
-                  art={CARE.receipt.art}
-                  alt={CARE.receipt.alt}
-                  sizes={SIZES.receipt}
-                  className="st-receipt__plate"
-                />
-                <figcaption>{CARE.receipt.caption}</figcaption>
-              </figure>
-
-              <div className="st-receipt__text">
                 <p className="st-figure">
                   <span className="st-figure__value">
-                    {CARE.receipt.figure.value}
+                    {SECOND.receipt.figure.value}
                   </span>
                   <span className="st-figure__unit">
-                    {CARE.receipt.figure.unit}
+                    {SECOND.receipt.figure.unit}
                   </span>
                   <span className="st-figure__note">
-                    {CARE.receipt.figure.note}
+                    {SECOND.receipt.figure.note}
                   </span>
                 </p>
 
                 <dl className="st-receipt__fields">
-                  {CARE.receipt.fields.map((field) => (
+                  {SECOND.receipt.fields.map((field) => (
                     <div key={field.label} className="st-receipt__row">
                       <dt>{field.label}</dt>
                       <dd>{field.value}</dd>
@@ -616,18 +652,65 @@ export default function StorePage() {
                   ))}
                 </dl>
 
-                <p className="st-receipt__note">{CARE.receipt.note}</p>
+                <p className="st-receipt__note">{SECOND.receipt.note}</p>
               </div>
             </div>
 
             <div className="st-dogs">
-              <p className="st-kicker">{CARE.dogs.label}</p>
+              <p className="st-kicker">{SECOND.dogs.label}</p>
 
               <ul className="st-dogs__list">
-                {CARE.dogs.items.map((dog) => (
+                {SECOND.dogs.items.map((dog) => (
                   <DogCell key={dog.name} dog={dog} />
                 ))}
               </ul>
+            </div>
+          </section>
+
+          {/* ---------- 換罐計畫 ---------- */}
+          <section className="st-swap" aria-labelledby="st-swap-title">
+            <p className="st-kicker st-kicker--v">{SWAP.kicker}</p>
+
+            <div className="st-swap__main">
+              <h3 className="st-swap__title" id="st-swap-title">
+                {SWAP.title}
+              </h3>
+
+              <div className="st-swap__body">
+                {SWAP.body.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+
+              <a
+                className="st-link"
+                href={SWAP.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {SWAP.cta}
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div className="st-swap__data">
+              <p className="st-figure">
+                <span className="st-figure__value">{SWAP.figure.value}</span>
+                <span className="st-figure__unit">{SWAP.figure.unit}</span>
+                <span className="st-figure__note">{SWAP.figure.note}</span>
+              </p>
+
+              <dl className="st-regions">
+                {SWAP.regions.map((region) => (
+                  <div key={region.label} className="st-regions__row">
+                    <dt>
+                      {region.label}
+                      <span>{region.count}</span>
+                    </dt>
+                    <dd>{region.spots}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </section>
 
