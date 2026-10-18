@@ -1,17 +1,19 @@
 /*
- * 匠寵門市版首頁 — 一張有編輯節奏的報紙，不是一面復古海報格子。
+ * 匠寵門市版首頁 — 一份有刊頭柱的藝文特刊，不是一面復古海報格子。
  *
- * 「節奏」具體是指：每一塊的寬度不一樣、字級不一樣、密度不一樣，
- * 所以眼睛有進入的順序。平均分格、每格加框、全部同一個字級的版面，
- * 讀起來每一處都在搶，等於沒有一處是重的。
+ * 版面的骨架只有一句話：右邊立一條 23% 寬、貫穿上半頁的直式刊頭柱，
+ * 左邊的內容區在每一帶重新分欄一次，欄寬全頁不重複。
+ * 刊名不在中央——它站在那條柱子裡，直著排。
  *
  * 規矩：
- *   一、紙 #F7F4EC、主字與線 #0B4B78、紅 #C24B45。紅只出現在價格、
- *       箭頭、關防與小標上，沒有大面積的紅。
- *   二、所有線一律 1px。層次靠深色版名條與字級做，不靠線的粗細。
- *   三、照片之間不畫框，用間距分。框只留給「沒有照片」的占位格——
- *       那是刻意看得出來的缺口。
- *   四、紙中央只有一道極淡的對折。
+ *   一、紙 #F7F4EC、主字與線 #0B4B78、印刷紅 #C24B45。紅是第二支油墨：
+ *       價格、箭頭、關防、小標、貼紙與引文實地都是紅的，但沒有紅色插畫。
+ *   二、所有線一律 1px。層次靠深色版名條、字級落差與密度做，不靠線的粗細。
+ *   三、照片的切口比寬的高，欄寬不等所以高度自然不齊。
+ *       商品照與捐款收據維持原彩、不染單色——那會改變它們陳述的事實。
+ *   四、整頁只有一個裝飾框，留給收據，因為它是文件。
+ *   五、直排與橫排刻意交錯：頭版主標、公益導言與標題、商品名、導覽是直的，
+ *       內文、價格、按鈕是橫的。讀的東西橫排，看的東西直排。
  *
  * 版面的量測單位是紙寬不是視窗：整張紙包成一個 container，
  * 字級與間距一律寫成 cqw，縮放時比例完全不變。窄螢幕只換掉那一組變數。
@@ -76,6 +78,9 @@ body:has(.st-page) {
 /*
  * 紙本身。自成一個疊層群組，紙紋的 multiply 才只吃到紙色、
  * 不會連桌面一起壓暗；順序也鎖在紙裡：紙 → 紙紋 → 墨 → 對折。
+ *
+ * 外圍是一組雙線框：粗細各 1px，中間留一道紙色。這是老派印刷品
+ * 把內容關進版口的做法，也讓整張紙有「這是一份印出來的東西」的邊界。
  */
 .st-sheet {
   position: relative;
@@ -129,48 +134,50 @@ body:has(.st-page) {
 }
 
 /*
- * 版面容器。以下所有 cqw 都以這一塊的內容寬為 100。
- * 注意：容器不能查詢自己，所以 padding 用百分比寫。
+ * 版口。整張紙的內容被關在一組雙線框裡，框線跟著 padding 畫，
+ * 所以紙邊與框之間留著一圈空白——那圈空白是紙，不是版面。
  */
 .st-sheet__body {
   container-type: inline-size;
   /* 夾在紙紋（0）與對折（3）之間。 */
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 1.2% 3.3% 2%;
+  margin: 1.1% 1.4%;
+  padding: 1.5% 2%;
+  border: var(--st-hair) solid var(--st-ink);
+  /* 容器查不到自己，所以版口這兩道線的間距只能給絕對值。 */
+  outline: var(--st-hair) solid var(--st-ink);
+  outline-offset: 4px;
 
   /* 線只有一級。層次改由深色版名條與字級負責。 */
   --st-hair: 1px;
 
   /* 版與版之間的空。報紙靠這一段空分版，不靠框。 */
-  --st-band-gap: 3.4cqw;
+  --st-band-gap: 3.2cqw;
   /* 欄距。所有欄線都落在這一段空的正中。 */
-  --st-gap: 2.6cqw;
-  --st-cell-gap: 1.2cqw;
+  --st-gap: 2.4cqw;
+  --st-cell-gap: 1.1cqw;
 
   /*
-   * 字級。五級，約 1.4 倍遞進：圖說／內文／次標／數字／頭條。
-   * 級數之間拉得開，版面的層次才讀得出來。
+   * 字級。級與級之間拉得開，版面的層次才讀得出來。
+   * 最小的圖說到最大的頭條之間差了六倍，這個落差本身就是設計。
    */
-  --st-t-small: 1.12cqw;
-  --st-t-body: 1.5cqw;
-  --st-t-title: 2.1cqw;
-  --st-t-figure: 2.95cqw;
+  --st-t-small: 1.1cqw;
+  --st-t-body: 1.44cqw;
+  --st-t-title: 2cqw;
+  --st-t-figure: 2.9cqw;
   /*
-   * 主標的級數不能單看好不好看：最長那一行是七個字，
-   * 七字 × 級數 × 1.02 必須小於左欄寬（52fr ≈ 51cqw），否則會折行。
+   * 直排主標。最長一行七個字，所以欄高吃 7 × 級數 × 1.05；
+   * 兩行並排的墨寬是 2 × 級數 × 1.2，必須小於主標欄寬（26fr ≈ 23cqw）。
    */
-  --st-t-display: 6.4cqw;
+  --st-t-display: 5.2cqw;
 
-  /* 報頭比上一版小四成：整頁最重的墨讓給頭條。 */
-  --st-t-brand: 3.24cqw;
+  /* 刊頭柱裡那兩個直排的字。它是全頁最重的紅墨。 */
+  --st-t-brand: 7.6cqw;
 
-  --st-utility: 1.3cqw;
-  --st-nav: 1.6cqw;
+  --st-nav: 1.56cqw;
   --st-copy: 1.4cqw;
-  --st-link: 1.6cqw;
+  --st-link: 1.5cqw;
   --st-origin: 1cqw;
   /*
    * 報尾那組 FURMOSA 是窄長體（一個字母佔字高的 0.59，手上這套是 0.8），
@@ -179,6 +186,30 @@ body:has(.st-page) {
   --st-footword: 2.4cqw;
   --st-footword-squeeze: 0.64;
   --st-footline: 1.02cqw;
+
+  /*
+   * 整頁的骨架。右欄是刊頭柱，吃掉 23%（規格要 22–25%），
+   * 從頭版一路貫穿到分類廣告；公益以下三帶放開成整幅，
+   * 因為那是第二個大報導，它需要整張紙的寬度才壓得住。
+   */
+  display: grid;
+  /*
+   * 柱寬與欄距在這裡只能用百分比：container 查不到自己，寫 cqw 會
+   * 退回去量視窗，柱子就會跟著視窗而不是跟著紙變寬。百分比量的是
+   * 這一塊的內容寬，所以 23% 就是紙的 23%。
+   */
+  grid-template-columns: minmax(0, 1fr) 23%;
+  grid-template-areas:
+    "front  rail"
+    "ticker rail"
+    "news   rail"
+    "goods  rail"
+    "care   care"
+    "subs   subs"
+    "foot   foot";
+  column-gap: 2.4%;
+  row-gap: 0;
+  align-items: start;
 }
 
 /* ---------- 共用 ---------- */
@@ -210,10 +241,7 @@ body:has(.st-page) {
   box-shadow: 0 0 0 2px var(--st-paper), 0 0 0 3px currentColor;
 }
 
-/*
- * 紅只留給四處：價格、箭頭、關防、小標。
- * 所以連結的字是藍墨，只有箭頭是紅的——紅是指引的符號，不是版面的底色。
- */
+/* 連結的字是藍墨，只有箭頭是紅的——紅是指引的符號，不是鋪在字上的底。 */
 .st-link {
   display: inline-flex;
   align-items: center;
@@ -243,6 +271,16 @@ body:has(.st-page) {
   font-size: var(--st-t-small);
   font-weight: 700;
   letter-spacing: 0.4em;
+}
+
+/* 直排的眉題。只有最寬那一欄用——不是每一欄都轉直，那就沒有對比了。 */
+.st-kicker--v {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  align-self: start;
+  padding-left: 0.3cqw;
+  border-left: var(--st-hair) solid var(--st-red);
+  letter-spacing: 0.3em;
 }
 
 /* 數字。報紙的大字欄位語言：大號數字配小的單位與說明。 */
@@ -276,7 +314,7 @@ body:has(.st-page) {
 
 /*
  * 一格圖。照片之間不畫框，所以這一層只管比例與裁切。
- * 實拍一律 cover——它們是普通的方形照片，裁邊比留白好。
+ * 實拍一律 cover、而且維持原彩：商品與收據被染成單色就是在改變事實。
  */
 .st-plate {
   display: block;
@@ -317,11 +355,11 @@ body:has(.st-page) {
 }
 
 /* 圖說共用一套：圖下一道髮線，線下一行寬字距的小字。 */
-.st-hero__figure figcaption,
+.st-front__figure figcaption,
 .st-care__figure figcaption,
 .st-receipt__figure figcaption {
-  margin-top: 0.8cqw;
-  padding-top: 0.55cqw;
+  margin-top: 0.7cqw;
+  padding-top: 0.5cqw;
   border-top: var(--st-hair) solid var(--st-ink-soft);
   color: var(--st-ink-mid);
   font-size: var(--st-t-small);
@@ -341,226 +379,377 @@ body:has(.st-page) {
   white-space: nowrap;
 }
 
-/* ---------- 事務列與欄目列 ---------- */
+/* ---------- 右側直式刊頭柱 ---------- */
 
-.st-top {
-  display: grid;
-  gap: 0;
+/*
+ * 整頁的錨。它不是「報頭列」——報頭列會把刊名推到版面正中，
+ * 跟頭條搶同一個位置。立成一條直欄之後，刊名與頭條各據一邊，
+ * 誰也不吃掉誰，而且紙一翻開就知道這是誰發的。
+ *
+ * 刊名、日期卡、貼紙、導覽四塊從上往下靠緊，事務列推到柱底——
+ * 那一段空留在中間偏下，像報紙刊頭下面那片留白。
+ * 左邊那道線是柱與內容區的界線，全頁只有這一條線貫穿到底。
+ */
+.st-rail {
+  grid-area: rail;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8cqw;
+  padding-left: var(--st-gap);
+  border-left: var(--st-hair) solid var(--st-ink);
 }
 
-.st-utility {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: var(--st-cell-gap);
-  padding: 0.5cqw 0.2cqw;
-  border-block: var(--st-hair) solid var(--st-ink-soft);
-  color: var(--st-ink-mid);
-  font-size: var(--st-utility);
-  letter-spacing: 0.14em;
-}
-
-.st-utility p {
+.st-rail p {
   margin: 0;
 }
 
-.st-utility__centre {
+.st-rail__mark {
+  display: grid;
+  gap: 0.7cqw;
+  color: inherit;
+  text-decoration: none;
+}
+
+/*
+ * 刊名的框。雙線，裡面再墊一層極淡的斜紋——老印刷品的刊名框是
+ * 用車花紋車出來的，這裡用一組 1px 的斜線去指它，而不是畫一張花邊圖。
+ */
+.st-rail__frame {
+  display: grid;
+  place-items: center;
+  padding: 2.2cqw 0;
+  border: var(--st-hair) solid var(--st-ink);
+  outline: var(--st-hair) solid var(--st-ink);
+  outline-offset: 0.32cqw;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgb(11 75 120 / 0.05) 0 1px,
+    transparent 1px 7px
+  );
+  transition: background-color 0.18s ease;
+}
+
+.st-rail__mark:hover .st-rail__frame,
+.st-rail__mark:focus-visible .st-rail__frame {
+  background-color: rgb(194 75 69 / 0.06);
+}
+
+/* 全頁最重的紅墨，也是唯一一塊到這個級數的字。 */
+.st-rail__brand {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  color: var(--st-red);
+  font-size: var(--st-t-brand);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+}
+
+.st-rail__word {
+  font-family: var(--st-font-didone), serif;
+  font-size: calc(var(--st-t-brand) * 0.26);
+  font-weight: 900;
+  letter-spacing: 0.34em;
   text-align: center;
-  color: var(--st-ink);
+  text-indent: 0.34em;
 }
 
-.st-utility__links {
+.st-rail__stack {
+  display: grid;
+  gap: 1cqw;
+}
+
+.st-rail__column {
+  color: var(--st-ink-mid);
+  font-size: var(--st-t-small);
+  font-weight: 700;
+  letter-spacing: 0.56em;
+  text-align: center;
+  text-indent: 0.56em;
+}
+
+/* ---------- 日期天氣卡 ---------- */
+
+/*
+ * 報紙的日期欄。天氣那一行刻意不寫氣溫或降雨——那會變成一個
+ * 查得到、而且馬上就錯的數字。寫的是宜不宜出門，像農民曆那一欄。
+ */
+.st-issue {
+  display: grid;
+  gap: 0.55cqw;
+  padding: 0.9cqw 0.8cqw;
+  border-block: var(--st-hair) solid var(--st-ink);
+  text-align: center;
+}
+
+.st-issue__era {
+  color: var(--st-ink-mid);
+  font-size: var(--st-t-small);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+
+.st-issue__date {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1.3cqw;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.7cqw;
+  padding: 0.3cqw 0;
+  border-block: var(--st-hair) solid var(--st-ink-soft);
 }
 
-.st-utility__links > * + * {
-  padding-left: 1.3cqw;
+.st-issue__day {
+  color: var(--st-ink);
+  font-family: var(--st-font-didone), serif;
+  font-size: 4.2cqw;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.st-issue__weekday,
+.st-issue__month {
+  font-size: var(--st-t-small);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.st-issue__weather {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6cqw;
+  font-size: var(--st-t-small);
+}
+
+.st-issue__wlabel {
+  color: var(--st-ink-mid);
+  letter-spacing: 0.24em;
+}
+
+.st-issue__wvalue {
+  color: var(--st-red);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.st-issue__wnote {
+  color: var(--st-ink-mid);
+  letter-spacing: 0.1em;
+}
+
+.st-issue__issuer {
+  color: var(--st-ink-mid);
+  font-size: calc(var(--st-t-small) * 0.92);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+
+/* ---------- 紅底反白的貼紙 ---------- */
+
+/* 兩塊紅實地。字是品牌既有的標語，不另外編；這是紅墨在版面上最大的面。 */
+.st-stickers {
+  display: grid;
+  gap: 0.4cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-stickers li {
+  padding: 0.5cqw 0.7cqw;
+  background: var(--st-red);
+  color: var(--st-paper);
+  font-size: var(--st-t-small);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-indent: 0.22em;
+}
+
+/* 第二塊退成描邊，兩塊紅實地疊在一起會變成一面紅布。 */
+.st-stickers li:nth-child(2) {
+  background: transparent;
+  border: var(--st-hair) solid var(--st-red);
+  color: var(--st-red);
+}
+
+/* ---------- 直排導覽 ---------- */
+
+/*
+ * 導覽直排，而且 row-reverse：第一項在最右邊，照直書從右往左讀。
+ * 各項字數不一樣，所以欄底本來就是不齊的——那是排字的結果，不是沒對齊。
+ */
+.st-railnav {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.8cqw;
+  padding-top: 1cqw;
+  border-top: var(--st-hair) solid var(--st-ink);
+}
+
+.st-railnav__link {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--st-ink);
+  font-size: var(--st-nav);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.st-railnav__link:hover,
+.st-railnav__link:focus-visible {
+  color: var(--st-red);
+}
+
+.st-rail__foot {
+  display: grid;
+  justify-items: center;
+  gap: 0.9cqw;
+  /* 推到柱底，和內容區最後一帶的底邊齊。 */
+  margin-top: auto;
+  padding-top: 1cqw;
+  border-top: var(--st-hair) solid var(--st-ink-soft);
+}
+
+.st-rail__foot .st-seal {
+  width: 3.4cqw;
+  font-size: var(--st-t-small);
+}
+
+.st-rail__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8cqw;
+  color: var(--st-ink-mid);
+  font-size: var(--st-t-small);
+  letter-spacing: 0.1em;
+}
+
+.st-rail__links > * + * {
+  padding-left: 0.8cqw;
   border-left: var(--st-hair) solid var(--st-ink-soft);
 }
 
-.st-utility__links a {
+.st-rail__links a {
   color: inherit;
   text-decoration: none;
   transition: color 0.18s ease;
 }
 
-.st-utility__links a:hover,
-.st-utility__links a:focus-visible {
+.st-rail__links a:hover,
+.st-rail__links a:focus-visible {
   color: var(--st-red);
 }
 
-.st-utility__search svg {
+.st-rail__search svg {
   display: block;
-  width: 1.7cqw;
-  height: 1.7cqw;
+  width: 1.5cqw;
+  height: 1.5cqw;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.2;
   stroke-linecap: round;
 }
 
-.st-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9cqw;
-  padding: 1cqw 0.2cqw;
-  border-bottom: var(--st-hair) solid var(--st-ink);
-}
-
-.st-nav__link {
-  color: var(--st-ink);
-  white-space: nowrap;
-  font-size: var(--st-nav);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  transition: color 0.18s ease;
-}
-
-.st-nav__link:hover,
-.st-nav__link:focus-visible {
-  color: var(--st-red);
-}
-
-/* ---------- 報頭 ---------- */
-
-/*
- * 報頭只負責說明這份是誰發的，所以它小。上一版的刊名是整頁最大的墨，
- * 跟頭條搶同一個位置；縮掉四成之後，頭條才是第一個被讀到的東西。
- */
-.st-nameplate {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: end;
-  gap: var(--st-gap);
-  padding: 1.6cqw 0 0.9cqw;
-  border-bottom: var(--st-hair) solid var(--st-ink);
-}
-
-.st-nameplate p {
-  margin: 0;
-}
-
-.st-nameplate__origin {
+.st-rail__origin {
   color: var(--st-ink-mid);
-  font-family: var(--st-font-didone), serif;
-  font-size: calc(var(--st-t-small) * 0.94);
-  font-weight: 700;
-  letter-spacing: 0.2em;
-}
-
-.st-nameplate__mark {
-  display: grid;
-  justify-items: center;
-  gap: 0.1cqw;
-  color: inherit;
-  text-decoration: none;
-}
-
-.st-nameplate__brand {
-  font-size: var(--st-t-brand);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.22em;
-  text-indent: 0.22em;
-}
-
-.st-nameplate__word {
-  font-family: var(--st-font-didone), serif;
-  font-size: calc(var(--st-t-brand) * 0.38);
-  font-weight: 700;
-  letter-spacing: 0.4em;
-  text-indent: 0.4em;
-}
-
-.st-nameplate__date {
-  display: grid;
-  justify-items: end;
-  gap: 0.2em;
-  color: var(--st-ink-mid);
-  font-size: var(--st-t-small);
-  letter-spacing: 0.16em;
+  font-size: calc(var(--st-t-small) * 0.92);
+  letter-spacing: 0.24em;
+  text-align: center;
+  text-indent: 0.24em;
 }
 
 /* ---------- 頭版 ---------- */
 
 /*
- * 兩欄。左欄是主標、短文與買的按鈕，右欄整個讓給照片——
- * 照片的比例決定整個頭版的高，所以左欄會剩一段空白：
- * 那一段是刻意的，按鈕靠著它的下緣排，正好與照片的底邊齊。
+ * 三欄，寬度全不一樣：左欄短文與價格（30）、中欄照片（44）、右欄直排主標（26）。
+ * 主標貼在內容區最右邊、緊挨刊頭柱——直書從右往左讀，那是它該站的位置。
  *
- * 四塊是四個獨立的孩子而不是「文字欄＋圖欄」兩塊，
- * 因為手機上的順序是 主標 → 短文 → 照片 → 按鈕，圖要插在中間。
+ * 四塊是四個獨立的孩子而不是「文字欄＋圖欄」，因為手機上的順序是
+ * 主標 → 短文 → 照片 → 購買按鈕，照片要插在文字中間。
  */
-.st-hero {
+.st-front {
+  grid-area: front;
   display: grid;
-  grid-template-columns: 52fr 48fr;
-  /*
-   * 照片的比例決定整個頭版的高，左欄的字填不滿，所以一定會剩一段空。
-   * 中間那一列彈性，把那一段空收在文字塊與按鈕之間：字聚在上面成一塊，
-   * 按鈕釘在下緣與照片的底邊齊。空攤在字中間的話，讀起來像排漏了。
-   */
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: 26fr 50fr 24fr;
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
-    "head figure"
-    "text figure"
-    "act  figure";
+    "text figure head"
+    "act  figure head";
   gap: 1.4cqw var(--st-gap);
-  padding: 2.4cqw 0 2.8cqw;
+  padding: 1.8cqw 0 2.4cqw;
 }
 
-.st-hero__head {
+.st-front__head {
   grid-area: head;
-  display: grid;
-  gap: 0.9cqw;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 1cqw;
   margin: 0;
 }
 
-.st-hero__kicker {
+.st-front__kicker {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding-left: 0.34cqw;
+  border-left: var(--st-hair) solid var(--st-red);
   color: var(--st-red);
   font-size: var(--st-t-small);
   font-weight: 700;
-  letter-spacing: 0.44em;
+  letter-spacing: 0.4em;
 }
 
 /*
- * 主標。整頁唯一到這個級數的墨。
- * 一行最長七個字，欄寬要排得下：七字 × 級數 × 1.02 不能超過欄寬，
- * 這一級配 46fr 的欄剛好一行一句。
+ * 直排主標。全頁唯一到這個級數的藍墨。
+ * 第一行在最右邊，所以 vertical-rl 的自然流向就是對的，不必反轉。
  */
-.st-hero__line {
+.st-front__lines {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+.st-front__line {
   display: block;
   font-size: var(--st-t-display);
   font-weight: 900;
-  line-height: 1.14;
-  letter-spacing: 0.02em;
+  line-height: 1.22;
+  letter-spacing: 0.04em;
 }
 
-.st-hero__text {
+.st-front__text {
   grid-area: text;
   display: grid;
-  gap: 1.1cqw;
+  gap: 1cqw;
   align-content: start;
-  padding-top: 0.9cqw;
-  border-top: var(--st-hair) solid var(--st-ink-soft);
 }
 
 /* 導言是主標底下的副標，不是內文，所以給到次標那一級。 */
-.st-hero__lead {
+.st-front__lead {
   margin: 0;
+  padding-bottom: 0.9cqw;
+  border-bottom: var(--st-hair) solid var(--st-ink-soft);
   font-size: var(--st-t-title);
-  font-weight: 400;
   line-height: 1.7;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
-.st-hero__claims {
+.st-front__lead span {
+  display: block;
+}
+
+.st-front__claims {
   display: grid;
-  gap: 0.5cqw;
+  gap: 0.45cqw;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -570,7 +759,7 @@ body:has(.st-page) {
 }
 
 /* 規格前面壓一個小圓點，所以不必為它們各自畫一條線。 */
-.st-hero__claims li::before {
+.st-front__claims li::before {
   content: "";
   display: inline-block;
   width: 0.42em;
@@ -586,42 +775,80 @@ body:has(.st-page) {
  * 陰影把輪廓從紙上拉出來——一道貼著邊緣定形，一道落在下面當接地影。
  * 鋪一塊白卡會讓頭版出現一個跟版面無關的方塊。
  */
-.st-hero__figure {
+.st-front__figure {
   grid-area: figure;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   margin: 0;
 }
 
-.st-hero__plate {
+.st-front__plate {
   display: grid;
   /* 照原圖的比例給，所以照片滿欄又不留白、也不必裁掉狗頭或那隻手。 */
   aspect-ratio: 983 / 1094;
   align-self: end;
 }
 
-.st-hero__plate img {
+.st-front__plate img {
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(0 0 1px rgb(11 75 120 / 0.42))
     drop-shadow(0 0.5cqw 1.1cqw rgb(11 75 120 / 0.22));
 }
 
-.st-hero__act {
+/* 價格與買的動作沉在左欄底部，與照片的腳齊。 */
+.st-front__act {
   grid-area: act;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--st-gap);
+  display: grid;
+  gap: 0.9cqw;
+  align-content: end;
   align-self: end;
+  justify-items: start;
 }
 
-/* 整頁唯一的實心按鈕。深藍底——紅留給價格與箭頭，不鋪在這麼大的面上。 */
+/* 報紙廣告的價格語言：規格一行小字，底下一個大號數字配一個小的「元」。 */
+.st-price {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    "spec spec"
+    "figure unit";
+  align-items: baseline;
+  gap: 0.2cqw 0.3em;
+  margin: 0;
+}
+
+.st-price__spec {
+  grid-area: spec;
+  color: var(--st-ink-mid);
+  font-size: var(--st-t-small);
+  letter-spacing: 0.24em;
+}
+
+.st-price__figure {
+  grid-area: figure;
+  color: var(--st-red);
+  font-family: var(--st-font-didone), serif;
+  font-size: calc(var(--st-t-figure) * 1.5);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.st-price__unit {
+  grid-area: unit;
+  color: var(--st-red);
+  font-size: var(--st-t-body);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* 整頁唯一的實心按鈕。深藍底——紅已經給了價格與貼紙。 */
 .st-buy {
   display: inline-flex;
   align-items: center;
   gap: 0.8em;
-  padding: 0.9cqw 1.8cqw;
+  padding: 0.85cqw 1.7cqw;
   background: var(--st-ink);
   color: var(--st-paper);
   font-size: var(--st-link);
@@ -638,9 +865,15 @@ body:has(.st-page) {
   gap: 1.2em;
 }
 
-.st-hero__seal {
-  width: 3.1cqw;
+/* 出貨條件。報紙廣告底下那行加框的小字，所以它描邊、不填色。 */
+.st-ship {
+  margin: 0;
+  padding: 0.42cqw 0.7cqw;
+  border: var(--st-hair) solid var(--st-red);
+  color: var(--st-red);
   font-size: var(--st-t-small);
+  font-weight: 700;
+  letter-spacing: 0.14em;
 }
 
 /* ---------- 細新聞條 ---------- */
@@ -650,10 +883,11 @@ body:has(.st-page) {
  * 所以只給上下兩道線、沒有底色——有底色它就變成第二個版了。
  */
 .st-ticker {
+  grid-area: ticker;
   display: flex;
   align-items: center;
   gap: var(--st-gap);
-  padding: 0.7cqw 0;
+  padding: 0.65cqw 0;
   border-block: var(--st-hair) solid var(--st-ink);
 }
 
@@ -671,7 +905,7 @@ body:has(.st-page) {
   flex: 1 1 auto;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4cqw 1.4cqw;
+  gap: 0.4cqw 1.3cqw;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -679,7 +913,7 @@ body:has(.st-page) {
 
 /* 則與則之間一道豎線，不是一顆點——報紙的快訊條就是這樣斷的。 */
 .st-ticker__list li + li {
-  padding-left: 1.4cqw;
+  padding-left: 1.3cqw;
   border-left: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -700,16 +934,17 @@ body:has(.st-page) {
 
 /*
  * 寬度不等、字級不等、密度不等。這一塊是整頁的編輯節奏所在：
- * 主欄有眉題、大標、內文與數字；次欄只有標題與內文；短欄只有一串標題。
- * 三欄同寬同字級就會變回格子。
+ * 主欄有直排眉題、大標、內文與數字；次欄只有橫排眉題、標題與內文；
+ * 短欄只有一串標題。三欄同寬同字級就會變回格子。
  *
  * 欄與欄之間是欄線（borderline），不是框——所以只畫左邊那一道。
  */
 .st-news {
+  grid-area: news;
   display: grid;
-  grid-template-columns: 44fr 31fr 25fr;
+  grid-template-columns: 43fr 32fr 25fr;
   gap: var(--st-gap);
-  padding: 1.8cqw 0 0;
+  padding: 1.6cqw 0 0;
 }
 
 .st-news > * + * {
@@ -717,11 +952,28 @@ body:has(.st-page) {
   border-left: var(--st-hair) solid var(--st-ink-soft);
 }
 
-.st-news__lead,
+/* 主欄裡再分兩欄：直排眉題貼在右邊，橫排的內文在左邊。 */
+.st-news__lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--st-cell-gap);
+  align-content: start;
+}
+
+.st-news__lead .st-kicker--v {
+  order: 2;
+}
+
+.st-news__main {
+  display: grid;
+  gap: 0.85cqw;
+  align-content: start;
+}
+
 .st-news__second,
 .st-briefs {
   display: grid;
-  gap: 0.9cqw;
+  gap: 0.85cqw;
   align-content: start;
 }
 
@@ -763,21 +1015,21 @@ body:has(.st-page) {
 
 .st-news__data {
   display: grid;
-  gap: 0.9cqw;
-  padding-top: 0.9cqw;
+  gap: 0.85cqw;
+  padding-top: 0.85cqw;
   border-top: var(--st-hair) solid var(--st-ink-soft);
 }
 
 .st-regions {
   display: grid;
-  gap: 0.5cqw;
+  gap: 0.45cqw;
   margin: 0;
 }
 
 .st-regions__row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.9cqw;
+  gap: 0.85cqw;
   align-items: baseline;
 }
 
@@ -823,7 +1075,7 @@ body:has(.st-page) {
 .st-briefs__link {
   display: grid;
   gap: 0.2cqw;
-  padding: 0.8cqw 0;
+  padding: 0.75cqw 0;
   text-decoration: none;
 }
 
@@ -848,14 +1100,14 @@ body:has(.st-page) {
 
 /* ---------- 版名條 ---------- */
 
-/* 全頁只有這兩條是深色塊，所以它們同時是分版的界線與眼睛的落點。 */
+/* 全頁只有這兩條是深色實地，所以它們同時是分版的界線與眼睛的落點。 */
 .st-bar {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--st-gap);
   margin: 0;
-  padding: 0.7cqw 1.4cqw;
+  padding: 0.65cqw 1.3cqw;
   background: var(--st-ink);
   color: var(--st-paper);
   font-size: var(--st-nav);
@@ -873,35 +1125,55 @@ body:has(.st-page) {
   letter-spacing: 0.2em;
 }
 
-/* ---------- 商品 ---------- */
+/* ---------- 分類廣告 ---------- */
 
 .st-goods {
+  grid-area: goods;
   display: grid;
-  gap: 1.6cqw;
+  gap: 1.4cqw;
   margin-top: var(--st-band-gap);
 }
 
-/* 格與格之間只有間距，沒有線也沒有框——四個模組是四個商品，不是一張表。 */
+/*
+ * 四格的欄寬是四個不同的值，所以切口的高度也各不相同——
+ * 格與格之間只有間距，沒有線也沒有框。這不是商品卡，是分類廣告。
+ */
 .st-goods__list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: 29fr 22fr 26fr 23fr;
   gap: var(--st-gap);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/*
+ * 一格廣告：切口在左、品名直排豎在右、價格是一塊紅實地的小貼紙，
+ * 壓在切口的左腳上往外掛出去。價格與切口指派同一個 grid area，
+ * 所以是真的疊在上面，不是排在下面。
+ */
 .st-good__link {
   display: grid;
-  gap: 0.5cqw;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "plate  meta"
+    "action meta";
+  gap: 0.7cqw 0.7cqw;
   color: inherit;
   text-decoration: none;
 }
 
-/* 商品照是普通的方形照片，所以照固定比例裁邊，不留白、不鋪白卡。 */
 .st-good__plate {
-  aspect-ratio: 1;
-  margin-bottom: 0.3cqw;
+  grid-area: plate;
+}
+
+/* 切口比寬的高。單數格瘦一點、雙數格方一點，四格就不會讀成一排格子。 */
+.st-good:nth-child(odd) .st-good__plate {
+  aspect-ratio: 3 / 4;
+}
+
+.st-good:nth-child(even) .st-good__plate {
+  aspect-ratio: 5 / 6;
 }
 
 /*
@@ -909,13 +1181,57 @@ body:has(.st-page) {
  * 直幅那張（雞排插在紙袋裡）會把雞排切掉——商品本身都在畫面的上半。
  */
 .st-good__plate img {
-  object-position: center 32%;
+  object-position: center 30%;
+}
+
+.st-good__price {
+  grid-area: plate;
+  z-index: 1;
+  align-self: end;
+  justify-self: start;
+  display: flex;
+  align-items: baseline;
+  gap: 0.24em;
+  margin: 0 0 -0.7cqw -0.35cqw;
+  padding: 0.3cqw 0.6cqw;
+  background: var(--st-red);
+  color: var(--st-paper);
+}
+
+/* 貼紙壓在切口上，所以數字要比新聞欄裡的數字小一號，不能壓掉商品。 */
+.st-good__figure {
+  font-family: var(--st-font-didone), serif;
+  font-size: calc(var(--st-t-figure) * 0.72);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.st-good__unit {
+  font-size: calc(var(--st-t-small) * 0.95);
+  font-weight: 700;
+}
+
+/*
+ * 品名直排。字數從六到十一字都有，所以這一排的字柱長短不一。
+ *
+ * 直書模式下 flex 的 column 軸是水平、而且由右往左，所以用 column
+ * 就會把品名排在最右、規格排在它左邊——跟直書的讀序一致。
+ */
+.st-good__meta {
+  grid-area: meta;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5cqw;
 }
 
 .st-good__name {
   font-size: var(--st-t-body);
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   transition: color 0.18s ease;
 }
 
@@ -927,43 +1243,16 @@ body:has(.st-page) {
 .st-good__spec {
   color: var(--st-ink-mid);
   font-size: var(--st-t-small);
-  letter-spacing: 0.16em;
-}
-
-.st-good__buy {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.8cqw;
-  padding-top: 0.5cqw;
-  border-top: var(--st-hair) solid var(--st-ink-soft);
-}
-
-.st-good__price {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3em;
-}
-
-.st-good__figure {
-  color: var(--st-red);
-  font-family: var(--st-font-didone), serif;
-  font-size: var(--st-t-figure);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -0.01em;
-}
-
-.st-good__unit {
-  color: var(--st-red);
-  font-size: var(--st-t-small);
-  font-weight: 700;
+  letter-spacing: 0.18em;
 }
 
 .st-good__action {
+  grid-area: action;
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
+  padding-top: 0.5cqw;
+  border-top: var(--st-hair) solid var(--st-ink-soft);
   color: var(--st-ink);
   font-size: var(--st-t-small);
   letter-spacing: 0.16em;
@@ -981,66 +1270,151 @@ body:has(.st-page) {
   gap: var(--st-gap);
 }
 
-/* ---------- 浪浪支持計畫 ---------- */
+/* ---------- 第二個大報導：浪浪支持計畫 ---------- */
 
 .st-care {
+  grid-area: care;
   display: grid;
-  gap: 1.8cqw;
+  gap: 1.6cqw;
   margin-top: var(--st-band-gap);
 }
 
-.st-care__top {
+/*
+ * 整幅三欄：月餅實拍（40）、橫排內文與直排導言（42）、直排主標（18）。
+ * 主標直立在最右邊，和頭版押同一個韻——這一頁的兩個大報導各有一根直柱。
+ *
+ * 紅色引文排在照片底下那一列，往上負推、往右越過欄距，
+ * 所以它壓在照片的腳上、咬進導言的邊：那是整頁第二個視覺事件。
+ */
+.st-care__report {
   display: grid;
-  grid-template-columns: 40fr 60fr;
-  gap: var(--st-gap);
+  grid-template-columns: 40fr 46fr 14fr;
+  grid-template-areas: "figure text title";
+  gap: 0 var(--st-gap);
   align-items: start;
 }
 
-.st-care__figure {
+.st-care__title {
+  grid-area: title;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.8cqw;
   margin: 0;
 }
 
-.st-care__plate {
-  aspect-ratio: 550 / 386;
+.st-care__kicker {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding-left: 0.34cqw;
+  border-left: var(--st-hair) solid var(--st-red);
+  color: var(--st-red);
+  font-size: var(--st-t-small);
+  font-weight: 700;
+  letter-spacing: 0.3em;
 }
 
+.st-care__titleline {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: calc(var(--st-t-title) * 1.34);
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+}
+
+/* 內文橫排在左，導言直排在右——同一塊裡就有兩個方向。 */
 .st-care__text {
+  grid-area: text;
   display: grid;
-  gap: 1.1cqw;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "body lead"
+    "link lead";
+  gap: 1.2cqw var(--st-gap);
   align-content: start;
 }
 
-.st-care__title {
+.st-care__lead {
+  grid-area: lead;
+  align-self: start;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
   margin: 0;
-  font-size: var(--st-t-title);
-  font-weight: 900;
-  line-height: 1.4;
-  letter-spacing: 0.04em;
+  padding-right: 0.7cqw;
+  border-right: var(--st-hair) solid var(--st-ink-soft);
+  font-size: calc(var(--st-t-title) * 0.96);
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
 }
 
 .st-care__body {
+  grid-area: body;
   display: grid;
   gap: 0.3em;
   font-size: var(--st-t-body);
   line-height: 1.95;
   letter-spacing: 0.05em;
+  text-align: justify;
 }
 
 .st-care__body p {
   margin: 0;
 }
 
+/* 連結靠內文欄的右緣排——引文那條紅帶是從左邊越過來的，不能壓在它上面。 */
+.st-care__text .st-link {
+  grid-area: link;
+  justify-self: end;
+}
+
+.st-care__figure {
+  grid-area: figure;
+  position: relative;
+  margin: 0;
+}
+
+/* 月餅照是橫幅的文件式實拍，裁太窄會把兩款包裝切掉，所以只略裁。 */
+.st-care__plate {
+  aspect-ratio: 5 / 4;
+}
+
 /*
- * 收據。這是全頁唯一出現捐款金額的地方，所以欄位逐字排出來——
- * 金額、編號、日期都印在原件上，版面只負責轉錄。
+ * 引文絕對定位在照片上，而不是排在照片底下：它要壓住照片的腳、
+ * 再往右越過欄距咬進直排導言。圖說仍然排在它下面，不會被蓋掉。
+ */
+.st-care__pull {
+  position: absolute;
+  left: 0;
+  bottom: 4.4cqw;
+  width: calc(100% + 5cqw);
+  margin: 0;
+  padding: 0.65cqw 1.1cqw;
+  background: var(--st-red);
+  color: var(--st-paper);
+  font-size: calc(var(--st-t-title) * 0.92);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+/*
+ * 收據。整頁唯一加裝飾框的區塊，因為它是文件：雙線框、紅墨，
+ * 跟版面其他地方的髮線完全不同級。金額、編號、日期都印在原件上，
+ * 版面只負責逐字轉錄，而且照片維持原彩。
  */
 .st-receipt {
   display: grid;
-  grid-template-columns: 46fr 54fr;
+  grid-template-columns: 44fr 56fr;
   gap: var(--st-gap);
   align-items: start;
-  padding-top: 1.6cqw;
-  border-top: var(--st-hair) solid var(--st-ink-soft);
+  margin-top: 0.8cqw;
+  padding: 1.4cqw;
+  border: var(--st-hair) solid var(--st-red);
+  outline: var(--st-hair) solid var(--st-red);
+  outline-offset: 0.3cqw;
 }
 
 .st-receipt__figure {
@@ -1060,22 +1434,22 @@ body:has(.st-page) {
 
 .st-receipt__text {
   display: grid;
-  gap: 1cqw;
+  gap: 0.9cqw;
   align-content: start;
 }
 
 .st-receipt__fields {
   display: grid;
-  gap: 0.4cqw;
+  gap: 0.35cqw;
   margin: 0;
 }
 
 .st-receipt__row {
   display: grid;
-  grid-template-columns: 4.6cqw minmax(0, 1fr);
-  gap: 0.9cqw;
+  grid-template-columns: 4.4cqw minmax(0, 1fr);
+  gap: 0.85cqw;
   align-items: baseline;
-  padding-bottom: 0.4cqw;
+  padding-bottom: 0.35cqw;
   border-bottom: var(--st-hair) solid var(--st-ink-soft);
 }
 
@@ -1101,30 +1475,35 @@ body:has(.st-page) {
   letter-spacing: 0.04em;
 }
 
-/* 七隻狗狗。一排七格，有照片的四格放照片，另外三格是具名的占位框。 */
+/*
+ * 七隻狗狗。欄寬刻意七個都不一樣，切口又是固定比例，
+ * 所以這一排的底邊是不齊的——不是沒對齊，是七格七個寬。
+ * 四隻有實拍的放實拍，另外三隻是具名的灰階占位框。
+ */
 .st-dogs {
   display: grid;
-  gap: 1cqw;
-  padding-top: 1.6cqw;
+  gap: 0.9cqw;
+  padding-top: 1.4cqw;
   border-top: var(--st-hair) solid var(--st-ink-soft);
 }
 
 .st-dogs__list {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: 16fr 12fr 15fr 17fr 12fr 16fr 12fr;
   gap: var(--st-cell-gap);
   margin: 0;
   padding: 0;
   list-style: none;
+  align-items: start;
 }
 
 .st-dog {
   display: grid;
-  gap: 0.5cqw;
+  gap: 0.45cqw;
 }
 
 .st-dog__plate {
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
 }
 
 .st-dog__name {
@@ -1138,6 +1517,7 @@ body:has(.st-page) {
 /* ---------- 讀者服務 ---------- */
 
 .st-subscribe {
+  grid-area: subs;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas:
@@ -1146,7 +1526,7 @@ body:has(.st-page) {
   align-items: center;
   gap: 0.3cqw var(--st-gap);
   margin-top: var(--st-band-gap);
-  padding: 1.6cqw 1.8cqw;
+  padding: 1.4cqw 1.6cqw;
   border: var(--st-hair) solid var(--st-ink);
 }
 
@@ -1176,13 +1556,13 @@ body:has(.st-page) {
   display: flex;
   align-items: stretch;
   justify-self: end;
-  width: min(100%, 34cqw);
+  width: min(100%, 32cqw);
 }
 
 .st-subscribe__input {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 0.72cqw 1cqw;
+  padding: 0.68cqw 1cqw;
   border: var(--st-hair) solid var(--st-ink);
   border-right: 0;
   background: var(--st-field);
@@ -1200,7 +1580,7 @@ body:has(.st-page) {
   display: inline-flex;
   align-items: center;
   gap: 0.6em;
-  padding: 0.72cqw 1.4cqw;
+  padding: 0.68cqw 1.3cqw;
   border: var(--st-hair) solid var(--st-ink);
   background: var(--st-ink);
   color: var(--st-paper);
@@ -1221,13 +1601,14 @@ body:has(.st-page) {
 /* ---------- 報尾 ---------- */
 
 .st-footer {
+  grid-area: foot;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: baseline;
   align-content: start;
   gap: 0.9cqw 2cqw;
   margin-top: var(--st-band-gap);
-  padding: 1.2cqw 0.2cqw 0;
+  padding: 1.1cqw 0.2cqw 0;
   border-top: var(--st-hair) solid var(--st-ink);
 }
 
@@ -1371,60 +1752,218 @@ body:has(.st-page) {
 /* ---------- 窄螢幕 ---------- */
 
 /*
- * 窄螢幕不是把這張報紙縮小，而是減欄——報紙本來就是這樣處理的。
- * 線寬與溝寬照舊用 cqw（它們該跟著紙縮），字級換成 rem，
- * 不然 1cqw 只剩四個像素。
+ * 一欄。刊頭柱收成一塊靠右的刊頭——不置中，因為那正是這一版的身分。
+ * 字級從 cqw 換成 rem：窄螢幕上紙寬就是視窗寬，再按比例縮字會縮到看不見。
+ *
+ * 順序是 刊頭 → 頭條文案 → 大圖 → 購買按鈕 → 新聞條 → 商品 → 公益。
+ * 直排在這個寬度只留給導覽與眉題：主標與公益標題轉回橫排，
+ * 一行七個字的直柱在 390px 上會吃掉一半的高、右邊空一大片。
  */
 @media (max-width: 900px) {
   .st-sheet__body {
-    padding: 4.4% 5% 6%;
+    margin: 1.2% 1.6%;
+    padding: 1rem 1.1rem 1.4rem;
+    outline-offset: 0.3rem;
 
-    --st-band-gap: 5.4cqw;
-    --st-gap: 3.4cqw;
-    --st-cell-gap: 2.4cqw;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "rail"
+      "front"
+      "ticker"
+      "news"
+      "goods"
+      "care"
+      "subs"
+      "foot";
 
-    --st-t-small: 0.7rem;
-    --st-t-body: 0.9rem;
-    --st-t-title: 1.14rem;
+    --st-band-gap: 2rem;
+    --st-gap: 1.2rem;
+    --st-cell-gap: 0.7rem;
+
+    --st-t-small: 0.74rem;
+    --st-t-body: 0.94rem;
+    --st-t-title: 1.22rem;
     --st-t-figure: 1.7rem;
-    --st-t-display: 2.1rem;
-    --st-t-brand: 1.5rem;
-
-    --st-utility: 0.62rem;
-    --st-nav: 0.82rem;
-    --st-copy: 0.78rem;
-    --st-link: 0.82rem;
-    --st-origin: 0.52rem;
-    --st-footword: 1.3rem;
-    --st-footline: 0.52rem;
+    --st-t-display: 2.3rem;
+    --st-t-brand: 2.6rem;
+    --st-nav: 0.94rem;
+    --st-copy: 0.88rem;
+    --st-link: 0.94rem;
+    --st-origin: 0.68rem;
+    --st-footword: 1.5rem;
+    --st-footline: 0.64rem;
   }
 
-  .st-utility {
-    grid-template-columns: minmax(0, 1fr) auto;
-    row-gap: 0.4rem;
+  /*
+   * 窄螢幕上 1cqw 只有三個多像素，所以凡是「貼著字排」的間距都要換成 rem，
+   * 不然圖說會黏在線上、占位框會沒有內距。
+   */
+  .st-front__figure figcaption,
+  .st-care__figure figcaption,
+  .st-receipt__figure figcaption {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
   }
 
-  .st-utility__centre {
-    grid-column: 1;
-    grid-row: 2;
-    text-align: left;
+  .st-plate--pending {
+    padding: 0.6rem;
   }
 
-  .st-utility__links {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: start;
+  .st-stickers {
+    gap: 0.3rem;
   }
 
-  .st-nav {
+  .st-stickers li {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .st-front__claims {
+    gap: 0.3rem;
+  }
+
+  .st-front__lead {
+    padding-bottom: 0.7rem;
+  }
+
+  .st-news__main,
+  .st-news__second,
+  .st-briefs {
+    gap: 0.6rem;
+  }
+
+  .st-news__data {
+    gap: 0.6rem;
+    padding-top: 0.7rem;
+  }
+
+  .st-regions {
+    gap: 0.4rem;
+  }
+
+  .st-briefs__link {
+    padding: 0.6rem 0;
+  }
+
+  /* 窄欄裡版名與附註擠在一行會把版名折斷，所以讓附註掉到第二行。 */
+  .st-bar {
     flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.5rem 1.1rem;
+    gap: 0.1rem 0.8rem;
+    padding: 0.5rem 0.8rem;
   }
 
-  /* ---------- 頭版：一欄，順序是主標 → 短文 → 大圖 → 按鈕 ---------- */
+  .st-goods {
+    gap: 0.9rem;
+  }
 
-  .st-hero {
+  .st-dog {
+    gap: 0.35rem;
+  }
+
+  .st-dogs {
+    gap: 0.7rem;
+    padding-top: 1rem;
+  }
+
+  .st-receipt__text {
+    gap: 0.7rem;
+  }
+
+  .st-receipt__fields {
+    gap: 0.3rem;
+  }
+
+  .st-receipt__row {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.7rem;
+    padding-bottom: 0.3rem;
+  }
+
+  .st-subscribe__input,
+  .st-subscribe__submit {
+    padding: 0.6rem 0.9rem;
+  }
+
+  /* 刊頭塊靠右。刊名與日期卡併排，貼紙與導覽在底下，全部右對齊。 */
+  .st-rail {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "stack mark"
+      "nav   nav"
+      "foot  foot";
+    justify-content: end;
+    justify-items: end;
+    gap: 0.9rem 1.1rem;
+    padding: 0 0 1rem;
+    border-left: 0;
+    border-bottom: var(--st-hair) solid var(--st-ink);
+  }
+
+  .st-rail__mark {
+    grid-area: mark;
+    gap: 0.4rem;
+  }
+
+  .st-rail__frame {
+    padding: 0.8rem 0.7rem;
+    outline-offset: 0.2rem;
+  }
+
+  .st-rail__stack {
+    grid-area: stack;
+    align-content: end;
+    gap: 0.6rem;
+  }
+
+  .st-issue {
+    padding: 0.5rem 0.7rem;
+  }
+
+  .st-issue__day {
+    font-size: 2rem;
+  }
+
+  .st-railnav {
+    grid-area: nav;
+    justify-content: flex-start;
+    gap: 0.7rem;
+    padding-top: 0.8rem;
+  }
+
+  .st-rail__foot {
+    grid-area: foot;
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: end;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+    padding-top: 0.8rem;
+  }
+
+  .st-rail__foot .st-seal {
+    width: 2.1rem;
+  }
+
+  .st-rail__links {
+    justify-content: flex-end;
+    gap: 0.7rem;
+  }
+
+  .st-rail__links > * + * {
+    padding-left: 0.7rem;
+  }
+
+  .st-rail__search svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .st-rail__origin {
+    grid-column: 1 / -1;
+    text-align: right;
+  }
+
+  /* 一欄的時候照片滿欄，不壓成窄長的一條。 */
+  .st-front {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto;
     grid-template-areas:
@@ -1432,75 +1971,148 @@ body:has(.st-page) {
       "text"
       "figure"
       "act";
-    gap: 1.2rem;
-    padding: 1.4rem 0 1.6rem;
+    gap: 1rem;
+    padding: 1.2rem 0 1.4rem;
   }
 
-  /* 一欄寬的時候照片滿欄，不壓成窄長的一條。 */
-  .st-hero__plate {
+  .st-front__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .st-front__kicker,
+  .st-front__lines {
+    writing-mode: horizontal-tb;
+  }
+
+  .st-front__kicker {
+    padding: 0 0 0 0.5rem;
+  }
+
+  .st-front__plate {
     width: 100%;
   }
 
-  .st-hero__act {
-    align-items: center;
+  .st-front__act {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+    gap: 0.8rem 1rem;
   }
 
   .st-buy {
-    flex: 1 1 auto;
     justify-content: center;
-    padding: 0.85rem 1.2rem;
+    padding: 0.8rem 1.1rem;
   }
 
-  .st-hero__seal {
-    flex: 0 0 auto;
-    width: 2.4rem;
-  }
-
-  /* ---------- 新聞條與三欄 ---------- */
-
-  .st-ticker {
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-  }
-
-  .st-news {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.4rem;
-    padding-top: 1.2rem;
+  .st-ship {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding: 0.35rem 0.6rem;
   }
 
   /* 一欄的時候欄線要轉成橫線，不然會變成每一塊左邊掛一條孤線。 */
+  .st-news {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 1.2rem;
+  }
+
   .st-news > * + * {
     padding-left: 0;
-    padding-top: 1.4rem;
+    padding-top: 1.2rem;
     border-left: 0;
     border-top: var(--st-hair) solid var(--st-ink-soft);
   }
 
-  /* ---------- 商品 ---------- */
-
   .st-goods__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.4rem 1rem;
+    grid-template-columns: 1fr 1fr;
   }
 
-  /* ---------- 公益 ---------- */
+  /* 兩欄寬的時候品名轉回橫排，直排會把每一格拉得比圖還高。 */
+  .st-good__link {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "plate"
+      "meta"
+      "action";
+    gap: 0.5rem;
+  }
 
-  .st-care__top,
+  .st-good__meta {
+    writing-mode: horizontal-tb;
+    align-items: flex-start;
+    gap: 0.1rem;
+  }
+
+  .st-good__price {
+    margin: 0 0 -0.5rem -0.4rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  /* 公益報導在一欄上的順序：標題 → 導言與內文 → 月餅照 → 紅色引文。 */
+  .st-care__report {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "text"
+      "figure";
+    gap: 1rem;
+  }
+
+  .st-care__title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .st-care__kicker,
+  .st-care__titleline,
+  .st-care__lead {
+    writing-mode: horizontal-tb;
+  }
+
+  .st-care__kicker {
+    padding: 0 0 0 0.5rem;
+  }
+
+  .st-care__titleline {
+    font-size: calc(var(--st-t-title) * 1.12);
+  }
+
+  .st-care__text {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "lead"
+      "body"
+      "link";
+    gap: 0.8rem;
+  }
+
+  .st-care__lead {
+    padding: 0 0 0.7rem;
+    border-right: 0;
+    border-bottom: var(--st-hair) solid var(--st-ink-soft);
+  }
+
+  /* 一欄的時候引文不再越欄，改成照片底下一條滿欄的紅帶。 */
+  .st-care__pull {
+    position: static;
+    width: auto;
+    margin-top: 0.7rem;
+    padding: 0.5rem 0.8rem;
+    font-size: var(--st-t-body);
+    white-space: normal;
+  }
+
   .st-receipt {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.2rem;
+    padding: 1rem;
+    outline-offset: 0.25rem;
   }
 
   .st-dogs__list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 16fr 12fr 15fr 17fr;
   }
-
-  .st-receipt__row {
-    grid-template-columns: 3rem minmax(0, 1fr);
-  }
-
-  /* ---------- 讀者服務與報尾 ---------- */
 
   .st-subscribe {
     grid-template-columns: minmax(0, 1fr);
@@ -1518,47 +2130,73 @@ body:has(.st-page) {
   }
 
   .st-footer {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 1.1rem;
-    padding-top: 1.1rem;
-    text-align: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .st-footer__brand {
-    justify-items: center;
+  .st-footer__word {
+    width: 5rem;
   }
 
-  .st-footer__mark {
-    justify-content: center;
+  .st-footer__nav {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    gap: 0.5rem 1.4rem;
+  }
+
+  .st-footer__link {
+    font-size: 0.78rem;
+  }
+
+  .st-footer__socials a {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .st-footer__socials svg {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 
   .st-footer__rights {
-    justify-items: center;
+    grid-column: 1 / -1;
+    justify-items: start;
+  }
+
+  .st-footer__slogan {
+    gap: 0.9rem;
+    font-size: 0.82rem;
+  }
+
+  .st-footer__slogan::before,
+  .st-footer__slogan::after {
+    width: 1rem;
   }
 }
 
 @media (max-width: 560px) {
-  .st-goods__list {
+  .st-sheet__body {
+    --st-t-display: 1.92rem;
+    --st-t-brand: 2.1rem;
+    --st-nav: 0.86rem;
+  }
+
+  .st-railnav {
+    gap: 0.5rem;
+  }
+
+  /* 三格一排，寬度仍然不等，所以底邊還是不齊的。 */
+  .st-dogs__list {
+    grid-template-columns: 16fr 12fr 15fr;
+  }
+
+  .st-footer {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .st-dogs__list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  /* 一欄的時候照片滿欄，裁成橫的比正方更穩。 */
-  .st-good__plate {
-    aspect-ratio: 3 / 2;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .st-link,
-  .st-buy,
-  .st-nav__link,
-  .st-subscribe__submit,
-  .st-footer__socials a {
-    transition: none;
+  .st-footer__rights,
+  .st-footer__socials {
+    justify-content: flex-start;
   }
 }

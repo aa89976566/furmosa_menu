@@ -88,6 +88,10 @@ export function minguo(year: number): string {
     .join("");
 }
 
+/**
+ * 刊名不在版面中央，而是立在右側那條貫穿全頁的直欄裡。
+ * 所以品牌名要能直排——brand 兩個字直著疊，拉丁字標橫著墊在底下。
+ */
 export const NAMEPLATE = {
   brand: "匠寵",
   wordmark: "FURMOSA",
@@ -95,24 +99,64 @@ export const NAMEPLATE = {
   origin: "台灣製造・毛孩選物",
   issuer: "匠寵發行",
   seal: "匠寵",
+  /** 刊頭柱上那行直排的副題。 */
+  column: "毛孩日報",
 } as const;
+
+const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
+
+export type Issue = {
+  era: string;
+  month: string;
+  day: string;
+  weekday: string;
+  weather: { label: string; value: string; note: string };
+  issuer: string;
+};
+
+/**
+ * 刊頭柱底下那張日期天氣卡。
+ *
+ * 這一頁是靜態產生的，日期在 build 時就定下來——報紙本來就印了就不會改。
+ * 天氣欄刻意不寫氣溫或降雨：那會變成一個查得到、而且馬上就錯的數字。
+ * 寫的是宜不宜出門，像農民曆那一欄，是編輯語氣而不是氣象資料。
+ */
+export function issueOf(now: Date): Issue {
+  return {
+    era: `中華民國${minguo(now.getFullYear())}年`,
+    month: `${now.getMonth() + 1}月`,
+    day: String(now.getDate()),
+    weekday: `星期${WEEKDAYS[now.getDay()]}`,
+    weather: { label: "天氣", value: "適合散步", note: "宜出門" },
+    issuer: NAMEPLATE.issuer,
+  };
+}
+
+/** 刊頭柱上那兩塊紅底反白的貼紙。字是品牌既有的標語，不另外編。 */
+export const STICKERS = ["真食材・不調味", "陪牠看更大的世界"] as const;
 
 /* ---------------- 頭版 ---------------- */
 
 /**
- * 頭版只有三塊：主標、左欄短文與買的按鈕、一張最大面積的實拍。
+ * 頭版是左文、中圖、右標三欄，寬度全不一樣。
  *
- * 主標橫書。右側原本那條直書欄拿掉了——直書欄寬要跟字數配，
- * 一佔就是一整欄的寬，而這一頁要把寬度讓給照片。
+ * 主標直排，而且貼在內容區最右邊、緊挨著刊頭柱——直書從右往左讀，
+ * 所以這是它該站的位置，不是為了造型。照片吃掉中間最大的一塊，
+ * 價格與買的動作沉在左欄底部，和照片的腳對齊。
  */
 export const HERO = {
   kicker: "頭版",
-  /** 兩行橫書。斷點自己指定，不交給自動折行。 */
+  /** 兩行直書。第一行在最右邊，斷點自己指定，不交給自動折行。 */
   headline: ["雞霸不是零食", "是台灣狗的雞排"],
-  lead: "真食材 不調味 陪牠看更大的世界",
+  /* 導言也自己指定斷點，不然左欄會斷在「陪／牠」中間。 */
+  lead: ["真食材　不調味", "陪牠看更大的世界"],
   /** 欄底三行規格，全部是 /real-food 上寫過的製程事實。 */
   claims: ["低溫熱風烘乾", "不添香料色素", "台灣在地新鮮雞肉"],
+  spec: "雞肉原味",
+  price: "NT$165",
   cta: { label: "立即買雞霸", href: `${SHOP_ORIGIN}/products/chicken-fillet` },
+  /** 出貨條件，排成報紙廣告下面那行加框的小字。 */
+  ship: "六片雞霸 7-ELEVEN 免運",
   art: heroJiba,
   alt: "實拍：一隻臘腸狗張嘴咬住從匠寵紙袋裡探出來的大片雞肉乾，一隻手拿著紙袋，袋上印著匠寵的紅色印章與商品勾選欄",
   caption: "嚎大大・雞霸｜台灣在地・小量製作",
@@ -300,16 +344,25 @@ export const STRAY_DOGS: StrayDog[] = [
  */
 export const CARE = {
   bar: { label: "浪浪支持計畫", note: "匠寵 × 巴克幫－浪犬之家" },
+  kicker: "第二版・公益",
   title: "月餅結束了，找家的事還沒",
+  /** 導言照抄 /mooncake 上的那兩行。 */
+  lead: "七個包裝　七個正在等家的故事",
+  /**
+   * 捐款比例在這一頁只說一次，就說在這條橫向引文上。
+   * 內文因此不再重述一遍——同一件事用兩種單位寫會自己打自己。
+   */
+  pull: "每售出一盒　捐出 NT$10",
   body: [
     "匠寵與巴克幫－浪犬之家合作，把七隻等家狗狗的故事放進月餅裡。",
-    "每售出一顆月餅，由匠寵提撥十元支持浪犬之家。",
     "中秋場次已結單，七隻狗狗仍在等家。",
+    "多一個人看到，就多一個回家的可能。",
   ],
   photo: {
     art: mooncakePacks,
     alt: "實拍：兩款中秋月餅包裝，左邊印著「牠的月餅」與一隻黑白狗，右邊印著「牠的故事」與七塊畫上狗臉的月餅",
-    caption: "七個包裝・七個等家的故事",
+    /* 圖說說的是照片裡有什麼，不重複導言已經說過的那一句。 */
+    caption: "牠的月餅・牠的故事｜兩款包裝實拍",
   },
   receipt: {
     art: charityReceipt,
