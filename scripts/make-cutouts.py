@@ -51,6 +51,9 @@ class Job:
     neutral: tuple[float, float] | None = None
     # 只留暖色：要求 R 比 B 高出這個值。商品是褐色、落影是背景色染出來的冷調時用。
     warm_only: float = 0
+    # 只留冷色：要求 B 比 G 高出這個值。商品偏紫紅、背景與落影是暖米色時用——
+    # 紫紅的藍比綠高，米色反過來，所以這一刀切得比色距乾淨。
+    cool_only: float | None = None
     # 清掉比這個半徑細的結構（線框、文字），單位是像素。
     open_px: int = 0
     # 只留面積最大的一塊。清完細結構後用來掃掉殘餘的碎片。
@@ -101,6 +104,29 @@ JOBS = [
         note="草上飛貓草雞肉乾。原圖是一片台灣形狀的肉乾浮在星雲裡，"
              "先裁到肉乾那一塊（把貓與亮色的星雲臂裁在外面），"
              "剩下的背景是近黑的星空，離肉乾很遠，門檻一刀就切得開。"),
+    Job("drop-partner-mixed.jpg", "duck-cubes.webp", bg=(229, 208, 180),
+        lo=40, hi=90, crop=(0.13, 0.675, 0.395, 0.86),
+        cool_only=-2, patch_holes=1500, fill_holes=False, connected=False,
+        note="鴨肉丁。原圖是一碗對切的拼圖，碗外散著幾塊；這裡只裁碗底下那一排"
+             "——碗裡的那些壓在奶白的碗面上，挖不開。"
+             "米底本身帶漸層、肉丁底下還有一圈暖色的落影，單靠色距切不乾淨。"
+             "但肉丁是紫紅（量到 137,60,68，藍比綠高 8），米底與落影是暖米"
+             "（233,210,179，綠比藍高 31），所以改用 cool_only 從色相切——"
+             "一刀就把米底連落影一起去掉。代價是肉丁邊上那一圈偏暖的白脂"
+             "會跟著掉，剩下的是乾淨的紫紅方塊。"
+             "鍋裡需要的就是這個紫紅：其餘的素材全是褐與金，湊不出參考圖的雜色。"),
+    Job("drop-partner-mixed.jpg", "dried-apple.webp", bg=(247, 230, 210),
+        lo=20, hi=44, crop=(0.265, 0.272, 0.492, 0.497),
+        neutral=(48, 190), patch_holes=6000,
+        note="蘋果乾片。同一張原圖的碗裡，那一疊排成扇形的蘋果片。"
+             "手上所有去背素材的平均亮度都在 75–111 之間（全是深色的肉乾與肉丁），"
+             "參考圖的鍋裡量到 145——缺的就是奶白這一塊，而這一疊是唯一一樣"
+             "真的夠亮的實拍（量到 164，有一半的像素亮度過 190）。"
+             "難處在於果肉本身是奶白、碗面也是奶白（247,230,210），色距只有 53，"
+             "光靠門檻挖出來的果肉會變半透明。但果肉的彩度量到 68–136、"
+             "碗面只有 36（四分位距才 ±3），所以改用 neutral 從彩度切"
+             "（低彩度又亮的一律當背景），果肉就實了。"
+             "左上角與右緣外面是碗面與深色的肉乾片，裁切邊各往內收兩像素避開。"),
     Job("drop-moon-packs.jpg", "moon-pack.webp", bg=(253, 216, 96),
         lo=52, hi=88, crop=(0.04, 0.035, 0.855, 1.0),
         note="牠的月餅包裝。黃底本身很均勻，但上緣有一條白邊、左緣一條淡黃、"
@@ -152,6 +178,10 @@ def alpha_for(a: np.ndarray, bg: np.ndarray, job: Job) -> np.ndarray:
     if job.warm_only:
         warm = np.clip((a[:, :, 0] - a[:, :, 2] - job.warm_only) / 10, 0, 1)
         soft = np.minimum(soft, warm)
+
+    if job.cool_only is not None:
+        cool = np.clip((a[:, :, 2] - a[:, :, 1] - job.cool_only) / 6, 0, 1)
+        soft = np.minimum(soft, cool)
 
     if job.connected:
         # 只有「從邊框連得過來」的背景才挖掉，主體內部的白留著。
@@ -214,48 +244,123 @@ def despill(a: np.ndarray, bg: np.ndarray, alpha: np.ndarray) -> np.ndarray:
 像素本身一個都沒改，顏色完全是原彩，沒有任何生成或重繪的東西。
 鍋的牌寫的是「全部商品」，鍋裡混裝好幾樣真的商品正好對得上。
 
+擺位不是隨機撒的。把參考圖的鍋放大看，同一種東西是聚在一區的：
+亮橘的厚片佔左上到正上、粉褐的捲片在左、暗紅的方丁擠在右上一小群、
+深褐的細條綁成一束放在正下、右邊是橘片與魚。所以這一鍋照同一個分區擺，
+一區一種料——隨機撒出來的是雜訊，分區擺出來才是一鍋菜。
+
+參考圖裡有兩樣東西這邊湊不出來：奶白的凍乾方塊與那三條柳葉魚。
+站上沒有這兩樣的實拍（柳葉魚只在「鍋邊加點」有品名），
+所以就是沒有，不找相似的頂替、也不生成。
+
 擺位表是寫死的，不是隨機的，所以每次跑出來都一樣。
-r 與 ang 是極座標（r 為鍋半徑的比例），w 是寬度佔鍋直徑的比例。
+r 與 ang 是極座標（r 為鍋半徑的比例、ang 為螢幕角度，0 度朝右、90 度朝下），
+w 是寬度佔鍋直徑的比例，rot 是旋轉角。
+名字後面加 #n 表示取那張去背圖切出來的第 n 塊（見 _pieces）。
 """
 POT_SIZE = 1400
 POT_LAYOUT = [
-    # 最外一圈：八堆肉乾沿著鍋壁鋪一圈，先把圓的外緣蓋掉。
-    ("jerky-heap.webp", 0.70, 0, 0.48, 14),
-    ("jerky-heap.webp", 0.70, 45, 0.48, 96),
-    ("jerky-heap.webp", 0.70, 90, 0.48, 178),
-    ("jerky-heap.webp", 0.70, 135, 0.48, 253),
-    ("jerky-heap.webp", 0.70, 180, 0.48, 31),
-    ("jerky-heap.webp", 0.70, 225, 0.48, 118),
-    ("jerky-heap.webp", 0.70, 270, 0.48, 201),
-    ("jerky-heap.webp", 0.70, 315, 0.48, 288),
-    # 中間一圈。
-    ("jerky-heap.webp", 0.42, 30, 0.56, 62),
-    ("jerky-heap.webp", 0.42, 120, 0.56, 147),
-    ("jerky-heap.webp", 0.42, 210, 0.56, 234),
-    ("jerky-heap.webp", 0.42, 300, 0.56, 321),
-    # 大件的單品插在中層。參考圖的鍋裡是好幾種顏色混在一起，所以這裡也
-    # 把金黃的雞排、淺褐的豬耳朵、橘紅的貓草肉乾都插進去，不是一鍋同色。
-    ("cutlet-fillet.webp", 0.30, 95, 0.44, -18),
-    ("pig-ear.webp", 0.33, 205, 0.42, 24),
-    ("cat-grass.webp", 0.34, 330, 0.30, 52),
-    ("cutlet-fillet.webp", 0.46, 255, 0.36, 146),
-    ("cat-grass.webp", 0.44, 160, 0.26, -38),
-    ("cat-grass.webp", 0.52, 55, 0.26, 128),
-    # 最後兩堆蓋住正中間的縫。
-    ("jerky-heap.webp", 0.14, 40, 0.54, 212),
+    # ---- 底層 ----
+    # 深褐的肉乾先鋪滿整個圓。這一層幾乎會被上面的料蓋掉，留下來的是
+    # 料與料之間的縫——參考圖那些縫就是這個深褐色。
+    ("jerky-heap.webp", 0.70, 0, 0.50, 14),
+    ("jerky-heap.webp", 0.70, 45, 0.50, 96),
+    ("jerky-heap.webp", 0.70, 90, 0.50, 178),
+    ("jerky-heap.webp", 0.70, 135, 0.50, 253),
+    ("jerky-heap.webp", 0.70, 180, 0.50, 31),
+    ("jerky-heap.webp", 0.70, 225, 0.50, 118),
+    ("jerky-heap.webp", 0.70, 270, 0.50, 201),
+    ("jerky-heap.webp", 0.70, 315, 0.50, 288),
+    ("jerky-heap.webp", 0.38, 30, 0.54, 62),
+    ("jerky-heap.webp", 0.38, 120, 0.54, 147),
+    ("jerky-heap.webp", 0.38, 210, 0.54, 234),
+    ("jerky-heap.webp", 0.38, 300, 0.54, 321),
     ("jerky-heap.webp", 0.0, 0, 0.56, 120),
-]
-POT_CUBES = [
-    (0.62, 15, 0.085, 20),
-    (0.58, 75, 0.085, -35),
-    (0.66, 125, 0.08, 62),
-    (0.60, 175, 0.09, -8),
-    (0.64, 235, 0.085, 41),
-    (0.56, 285, 0.09, -62),
-    (0.30, 20, 0.08, 15),
-    (0.26, 160, 0.085, -24),
-    (0.34, 265, 0.08, 78),
-    (0.42, 340, 0.085, -47),
+
+    # ---- 正下方到右下：深褐的細條綁成一束。參考圖這一區是整鍋最暗的地方 ----
+    ("jerky-heap.webp", 0.44, 95, 0.46, 8),
+    ("jerky-heap.webp", 0.62, 72, 0.40, -34),
+    ("jerky-heap.webp", 0.62, 116, 0.40, 42),
+
+    # ---- 左上到正上：亮橘的厚片。
+    #      參考圖這一區是五六片尖長的亮橘纖維片排成一把扇形。手上最接近的是
+    #      雞排，但牠只有一張 399px 的大片，從前放到 0.40 寬會變成一塊沒有
+    #      形狀的橘色板子——所以尺寸收到 0.20–0.26、片數加倍，再順著扇形的
+    #      方向轉，讓牠讀成一片片的片，而不是一塊大的 ----
+    ("cutlet-fillet.webp", 0.56, 216, 0.26, 52),
+    ("cutlet-fillet.webp", 0.52, 240, 0.25, 30),
+    ("cutlet-fillet.webp", 0.56, 264, 0.24, 6),
+    ("cutlet-fillet.webp", 0.34, 228, 0.24, 62),
+    ("cutlet-fillet.webp", 0.32, 258, 0.23, 20),
+    ("cutlet-fillet.webp", 0.76, 212, 0.22, 74),
+    ("cutlet-fillet.webp", 0.78, 238, 0.21, 34),
+    ("cutlet-fillet.webp", 0.76, 262, 0.21, -4),
+    ("cutlet-fillet.webp", 0.16, 272, 0.22, -18),
+
+    # ---- 左下：橘的薄片接著左上那一區下來。參考圖左下也是暖色的片，
+    #      不是正下方那一束深褐的細條 ----
+    ("cutlet-fillet.webp", 0.72, 138, 0.22, -40),
+    ("cutlet-fillet.webp", 0.54, 124, 0.21, 118),
+    ("cutlet-fillet.webp", 0.78, 118, 0.20, 10),
+
+    # ---- 正下方與右下：黃綠的貓草肉乾。參考圖整鍋只有這一兩塊是黃綠的，
+    #      位置就在正下方偏右，所以這裡也只擺三塊、尺寸壓在 0.24 以內
+    #      ——擺多了會在下半邊糊成一片 ----
+    ("cat-grass.webp", 0.46, 86, 0.24, 24),
+    ("cat-grass.webp", 0.60, 62, 0.22, -18),
+    ("cat-grass.webp", 0.70, 36, 0.20, 76),
+
+    # ---- 正上方到右上：暗紅的方丁。參考圖這一區是六七塊暗紅的大方丁，
+    #      是整鍋塊頭最大的東西。原圖那兩塊鴨肉丁只有 35px 見方，所以整張
+    #      （127px，兩塊一起）當一個單位擺，寬度壓在 0.11 以內——
+    #      放大不到 1.3 倍，不會糊 ----
+    ("duck-cubes.webp", 0.42, 290, 0.11, 16),
+    ("duck-cubes.webp", 0.34, 306, 0.11, -28),
+    ("duck-cubes.webp", 0.54, 300, 0.10, 52),
+    ("duck-cubes.webp", 0.52, 280, 0.10, -8),
+    ("duck-cubes.webp", 0.28, 318, 0.10, 72),
+    ("duck-cubes.webp", 0.62, 288, 0.10, 32),
+
+    # ---- 左側與左下：參考圖這一區是幾條粉褐、帶奶白紋的捲片。
+    #      蘋果乾片的扇形正好對上——一疊奶白的片，片與片之間一道粉紅的皮，
+    #      顏色與形狀都對得上，而且牠是手上唯一夠亮的素材（亮度 164，
+    #      其餘全在 75–111）。參考圖那八塊奶白的凍乾方塊與三條柳葉魚站上
+    #      都沒有實拍，這一疊就是整鍋奶白唯一的來源。
+    #
+    #      只擺五片。追參考圖那個亮度（145，這一鍋是 112）很容易想多鋪幾片，
+    #      但鋪到七片以上整鍋就讀成一碗蘋果了——寧可暗一點，也不要讓一樣
+    #      配料蓋掉其他真的商品。旋轉角撒滿一整圈：片上那幾道粉紅的皮方向性
+    #      很強，角度要是都差不多，一整排就會讀成同一個圖案重複貼上去 ----
+    ("dried-apple.webp", 0.52, 166, 0.19, 18),
+    ("dried-apple.webp", 0.56, 198, 0.18, 142),
+    ("dried-apple.webp", 0.30, 182, 0.17, 265),
+    ("dried-apple.webp", 0.76, 152, 0.16, 70),
+    ("dried-apple.webp", 0.74, 196, 0.16, 310),
+
+    # ---- 右側：參考圖這一區是那八塊奶白的凍乾方塊、三條柳葉魚與幾片橘的
+    #      薄片——整張圖第二亮的一塊。那兩樣沒有實拍，所以這裡用小一號的
+    #      蘋果乾片配幾片雞排把亮度接起來，不然右半邊會整片塌成深褐色 ----
+    ("dried-apple.webp", 0.30, 352, 0.13, 240),
+    ("dried-apple.webp", 0.46, 14, 0.13, 25),
+    ("dried-apple.webp", 0.62, 344, 0.12, 155),
+    ("cutlet-fillet.webp", 0.74, 356, 0.22, -40),
+    ("cutlet-fillet.webp", 0.76, 20, 0.21, 24),
+    ("cutlet-fillet.webp", 0.54, 328, 0.20, -66),
+
+    # ---- 零散的牛肉丁，撒在各區的接縫上。
+    #      原圖那排切出來一塊約 127px，所以寬度壓在 0.09 以內 ----
+    ("beef-cubes.webp#0", 0.66, 136, 0.09, 20),
+    ("beef-cubes.webp#1", 0.70, 52, 0.09, -35),
+    ("beef-cubes.webp#2", 0.44, 124, 0.085, 62),
+    ("beef-cubes.webp#3", 0.62, 190, 0.09, -8),
+    ("beef-cubes.webp#4", 0.40, 208, 0.09, 41),
+    ("beef-cubes.webp#0", 0.18, 120, 0.09, -62),
+    ("beef-cubes.webp#1", 0.16, 70, 0.085, 15),
+    ("beef-cubes.webp#2", 0.44, 344, 0.09, -47),
+    ("beef-cubes.webp#3", 0.72, 244, 0.085, 88),
+    ("beef-cubes.webp#4", 0.78, 96, 0.085, -18),
+    ("beef-cubes.webp#0", 0.80, 160, 0.08, 52),
+    ("beef-cubes.webp#1", 0.80, 128, 0.08, -24),
 ]
 
 
@@ -275,17 +380,27 @@ def _place(canvas: Image.Image, art: Image.Image, r: float, ang: float,
     )
 
 
-def _cubes() -> list[Image.Image]:
-    """把那一條五塊的牛肉丁拆成單塊，才好零散地撒在鍋裡。"""
-    strip = Image.open(OUT / "beef-cubes.webp")
-    alpha = np.asarray(strip)[:, :, 3] > 128
+def _pieces(name: str, min_area: int = 2000,
+            drop_edge: bool = False) -> list[Image.Image]:
+    """把一張去背圖拆成互不相連的單塊，才好零散地撒在鍋裡。
+
+    drop_edge 會丟掉貼在圖框邊上的塊——那些是被裁框切斷的半塊，
+    擺進鍋裡會露出一條直邊。
+    """
+    art = Image.open(OUT / name)
+    alpha = np.asarray(art)[:, :, 3] > 128
     lab, n = ndimage.label(alpha)
+    h, w = alpha.shape
     out = []
     for i in range(1, n + 1):
         ys, xs = np.where(lab == i)
-        if len(ys) < 2000:
+        if len(ys) < min_area:
             continue
-        out.append(strip.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)))
+        if drop_edge and (xs.min() <= 1 or ys.min() <= 1
+                          or xs.max() >= w - 2 or ys.max() >= h - 2):
+            continue
+        out.append(art.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)))
+    out.sort(key=lambda im: -im.width * im.height)
     return out
 
 
@@ -309,7 +424,7 @@ BEEF_MOUND = [
 
 
 def pack_beef() -> None:
-    cubes = _cubes()
+    cubes = _pieces("beef-cubes.webp")
     size = 900
     canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     for i, (fx, fy, w, rot) in enumerate(BEEF_MOUND):
@@ -332,14 +447,24 @@ def pack_beef() -> None:
           f"  長寬比 {out.width / out.height:.2f}  九塊牛肉丁堆成一小堆")
 
 
+def _art(ref: str, cache: dict[str, Image.Image | list[Image.Image]]) -> Image.Image:
+    """解析擺位表裡的名字。「x.webp」是整張，「x.webp#2」是切出來的第 2 塊。"""
+    name, _, index = ref.partition("#")
+    if not index:
+        if name not in cache:
+            cache[name] = Image.open(OUT / name)
+        return cache[name]
+    if name not in cache:
+        cache[name] = _pieces(name, min_area=800)
+    pieces = cache[name]
+    return pieces[int(index) % len(pieces)]
+
+
 def pack_pot() -> None:
     canvas = Image.new("RGBA", (POT_SIZE, POT_SIZE), (0, 0, 0, 0))
-    for name, r, ang, w, rot in POT_LAYOUT:
-        _place(canvas, Image.open(OUT / name), r, ang, w, rot)
-
-    cubes = _cubes()
-    for i, (r, ang, w, rot) in enumerate(POT_CUBES):
-        _place(canvas, cubes[i % len(cubes)], r, ang, w, rot)
+    cache: dict[str, Image.Image | list[Image.Image]] = {}
+    for ref, r, ang, w, rot in POT_LAYOUT:
+        _place(canvas, _art(ref, cache), r, ang, w, rot)
 
     # 裁成圓的，邊緣羽化一點，鍋緣才不會出現一條硬邊。
     yy, xx = np.mgrid[0:POT_SIZE, 0:POT_SIZE]
@@ -349,9 +474,21 @@ def pack_pot() -> None:
     a[:, :, 3] *= mask
     Image.fromarray(a.astype(np.uint8), "RGBA").save(OUT / "pot-fill.webp",
                                                      lossless=True)
-    cover = float((a[:, :, 3] > 128)[rr < 0.98].mean())
+
+    inside = rr < 0.98
+    cover = float((a[:, :, 3] > 128)[inside].mean())
+    # 擺得對不對，光看覆蓋率不夠——還要看調性。參考圖鍋裡量到的是
+    # 平均亮度 145、標準差 61、奶白（亮度過 190 且彩度低於 60）佔 13%。
+    # 這幾個數字就是這一鍋要追的目標。
+    solid = (a[:, :, 3] > 128) & inside
+    rgb = a[:, :, :3][solid]
+    lum = rgb.mean(axis=1)
+    sat = rgb.max(axis=1) - rgb.min(axis=1)
+    cream = float(((lum > 190) & (sat < 60)).mean())
+    dark = float((lum < 70).mean())
     print(f"  {'pot-fill.webp':20s} {POT_SIZE}x{POT_SIZE}  圓內覆蓋率 {cover:.0%}"
-          "  鍋裡：肉乾堆、雞排、豬耳朵、牛肉丁，全是去背實拍疊的")
+          f"  亮度 {lum.mean():.0f}±{lum.std():.0f}（參考 145±61）"
+          f"  奶白 {cream:.0%}（參考 13%）  深色 {dark:.0%}（參考 16%）")
 
 
 def run() -> int:
