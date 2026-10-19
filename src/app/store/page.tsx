@@ -1,6 +1,7 @@
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 
+import Tongs from "@/components/store/Tongs";
 import {
   BRAND,
   CART_URL,
@@ -334,6 +335,12 @@ export default function StorePage() {
             }
             priority
           />
+
+          {/*
+            盤面下緣交叉的那兩支夾子。疊在鍋緣上面、碟子下面——
+            參考圖的疊法就是這樣。輪廓是描參考圖描下來的，見 Tongs.tsx。
+          */}
+          <Tongs />
 
           <ul className="po-plates">
             {PLATES.map((plate) => (
