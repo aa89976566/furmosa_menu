@@ -447,6 +447,67 @@ def pack_beef() -> None:
           f"  長寬比 {out.width / out.height:.2f}  九塊牛肉丁堆成一小堆")
 
 
+"""那只黑鍋裡的豬耳朵。
+
+量過參考圖每一只碟子「碟面被食材蓋掉的比例」：八只是 55–100%，那只黑鍋是
+86%，整鍋塞滿，而且食材還溢出鍋緣。單放一只豬耳朵只蓋到 27%——豬耳朵本身
+是個 V 形、鏤空六成多，放再大也填不滿，看起來就是一只空鍋裡躺了一根枝枒。
+
+所以這裡把同一只豬耳朵疊成一鍋。像素與顏色都是原圖的，只做縮放、旋轉與擺位。
+擺位是按黑鍋那個橢圓（扁率 0.73）排的：先沿著外圈繞一圈、再補中間，
+每一只的旋轉角都差很多，不然一眼就看出是同一張貼好幾次。
+"""
+PAN_PIG_EAR = [
+    (0.26, 0.30, 0.46, 24),
+    (0.58, 0.24, 0.44, 158),
+    (0.82, 0.33, 0.42, 72),
+    (0.17, 0.58, 0.44, 288),
+    (0.44, 0.52, 0.48, 206),
+    (0.74, 0.60, 0.44, 112),
+    (0.30, 0.78, 0.42, 340),
+    (0.62, 0.80, 0.42, 48),
+    (0.88, 0.72, 0.38, 250),
+    (0.10, 0.36, 0.36, 130),
+    # 補洞的一輪。第一輪排完量到 71%，離 86% 還差一截，缺口都在這幾處。
+    (0.50, 0.34, 0.38, 96),
+    (0.94, 0.50, 0.36, 14),
+    (0.06, 0.76, 0.36, 182),
+    (0.46, 0.94, 0.36, 268),
+    (0.40, 0.08, 0.34, 316),
+    (0.68, 0.44, 0.32, 60),
+    (0.22, 0.46, 0.30, 224),
+]
+
+
+def pack_plate(out_name: str, ratio: float, source: str,
+               layout: list[tuple[float, float, float, float]],
+               note: str, width: int = 1200) -> None:
+    """照碟子的扁率疊一盤食材，並量出橢圓內的覆蓋率。"""
+    height = round(width * ratio)
+    canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    art = Image.open(OUT / source)
+    for fx, fy, w, rot in layout:
+        scaled = art.resize(
+            (round(w * width), round(w * width * art.height / art.width)),
+            Image.LANCZOS,
+        )
+        turned = scaled.rotate(rot, expand=True, resample=Image.BICUBIC)
+        canvas.alpha_composite(
+            turned,
+            (round(fx * width - turned.width / 2),
+             round(fy * height - turned.height / 2)),
+        )
+    canvas.save(OUT / out_name, lossless=True)
+
+    yy, xx = np.mgrid[0:height, 0:width]
+    inside = (((xx - width / 2) / (width / 2)) ** 2
+              + ((yy - height / 2) / (height / 2)) ** 2) <= 1.0
+    solid = np.asarray(canvas)[:, :, 3] > 128
+    cover = float(solid[inside].mean())
+    print(f"  {out_name:20s} {width:4d}x{height:4d}"
+          f"  橢圓內覆蓋率 {cover:.0%}  {note}")
+
+
 def _art(ref: str, cache: dict[str, Image.Image | list[Image.Image]]) -> Image.Image:
     """解析擺位表裡的名字。「x.webp」是整張，「x.webp#2」是切出來的第 2 塊。"""
     name, _, index = ref.partition("#")
@@ -511,6 +572,8 @@ def run() -> int:
         cover = float(keep[y0:y1, x0:x1].mean())
         print(f"  {job.out:20s} {x1 - x0:4d}x{y1 - y0:4d}  覆蓋率 {cover:.0%}  {job.note}")
     pack_beef()
+    pack_plate("pig-ear-pan.webp", 0.73, "pig-ear.webp", PAN_PIG_EAR,
+               "十只豬耳朵疊成一鍋（參考圖那只黑鍋量到 86% 覆蓋率）")
     pack_pot()
     return 0
 

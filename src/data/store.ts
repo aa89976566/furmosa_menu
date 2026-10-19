@@ -35,7 +35,7 @@ import beefMound from "@/assets/poster/cutout/beef-mound.webp";
 import catGrass from "@/assets/poster/cutout/cat-grass.webp";
 import cutletFillet from "@/assets/poster/cutout/cutlet-fillet.webp";
 import moonPack from "@/assets/poster/cutout/moon-pack.webp";
-import partnerPigEar from "@/assets/poster/cutout/pig-ear.webp";
+import partnerPigEar from "@/assets/poster/cutout/pig-ear-pan.webp";
 import potFill from "@/assets/poster/cutout/pot-fill.webp";
 import wovenBowl from "@/assets/poster/cutout/woven-bowl.webp";
 
@@ -290,8 +290,12 @@ export const PLATES: Plate[] = [
     external: true,
     art: beefMound,
     alt: "實拍去背：九塊牛肉地瓜凍乾堆成一小堆",
-    /* 這一只碟子幾乎是圓的（0.96），所以配一堆、不配躺平的一條。 */
-    cut: 0.97,
+    /*
+     * 這一只碟子幾乎是圓的（0.96），所以配一堆、不配躺平的一條。
+     * cut 從 0.97 收到 0.85：參考圖這一只量到 65% 的碟面被蓋掉，0.97 會蓋到 84%，
+     * 整只碟子看不見了。
+     */
+    cut: 0.85,
     tone: "teal",
     x: 78.02,
     y: 14.66,
@@ -319,8 +323,15 @@ export const PLATES: Plate[] = [
     href: PARTNER_URL,
     external: true,
     art: partnerPigEar,
-    alt: "實拍去背：一只烘乾的豬耳朵零食",
-    cut: 0.77,
+    alt: "實拍去背：一整鍋烘乾的豬耳朵零食",
+    /*
+     * 參考圖那只黑鍋是塞滿的（量到 86% 的碟面被食材蓋掉），所以這裡放的是
+     * 十七只豬耳朵疊出來的一鍋（見 scripts/make-cutouts.py 的 pack_plate），
+     * 不是單放一只——單放一只只蓋到 27%，鍋面會空一大半。
+     * 疊出來的那一鍋本身就是黑鍋的扁率，所以 cut 稍微過 1，
+     * 食材才會像參考圖那樣溢出鍋緣。
+     */
+    cut: 1.06,
     tone: "pan",
     pan: true,
     x: 12.1,
@@ -367,7 +378,8 @@ export const PLATES: Plate[] = [
     external: true,
     art: catGrass,
     alt: "實拍去背：一片台灣形狀的貓草雞肉乾，表面撒著貓草碎",
-    cut: 0.835,
+    /* 0.835 只蓋到 47%，參考圖這一只是 55%，所以放到 0.90。 */
+    cut: 0.9,
     tone: "mist",
     x: 83.12,
     y: 80.34,
@@ -387,8 +399,9 @@ export const PLATES: Plate[] = [
      * 參考圖這個位置站著一只玻璃罐，立起來、罐身整個超出底下的橢圓。
      * 手上沒有玻璃罐的實拍，但月餅立袋是同一種「站著的高物」，
      * 所以放在這裡，溢出的方式也跟參考圖一樣。
+     * cut 從 0.54 放到 0.63：參考圖這一只量到 74% 的碟面被蓋掉，0.54 只有 55%。
      */
-    cut: 0.54,
+    cut: 0.63,
     tone: "pale",
     x: 45.72,
     y: 89,
