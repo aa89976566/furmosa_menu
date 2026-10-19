@@ -14,7 +14,6 @@ import type { StaticImageData } from "next/image";
  */
 import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
 import canning from "@/assets/poster/canning.jpg";
-import cardShiba from "@/assets/poster/drop-card-shiba.jpg";
 import charityReceipt from "@/assets/poster/charity-receipt-wide.png";
 import cutletBag from "@/assets/poster/cutlet-bag.jpg";
 import cutletDog from "@/assets/poster/drop-cutlet-dog.jpg";
@@ -30,7 +29,7 @@ import menuSign from "@/assets/poster/menu-sign.jpg";
 import mooncakePacks from "@/assets/poster/mooncake-packs-pair.jpg";
 import moonPacks from "@/assets/poster/drop-moon-packs.jpg";
 import partnerPigEar from "@/assets/poster/drop-partner-pigear.jpg";
-import peekDog from "@/assets/store/photo-hero-jiba.webp";
+import peekDog from "@/assets/poster/dog-cutlet-cutout.webp";
 import wovenBowl from "@/assets/poster/hero-06-bowl.webp";
 
 import { SWAP_REGIONS } from "@/data/about";
@@ -128,48 +127,60 @@ export const HERO = {
 /* ---------------- 盤面：中央一鍋 ---------------- */
 
 /**
- * 中央那一鍋。參考圖的鍋裡是畫出來的一整鍋乾貨；這一版放的是
- * 實拍的一杯雞肉乾條——同樣是「一只容器裝滿了貨」，而且是真的照片。
- * 點下去是全部商品頁。
+ * 中央那一鍋。
+ *
+ * 鍋心與鍋徑是把參考圖裡白鍋緣的外圈做最小平方圓擬合量出來的：
+ * 鍋心 (49.4%W, 49.6%H)、直徑 52.25%W。鍋緣上兩圈放射刻度的數量、
+ * 角寬與半徑則是沿著那一圈逐度取樣量的。
+ *
+ * 參考圖的鍋裡是畫出來的一整鍋乾貨；這一版放的是實拍的一杯雞肉乾條——
+ * 同樣是「一只容器裝滿了貨」，而且是真的照片。
  */
 export const POT = {
-  kicker: "今日菜單",
-  title: "一鍋端上來",
-  lead: ["吃的・用的・有個性的", "台灣味・毛孩也有份"],
-  label: "全部商品",
-  note: "價格以商品頁為準",
-  cta: "看全部商品",
-  href: SHOP_URL,
+  /** 鍋心與鍋徑，盤面寬的百分比。 */
+  x: 49.4,
+  y: 49.6,
+  d: 52.25,
   art: friesCup,
   alt: "實拍：一只印著匠寵肉掌標誌的紙杯裝滿立著的雞肉乾條",
   /**
-   * 參考圖的鍋緣趴著一隻畫出來的狗。那隻不重畫——
-   * 換成站上原本就有的去背實拍，讓牠從鍋緣後面探出來。
+   * 參考圖的鍋緣趴著一隻畫出來的狗：頭頂在 2.9%H、頭的中線 33.5%W，
+   * 剛好跨在鍋緣上。那一隻不重畫——同一個座標換成原本就有的去背實拍。
+   * 實拍是一整隻坐著的狗，頭只佔圖寬的 0.57、中心偏右 0.628，
+   * 所以 x 放的是整張圖的中線 32%，算回去頭正好落在 33.5%W。
+   * y 量的是頭頂而不是身體中心，狗才不會被盤面的上緣切掉。
    */
   peek: {
     art: peekDog,
-    alt: "實拍去背：一隻臘腸犬從匠寵的零食袋裡叼起一片雞肉乾",
+    alt: "實拍去背：一隻黑色的台灣犬坐在一袋嚎大大雞排旁邊",
+    x: 32,
+    y: 2.9,
+    w: 11.5,
   },
+  /**
+   * 參考圖的鍋沒有牌，牠自己就是主角。但鍋要能點，所以把「全部商品」
+   * 排成同一種牌，放在參考圖左下角那一塊空白的橘底上——
+   * 補的是沒有東西的地方，不去動已經有東西的地方。
+   */
+  label: "全部商品",
+  note: "價格以商品頁為準",
+  href: SHOP_URL,
+  tx: 3,
+  ty: 90.5,
 } as const;
 
 /* ---------------- 盤面：四周的碟子 ---------------- */
 
 /** 碟子的底色。四種，照參考圖量出來的網版印刷色。 */
-export type PlateTone = "pale" | "teal" | "blue" | "pan";
-
 /**
- * 碟子的形狀。
- *
- *   plate  壓扁的橢圓——俯視的盤
- *   pan    黑色實心橢圓加兩只鍋耳，參考圖左右各一只
- *   round  正圓的小碟
+ * 碟色。參考圖的八只碟子不是同一個淺藍重複用，是量過的五種：
+ * 淺藍、青、寶藍、白、灰白，另外兩只是黑鍋。
  */
-export type PlateShape = "plate" | "pan" | "round";
+export type PlateTone = "pale" | "teal" | "blue" | "white" | "mist" | "pan";
 
 export type Plate = {
   name: string;
-  note: string;
-  /** 只有 furmosa.com 上標了價的那四樣才有價格，其餘留空。 */
+  /** 只有 furmosa.com 上標了價的那幾樣才有價格，其餘留空。 */
   price?: string;
   href: string;
   external?: boolean;
@@ -178,139 +189,155 @@ export type Plate = {
   /** 沒有實拍時，占位框上寫的是「該放哪一張」。 */
   pending?: string;
   tone: PlateTone;
-  shape: PlateShape;
-  /** 碟心在盤面上的座標與碟寬，都是盤面寬的百分比。 */
+  /** 黑鍋左右各掛一只鍋耳。 */
+  pan?: true;
+  /** 碟心座標與碟寬，盤面寬的百分比。 */
   x: number;
   y: number;
   w: number;
+  /** 碟高除以碟寬（像素比）。每只碟子的壓扁程度都不一樣，所以一碟一個值。 */
+  ratio: number;
+  /** 標籤牌左上角在盤面上的座標，百分比。牌從這裡往右長。 */
+  tx: number;
+  ty: number;
 };
 
 /*
- * 九只碟子的座標是照參考圖量的：中央的鍋佔盤面寬的 40%，碟子沿著
- * 左右兩緣各四只、底下兩只，左緣與右緣各有一只黑鍋。
+ * 八只碟子。座標、碟寬、壓扁程度與每一張標籤牌的左上角，
+ * 全部逐一量自參考圖（1594×987）：
  *
- * 標籤牌掛在碟子靠中央的那一側（左緣的碟往右掛、右緣的碟往左掛），
- * 參考圖就是這樣讓每一張牌都指回鍋子的。
+ *   碟子   碟心 x/y        碟寬    碟高/碟寬   牌的左上角
+ *   ----   -------------   -----   ---------   -------------
+ *   左上   13.2 / 13.9     17.7    0.52        17.31 / 26.24
+ *   右上   78.0 / 14.7     16.0    0.96        65.56 / 15.60
+ *   右中上 89.0 / 33.5     15.0    0.83        75.72 / 34.04
+ *   左鍋   12.1 / 46.2     19.3    0.75        22.52 / 51.06
+ *   右鍋   88.7 / 57.6     20.2    0.70        75.66 / 61.90
+ *   左下   12.6 / 71.1     18.1    0.83        17.69 / 73.96
+ *   右下   83.5 / 81.6     21.0    0.72        72.90 / 84.09
+ *   底中   55.5 / 89.1     19.1    0.60        55.02 / 88.55
+ *
+ * 參考圖的牌是空白的，每一張都從碟子底下往鍋子的方向長出去。
+ * 這一版把真的品名與價格排進同一個位置、同一個尺寸，數量也一樣是八張。
  */
 export const PLATES: Plate[] = [
   {
     name: "嚎大大・雞霸",
-    note: "雞肉原味",
     price: "NT$165",
     href: `${SHOP_ORIGIN}/products/chicken-fillet`,
     external: true,
     art: cutletBag,
     alt: "實拍：一片大雞肉乾插在印著匠寵圖章與 Thank you very much 的紙袋裡",
     tone: "pale",
-    shape: "plate",
-    x: 12,
-    y: 14,
-    w: 17.6,
+    x: 13.2,
+    y: 13.9,
+    w: 17.7,
+    ratio: 0.52,
+    tx: 17.31,
+    ty: 26.24,
   },
   {
     name: "簡記・牛肉地瓜",
-    note: "30 克",
     price: "NT$180",
     href: `${SHOP_ORIGIN}/products/jian-ji-niu-rou-di-gua-su`,
     external: true,
     art: beefCubes,
     alt: "實拍：牛肉丁凍乾排成一條 LOADING 進度條",
     tone: "teal",
-    shape: "plate",
-    x: 83,
-    y: 12,
-    w: 15.5,
+    x: 78,
+    y: 14.7,
+    w: 16,
+    ratio: 0.96,
+    tx: 65.56,
+    ty: 15.6,
   },
   {
-    name: "青菜底加・混蔬菜凍乾",
-    note: "30 克",
-    price: "NT$180",
-    href: `${SHOP_ORIGIN}/products/青菜底加-混蔬菜凍乾`,
+    name: "唐老・鴨喉",
+    price: "NT$110",
+    href: `${SHOP_ORIGIN}/products/tang-lao-ya-hou-zku85`,
     external: true,
-    pending: "混蔬菜凍乾商品照",
-    tone: "pale",
-    shape: "plate",
-    x: 91,
-    y: 33,
-    w: 14.5,
+    pending: "鴨喉商品照",
+    tone: "white",
+    x: 89,
+    y: 33.5,
+    w: 15,
+    ratio: 0.83,
+    tx: 75.72,
+    ty: 34.04,
   },
   {
     name: "店家合作",
-    note: "一起讓更多毛孩吃到好東西",
     href: PARTNER_URL,
     external: true,
     art: partnerPigEar,
     alt: "實拍：一只豬耳朵零食擺在白底上，底下寫著今天乖乖嗎",
     tone: "pan",
-    shape: "pan",
-    x: 13,
-    y: 46,
-    w: 19,
+    pan: true,
+    x: 12.1,
+    y: 46.2,
+    w: 19.3,
+    ratio: 0.75,
+    tx: 22.52,
+    ty: 51.06,
   },
   {
     name: "背景很硬的碗",
-    note: "預購中",
+    price: "預購中",
     href: rowHref(6),
     external: true,
     art: wovenBowl,
     alt: "實拍：藤編外圈搭深綠釉內裡的寵物碗",
     tone: "pan",
-    shape: "pan",
-    x: 86.5,
-    y: 56,
-    w: 19,
+    pan: true,
+    x: 88.7,
+    y: 57.6,
+    w: 20.2,
+    ratio: 0.7,
+    tx: 75.66,
+    ty: 61.9,
   },
   {
-    name: "唐老・鴨喉",
-    note: "30 克",
-    price: "NT$110",
-    href: `${SHOP_ORIGIN}/products/tang-lao-ya-hou-zku85`,
+    name: "青菜底加・混蔬菜凍乾",
+    price: "NT$180",
+    href: `${SHOP_ORIGIN}/products/青菜底加-混蔬菜凍乾`,
     external: true,
-    pending: "鴨喉商品照",
+    pending: "混蔬菜凍乾商品照",
     tone: "blue",
-    shape: "plate",
-    x: 12,
-    y: 71,
-    w: 17,
+    x: 12.6,
+    y: 71.1,
+    w: 18.1,
+    ratio: 0.83,
+    tx: 17.69,
+    ty: 73.96,
   },
   {
     name: "chill嗨嗨ㄟ貓",
-    note: "貓咪的放鬆時光",
     href: CATNIP_URL,
     external: true,
     art: catGrass,
     alt: "一片台灣形狀的貓草雞肉乾浮在星雲裡，右下角一隻黑貓抬頭看著",
-    tone: "teal",
-    shape: "plate",
-    x: 87,
-    y: 80,
-    w: 17.6,
+    tone: "mist",
+    x: 83.5,
+    y: 81.6,
+    w: 21,
+    ratio: 0.72,
+    tx: 72.9,
+    ty: 84.09,
   },
   {
     name: "浪浪交易所",
-    note: "中秋限定盤・已結單",
+    price: "已結單",
     href: rowHref(3),
     external: true,
     art: moonPacks,
     alt: "實拍：印著「牠的月餅」與一隻黑白狗的中秋月餅包裝",
-    tone: "blue",
-    shape: "round",
-    x: 63,
-    y: 88,
-    w: 14,
-  },
-  {
-    name: "再來一包",
-    note: "毛孩人格抽驗",
-    href: rowHref(5),
-    external: true,
-    art: cardShiba,
-    alt: "實拍：一隻柴犬坐在步道上，前面有人舉著一張寫著柴犬的抽卡",
-    tone: "teal",
-    shape: "round",
-    x: 29,
-    y: 89,
-    w: 13,
+    tone: "white",
+    x: 55.5,
+    y: 89.1,
+    w: 19.1,
+    ratio: 0.6,
+    tx: 55.02,
+    ty: 88.55,
   },
 ];
 
@@ -473,6 +500,8 @@ export const SUBSCRIBE = {
 } as const;
 
 export const FOOTER_NAV: NavItem[] = [
+  /* 參考圖只有八只碟子，所以再來一包從盤面上收到這裡，連結本身不變。 */
+  { label: "再來一包", href: rowHref(5), external: true },
   { label: "關於匠寵", href: ABOUT_URL, external: true },
   { label: "常見問題", href: FAQ_URL, external: true },
   { label: "隱私權政策", href: PRIVACY_URL, external: true },

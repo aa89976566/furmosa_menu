@@ -11,16 +11,24 @@
  */
 
 .po-page {
-  /* ---- 色 ---- 參考圖取樣：橘 242,93,51；青 120,192,192；藍 48,96,168；墨 30,29,29 ---- */
-  --po-orange: #f25d33;
+  /*
+   * ---- 色 ---- 全部取樣自參考圖：乾淨的橘底是 243,100,57；
+   * 碟子一只一個色，不是同一個淺藍重複用——量出來依序是
+   * 淺藍 196,208,216、青 138,192,200、白 240,240,240、
+   * 寶藍 56,116,180、灰白 224,232,232。鍋緣白 251,252,252、
+   * 刻度灰 197,193,191。
+   */
+  --po-orange: #f36439;
   --po-orange-deep: #d8441c;
   --po-ink: #1c1b1b;
   --po-paper: #fbfcfc;
-  --po-teal: #78c0c0;
-  --po-pale: #c0d8d8;
-  --po-blue: #3060a8;
-  --po-rim: #f1f2f2;
-  --po-dash: #a9adad;
+  --po-teal: #8ac2ca;
+  --po-pale: #c4d2da;
+  --po-white: #f0f0f0;
+  --po-mist: #e2eaea;
+  --po-blue: #3874b4;
+  --po-rim: #fbfcfc;
+  --po-dash: #c5c1bf;
   --po-pending: #d6d4cf;
   --po-pending-ink: #6f6d68;
 
@@ -46,26 +54,42 @@
 }
 
 /*
- * 網版的顆粒。參考圖的底色三個通道的標準差是 (35, 16, 13)，
- * 也就是顆粒很重且偏紅——所以這一層壓得比一般紙紋深，而且不是灰雜訊。
+ * 網版的顆粒。顆粒只壓在橘底上——層壓在最底，碟子、牌子與實拍都畫在牠上面。
+ * 參考圖就是這樣：橘底三個通道的標準差是 (3, 10, 9)，但牌子的白是
+ * (253, 253, 253) 標準差不到 1，乾乾淨淨。實拍要維持原彩，更不能被蓋上雜訊。
+ *
+ * 混色用 overlay 而不是 multiply：參考圖的顆粒幾乎不動紅（已經接近滿格），
+ * 動的是綠與藍——也就是在橘底上搖的是彩度，不是亮度。overlay 對 0.5 的灰
+ * 不作用，所以底色的平均值留得住，只有顆粒在上下擺。
+ *
+ * 兩個不能省的設定：filter 要指定 sRGB（預設的 linearRGB 會把雜訊推歪，
+ * 平均值跑到 0.73），alpha 要壓成 1（feTurbulence 連 alpha 一起生雜訊，
+ * 不壓的話這一層是半透明的，算不準）。兩個都設好之後雜訊就是平均 0.5、
+ * 標準差 0.089 的灰，opacity 0.73 換算回橘底的綠通道剛好是 13，
+ * 跟參考圖量到的 (3, 13, 13) 對得上。
  */
 .po-grain {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 240px 240px;
+  opacity: 0.73;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
 }
 
+.po-page__head,
 .po-page__body {
   position: relative;
   z-index: 2;
   max-width: var(--po-max);
   margin: 0 auto;
-  padding: 0 var(--po-pad) clamp(40px, 6vw, 88px);
+  padding: 0 var(--po-pad);
+}
+
+.po-page__body {
+  padding-bottom: clamp(40px, 6vw, 88px);
 }
 
 .po-vh {
@@ -264,8 +288,7 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: clamp(16px, 2.4vw, 40px);
-  padding: clamp(14px, 1.8vw, 24px) 0;
-  border-bottom: var(--po-edge) solid var(--po-ink);
+  padding: clamp(12px, 1.5vw, 20px) 0;
 }
 
 .po-top__mark {
@@ -442,60 +465,41 @@
   width: 100%;
 }
 
+.po-hero__plate .po-disc {
+  --r: 0.74;
+}
+
 /* ================= 盤面 ================= */
 
-.po-pot {
-  padding: clamp(16px, 2.4vw, 36px) 0 clamp(24px, 3vw, 48px);
-}
-
-.po-pot__head {
-  display: grid;
-  justify-items: center;
-  gap: 0.6em;
-  text-align: center;
-}
-
-.po-pot__title {
-  margin: 0;
-  font-size: clamp(28px, 4.4vw, 62px);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.po-pot__lead {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.3em 1em;
-  font-size: clamp(12px, 1.1vw, 15px);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
 /*
- * 盤面。長寬比鎖在參考圖的 1594×987，裡面所有東西都用百分比排，
- * 所以整個構圖是一塊整體縮放的，碟子不會各自跑掉。
+ * 這一塊就是參考圖本身：滿版、長寬比鎖在 1594×987。
+ * 裡面每一樣東西的座標都是盤面寬的百分比，所以它是整塊等比縮放的一張海報。
  */
+.po-poster {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
 /*
  * 碟子的描邊、鍋壁與鍋耳都要跟著盤面縮放，所以盤面自己當 container，
- * 那些線寬用 cqw 給——換成 vw 的話，視窗一寬線就會比盤面長得快。
+ * 那些線寬與字級用 cqw 給——換成 vw 的話，視窗一寬線就會比盤面長得快。
  */
 .po-stage {
   container-type: inline-size;
   position: relative;
   width: 100%;
   aspect-ratio: 1594 / 987;
-  margin-top: clamp(10px, 1.4vw, 20px);
 }
 
-/* ---- 中央的鍋 ---- 直徑是盤面寬的 52.5%，量自參考圖 ---- */
+/* ---- 中央的鍋 ---- 鍋心 (49.4%W, 49.6%H)、直徑 52.25%W，最小平方圓擬合量出來的 ---- */
 .po-center {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 52.5%;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--d) * 1%);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
 }
@@ -508,70 +512,49 @@
 }
 
 /*
- * 鍋緣上的兩圈放射虛線。參考圖最認得出來的就是這一處：
- * 外圈的刻度長、內圈短，用 repeating-conic-gradient 畫刻度，
- * 再用 radial-gradient 的遮罩切成一只環。
+ * 鍋緣上的那一圈刻度。這是整張參考圖最認得出來的一處，所以把鍋緣展成一條
+ * 長條量過：從外往內是「白邊 → 一圈刻度 → 白溝 → 一圈灰鍋壁 → 鍋裡」，
+ * 只有一圈刻度，不是兩圈。
+ *
+ * 刻度：繞一圈 69 格（週期 5.217°），灰的佔 0.8、白縫只佔 0.2——所以看起來是
+ * 一塊塊挨著的方磚，不是一根根細線。徑向落在鍋緣半徑的 0.835–0.925。
+ * 邊是硬的；兩端各留 0.8% 與 0.12° 的過渡，純粹是為了讓鋸齒不要爆開。
  */
 .po-ticks {
   position: absolute;
+  inset: 0;
   border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    var(--po-dash) 0deg 4.14deg,
+    #0000 4.26deg 5.2174deg
+  );
+  -webkit-mask-image: radial-gradient(
+    closest-side,
+    #0000 82.5%,
+    #000 85% 91.5%,
+    #0000 94%
+  );
+  mask-image: radial-gradient(
+    closest-side,
+    #0000 82.5%,
+    #000 85% 91.5%,
+    #0000 94%
+  );
 }
 
 /*
- * 外圈：57 格刻度，實虛各半，徑向的峰值落在鍋緣半徑的 0.87–0.91。
- * 數量、角寬與半徑都是沿著參考圖的鍋緣一圈一圈取樣量出來的；
- * 遮罩的兩端留了漸層，刻度的頭尾才會收掉，而不是一截硬邊的長方塊。
+ * 鍋裡。鍋壁是一圈實心的灰，外緣在鍋緣半徑的 0.775、內緣 0.745——
+ * 換算成這個方框就是 inset 11.25% 配一道 0.78cqw 的邊。
+ * 內緣再壓一道淡影，參考圖裡貨壓在鍋壁上就是這個樣子。
  */
-.po-ticks--outer {
-  inset: 2.25%;
-  background: repeating-conic-gradient(
-    from 0deg,
-    var(--po-dash) 0deg 3.15deg,
-    #0000 3.15deg 6.3deg
-  );
-  -webkit-mask-image: radial-gradient(
-    closest-side,
-    #0000 86%,
-    #000 91% 95.5%,
-    #0000 100%
-  );
-  mask-image: radial-gradient(
-    closest-side,
-    #0000 86%,
-    #000 91% 95.5%,
-    #0000 100%
-  );
-}
-
-/* 內圈：刻度少一些、寬一些——39 格，徑向 0.715–0.815。 */
-.po-ticks--inner {
-  inset: 9.25%;
-  background: repeating-conic-gradient(
-    from 2.3deg,
-    var(--po-dash) 0deg 4.6deg,
-    #0000 4.6deg 9.2deg
-  );
-  -webkit-mask-image: radial-gradient(
-    closest-side,
-    #0000 86%,
-    #000 92% 94.5%,
-    #0000 100%
-  );
-  mask-image: radial-gradient(
-    closest-side,
-    #0000 86%,
-    #000 92% 94.5%,
-    #0000 100%
-  );
-}
-
-/* 鍋裡。灰色的鍋壁加上一張實拍。 */
 .po-center__bowl {
   position: absolute;
-  inset: 16%;
+  inset: 11.25%;
   margin: 0;
   border-radius: 50%;
-  border: 1cqw solid #a9acac;
+  border: 0.78cqw solid var(--po-dash);
+  box-shadow: inset 0 0 0 0.3cqw rgb(0 0 0 / 14%);
   overflow: hidden;
 }
 
@@ -587,20 +570,24 @@
  * 讓貨佔滿圓裡，而不是連著整片店內背景一起放進來。
  */
 .po-center__art img {
-  transform: scale(1.34);
-  transform-origin: 36% 48%;
+  transform: scale(1.52);
+  transform-origin: 47% 42%;
 }
 
-/* 從鍋緣後面探出來的那一隻。去背實拍，不是插畫。 */
+/*
+ * 鍋緣上那一隻。參考圖裡牠的頭頂在 2.9%H、腳在 26%H，身體中線 33.5%W、
+ * 寬 10.7%W，整隻都還在畫面裡。所以這裡用上緣對位（--y 是頭頂，不是中心），
+ * 牠才不會被盤面的上緣切掉。鍋是後面的兄弟元素，所以牠的下半身被鍋緣壓住——
+ * 那就是探出來的那一下。
+ */
 .po-peek {
   position: absolute;
-  left: 2%;
-  bottom: 70%;
-  /* 鍋緣是後面的兄弟元素，所以牠會被鍋緣壓住下半身——這就是探出來的那一下。 */
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
   z-index: -1;
-  width: 30%;
+  width: calc(var(--w) * 1%);
   height: auto;
-  transform: rotate(-7deg);
+  transform: translateX(-50%);
   pointer-events: none;
 }
 
@@ -613,44 +600,60 @@
 }
 
 /*
- * 一只碟子。--x/--y 是碟心在盤面上的座標、--w 是碟寬，
- * 三個都是百分比，由資料帶進來。
+ * 一只碟子。--x/--y 是碟心、--w 是碟寬、--r 是碟高除以碟寬，全部逐一量自參考圖。
+ * x 與 w 是整張圖寬度的百分比，y 是高度的百分比——left/width 吃寬、top 吃高，
+ * 所以三個值直接用，不必換算。
  */
 .po-plate {
   --x: 50;
   --y: 50;
-  --w: 100;
+  --w: 16;
+  --r: 0.72;
+}
 
+/*
+ * 碟子跟牠的牌是兩個獨立的座標，不是牌掛在碟子上。所以 li 與 a 都攤平成
+ * 一整張盤面大小的透明層，碟身與牌各自用盤面的百分比定位——
+ * 兩組數字就能直接照抄參考圖上量到的值。
+ * 層是透明的，所以不吃點擊；只有碟身與牌吃。
+ */
+.po-plate,
+.po-plate__link {
   position: absolute;
-  left: calc(var(--x) * 1%);
-  top: calc(var(--y) * 1%);
-  width: calc(var(--w) * 1%);
-  transform: translate(-50%, -50%);
+  inset: 0;
+  pointer-events: none;
 }
 
 .po-plate__link {
-  display: block;
   color: inherit;
   text-decoration: none;
 }
 
 .po-plate__frame {
-  position: relative;
-  display: block;
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
 }
 
-/* 碟身。壓扁的橢圓——俯視的盤。比例 h/w = 0.72，量自參考圖。 */
+/* 碟身。俯視的盤，壓扁程度一碟一個值。 */
 .po-disc {
   position: relative;
   display: block;
-  aspect-ratio: 1 / 0.72;
+  aspect-ratio: 1 / var(--r, 0.72);
   border-radius: 50%;
   overflow: hidden;
 }
 
+/*
+ * 碟子裡的實拍。參考圖的貨是去背畫上去的，碟邊整圈都露出來；實拍是方的，
+ * 所以得往內縮多一點，碟色才看得到——縮到 11%，碟邊才像一只碟子的邊。
+ */
 .po-disc__art {
   position: absolute;
-  inset: 8%;
+  inset: 11%;
   border-radius: 50%;
 }
 
@@ -670,19 +673,29 @@
   background: var(--po-blue);
 }
 
-/* 正圓的小碟。 */
-.po-plate--round .po-disc {
-  aspect-ratio: 1;
+.po-plate--white .po-disc {
+  background: var(--po-white);
 }
 
-/* 黑鍋。實心墨色，左右各一只鍋耳，耳朵畫在鍋身後面，所以只看得到外半圈。 */
+.po-plate--mist .po-disc {
+  background: var(--po-mist);
+}
+
+/*
+ * 黑鍋。實心墨色，左右各一只鍋耳。鍋身收到碟寬的 78%、
+ * 鍋耳往外凸 14% 鍋身寬，加起來剛好是量到的那個總寬。
+ * 耳朵畫在鍋身後面，所以只看得到外半圈。
+ */
+.po-plate--pan .po-plate__frame {
+  width: calc(var(--w) * 0.78%);
+}
+
 .po-plate--pan .po-disc {
   background: var(--po-ink);
-  aspect-ratio: 1 / 0.68;
 }
 
 .po-plate--pan .po-disc__art {
-  inset: 11%;
+  inset: 14%;
 }
 
 .po-plate--pan .po-plate__frame::before,
@@ -690,7 +703,7 @@
   content: "";
   position: absolute;
   top: 50%;
-  width: 24%;
+  width: 26%;
   aspect-ratio: 1;
   border: 0.62cqw solid var(--po-ink);
   border-radius: 50%;
@@ -698,120 +711,94 @@
 }
 
 .po-plate--pan .po-plate__frame::before {
-  left: -10%;
+  left: -14%;
 }
 
 .po-plate--pan .po-plate__frame::after {
-  right: -10%;
+  right: -14%;
 }
 
 /* ---- 標籤牌 ---- */
 
 /*
- * 白色的標籤牌。參考圖裡每一張牌都是空白的——這一版把真的品名、
- * 規格與價格排進去，並且像參考圖那樣掛在碟子靠中央的那一側，
- * 讓每一張牌都指回鍋子。小黑方塊一律在牌的左端。
+ * 白色的標籤牌。參考圖裡八張牌是空白的，而且八張一樣大
+ * （量到 119–158px 寬、37–40px 高，也就是 7.5–9.9%W × 3.8%H），
+ * 不跟著碟子大小變。所以這裡也固定一個尺寸，只排一行字：
+ * 品名加價格。規格（30 克）在參考圖的牌上本來就沒有，留在商品頁。
+ *
+ * 每一張牌的左上角座標都是量出來的，從那裡往右長——
+ * 參考圖就是這樣讓每張牌都從碟子底下指回鍋子。
  */
 .po-tag {
   position: absolute;
-  top: 66%;
+  left: calc(var(--tx) * 1%);
+  top: calc(var(--ty) * 1%);
+  /* 牌一律在碟身之上。盤面是 container，所以這一層 z-index 管得到整盤。 */
+  z-index: 2;
   display: flex;
-  align-items: flex-start;
-  gap: 0.35em;
-  width: 92%;
+  align-items: baseline;
+  gap: 0.5em;
+  width: max-content;
+  min-width: 8.3cqw;
+  padding: 0.5em 0.75em;
+  background: var(--po-paper);
+  border-radius: 0.45em;
+  font-size: max(10.5px, 1.05cqw);
+  line-height: 1.35;
+  /* 參考圖的牌都是一行。折成兩行就不是那張圖了。 */
+  white-space: nowrap;
   color: var(--po-ink);
   text-decoration: none;
+  pointer-events: auto;
 }
 
-.po-plate--hang-right .po-tag {
-  left: 48%;
-}
-
-.po-plate--hang-left .po-tag {
-  right: 48%;
-}
-
-.po-plate--round .po-tag {
-  top: 74%;
-}
-
+/* 牌外側那一個小黑方塊。白底、墨色描邊，與牌之間留一道縫。 */
 .po-tag__bullet {
-  flex: none;
-  width: 0.72em;
-  height: 0.72em;
-  margin-top: 0.5em;
+  position: absolute;
+  right: 100%;
+  top: 0.55em;
+  width: 1.55cqw;
+  height: 1.55cqw;
+  margin-right: 0.5cqw;
   background: var(--po-paper);
-  border: var(--po-rule) solid var(--po-ink);
-}
-
-.po-tag__body {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: grid;
-  gap: 0.15em;
-  padding: 0.5em 0.7em;
-  background: var(--po-paper);
-  border: var(--po-rule) solid var(--po-ink);
-  border-radius: 0.35em;
+  border: 0.22cqw solid var(--po-ink);
 }
 
 .po-tag__name {
-  font-size: clamp(11px, 1.05vw, 14px);
   font-weight: 900;
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: 0.01em;
 }
 
-.po-tag__note {
-  font-size: clamp(9px, 0.82vw, 11px);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.35;
-  color: #55534f;
-}
-
 .po-tag__price {
-  margin-top: 0.1em;
-  font-size: clamp(11px, 1vw, 13px);
+  flex: none;
   font-weight: 900;
   letter-spacing: 0.02em;
   color: var(--po-orange-deep);
 }
 
-.po-tag:focus-visible .po-tag__body,
-.po-tag:hover .po-tag__body,
-.po-plate__link:hover .po-tag__body,
-.po-plate__link:focus-visible .po-tag__body {
+.po-plate__link:hover .po-tag,
+.po-plate__link:focus-visible .po-tag,
+.po-tag--pot:hover,
+.po-tag--pot:focus-visible {
   background: var(--po-ink);
   color: var(--po-paper);
 }
 
-.po-plate__link:hover .po-tag__note,
 .po-plate__link:hover .po-tag__price,
-.po-tag:hover .po-tag__note,
-.po-tag:hover .po-tag__price {
+.po-plate__link:focus-visible .po-tag__price,
+.po-tag--pot:hover .po-tag__price,
+.po-tag--pot:focus-visible .po-tag__price {
   color: var(--po-paper);
 }
 
-/* 鍋子自己那一張牌。掛在鍋緣的下方，比碟子的牌大一級。 */
-.po-tag--center {
-  left: 50%;
-  top: 71%;
-  width: 38%;
-  transform: translateX(-50%);
-  align-items: flex-start;
-}
-
-.po-tag--center .po-tag__name {
-  font-size: clamp(13px, 1.4vw, 19px);
-}
-
-.po-tag__price--cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
-  width: max-content;
-  border-bottom: var(--po-rule) solid currentColor;
+/*
+ * 鍋自己那一張牌。參考圖的鍋沒有牌——牠就是主角。
+ * 但鍋要能點，所以牌放在參考圖左下角那一塊空白的橘底上，
+ * 補的是沒有東西的地方；尺寸比碟子的牌大一級，表示它是整盤的入口。
+ */
+.po-tag--pot {
+  font-size: max(12px, 1.3cqw);
 }
 
 /* ================= 鍋邊加點 ================= */
@@ -1470,21 +1457,20 @@
     justify-content: flex-start;
   }
 
-  .po-hero {
-    grid-template-columns: minmax(0, 1fr);
-    padding-top: clamp(20px, 5vw, 36px);
-  }
-
-  .po-hero__figure {
-    order: -1;
-    max-width: 78%;
-    justify-self: center;
+  /*
+   * 1:1 的盤面只到這裡。再窄下去，那張牌照比例算出來不到十個像素，
+   * 照著排就是一張看不懂的圖。所以手機把盤面拆成網格：
+   * 鍋先獨自站一行，八只碟子跟著排兩欄，牌接在碟子下面。
+   */
+  .po-poster {
+    padding: 0 var(--po-pad);
   }
 
   .po-stage {
     aspect-ratio: auto;
     display: grid;
-    gap: clamp(44px, 12vw, 72px);
+    gap: clamp(30px, 8vw, 56px);
+    padding: clamp(16px, 4vw, 28px) 0;
   }
 
   .po-center {
@@ -1502,37 +1488,52 @@
     gap: clamp(26px, 6vw, 44px) clamp(14px, 3.5vw, 28px);
   }
 
-  .po-plate {
+  /* 碟形拉成一致。0.52 的扁盤跟 0.96 的圓盤並排在網格裡會參差不齊。 */
+  .po-plate .po-disc {
+    --r: 0.82;
+  }
+
+  .po-plate,
+  .po-plate__link,
+  .po-plate__frame,
+  .po-plate--pan .po-plate__frame {
     position: static;
+    inset: auto;
     width: auto;
     transform: none;
+    pointer-events: auto;
   }
 
   /*
-   * 牌改成接在碟子下面。繼續掛在旁邊的話，兩欄的牌會互相壓住。
    * 牌要壓在碟子上緣，所以得留著 position——碟框本身是 relative，
-   * 排版流裡的元素會被它蓋掉。
+   * 排版流裡的元素會被它蓋掉。小黑方塊收回牌裡面，不然會凸出格子外。
    */
-  .po-tag,
-  .po-plate--hang-left .po-tag,
-  .po-plate--hang-right .po-tag,
-  .po-plate--round .po-tag {
+  .po-tag {
     position: relative;
     z-index: 1;
     left: auto;
-    right: auto;
     top: auto;
-    width: 100%;
-    margin-top: -10%;
+    width: auto;
+    min-width: 0;
+    margin-top: -8%;
+    font-size: clamp(11px, 3vw, 14px);
+    white-space: normal;
   }
 
-  .po-tag--center {
-    position: absolute;
-    left: 50%;
-    top: 86%;
-    width: 72%;
+  .po-tag__bullet {
+    position: static;
+    flex: none;
+    width: 0.78em;
+    height: 0.78em;
+    margin: 0;
+    border-width: 1.5px;
+    align-self: center;
+  }
+
+  .po-tag--pot {
+    justify-self: center;
     margin-top: 0;
-    transform: translateX(-50%);
+    font-size: clamp(13px, 3.6vw, 17px);
   }
 
   /*
@@ -1541,6 +1542,16 @@
    */
   .po-peek {
     display: none;
+  }
+
+  .po-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: clamp(20px, 5vw, 36px);
+  }
+
+  .po-hero__figure {
+    max-width: 78%;
+    justify-self: center;
   }
 
   .po-making {

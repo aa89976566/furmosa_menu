@@ -141,21 +141,24 @@ function Art({
 /**
  * 盤面上的一只碟子。
  *
- * 座標與碟寬都是盤面寬的百分比，用 custom property 帶進 CSS，
- * 所以整個盤面縮放時九只碟子的相對位置不會跑掉。
- * 標籤牌掛在碟子靠中央的那一側——參考圖就是這樣讓每張牌都指回鍋子。
+ * 碟心、碟寬、壓扁程度與標籤牌的左上角四樣都是逐一量自參考圖的，
+ * 用 custom property 帶進 CSS。全部都是盤面寬的百分比，所以整塊盤面縮放時
+ * 八只碟子跟八張牌的相對位置一格都不會跑。
+ *
+ * 牌從碟子底下往鍋子的方向長出去，小黑方塊貼在牌的外側——參考圖就是這樣。
  */
 function Plate({ plate }: { plate: PlateData }) {
-  const side = plate.x > 50 ? "left" : "right";
-
   return (
     <li
-      className={`po-plate po-plate--${plate.tone} po-plate--${plate.shape} po-plate--hang-${side}`}
+      className={`po-plate po-plate--${plate.tone}${plate.pan ? " po-plate--pan" : ""}`}
       style={
         {
           "--x": plate.x,
           "--y": plate.y,
           "--w": plate.w,
+          "--r": plate.ratio,
+          "--tx": plate.tx,
+          "--ty": plate.ty,
         } as React.CSSProperties
       }
     >
@@ -174,13 +177,10 @@ function Plate({ plate }: { plate: PlateData }) {
 
         <span className="po-tag">
           <span className="po-tag__bullet" aria-hidden="true" />
-          <span className="po-tag__body">
-            <span className="po-tag__name">{plate.name}</span>
-            <span className="po-tag__note">{plate.note}</span>
-            {plate.price ? (
-              <span className="po-tag__price">{plate.price}</span>
-            ) : null}
-          </span>
+          <span className="po-tag__name">{plate.name}</span>
+          {plate.price ? (
+            <span className="po-tag__price">{plate.price}</span>
+          ) : null}
         </span>
       </Anchor>
     </li>
@@ -211,7 +211,7 @@ export default function StorePage() {
       {/* 橘底的網版顆粒。整頁只有這一層是裝飾，其餘都是內容。 */}
       <span className="po-grain" aria-hidden="true" />
 
-      <div className="po-page__body">
+      <div className="po-page__head">
         {/*
           ---------- 上緣 ----------
           字標、欄目、查詢與購物。欄目是一排粗體小字，沒有底色、
@@ -271,6 +271,83 @@ export default function StorePage() {
           </nav>
         </header>
 
+      </div>
+
+      {/*
+        ---------- 盤面 ----------
+        這一塊是參考圖本身：滿版、長寬比鎖在 1594×987，中央一鍋、
+        四周八只碟子、八張白色標籤牌，鍋緣趴著一隻狗。
+        每一個座標都量自參考圖，所以它是整塊等比縮放的一張海報，
+        不是一個「放了圖的區塊」。
+      */}
+      <section className="po-poster" aria-label="今日菜單：一鍋端上來">
+        <div className="po-stage">
+          {/* 中央的鍋。白鍋緣上兩圈灰色放射刻度，是參考圖最認得出來的那一處。 */}
+          <div
+            className="po-center"
+            style={
+              {
+                "--x": POT.x,
+                "--y": POT.y,
+                "--d": POT.d,
+              } as React.CSSProperties
+            }
+          >
+            <span className="po-center__rim" aria-hidden="true" />
+            <span className="po-ticks" aria-hidden="true" />
+
+            <figure className="po-center__bowl">
+              <Art
+                art={POT.art}
+                alt={POT.alt}
+                sizes={SIZES.pot}
+                className="po-center__art"
+                priority
+              />
+            </figure>
+          </div>
+
+          {/*
+            鍋緣上那一隻。參考圖是插畫，這裡是站上原本就有的去背實拍，
+            擺在同一個座標、同一個尺寸，一半藏在鍋緣後面。
+          */}
+          <Image
+            className="po-peek"
+            src={POT.peek.art}
+            alt={POT.peek.alt}
+            sizes={SIZES.peek}
+            style={
+              {
+                "--x": POT.peek.x,
+                "--y": POT.peek.y,
+                "--w": POT.peek.w,
+              } as React.CSSProperties
+            }
+            priority
+          />
+
+          <ul className="po-plates">
+            {PLATES.map((plate) => (
+              <Plate key={plate.name} plate={plate} />
+            ))}
+          </ul>
+
+          {/* 鍋要能點。排成同一種牌，放在參考圖左下角那一塊空白的橘底上。 */}
+          <a
+            className="po-tag po-tag--pot"
+            href={POT.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ "--tx": POT.tx, "--ty": POT.ty } as React.CSSProperties}
+          >
+            <span className="po-tag__bullet" aria-hidden="true" />
+            <span className="po-tag__name">{POT.label}</span>
+            <span className="po-tag__price">{POT.note}</span>
+          </a>
+        </div>
+      </section>
+
+      <div className="po-page__body">
         {/*
           ---------- 頭盤 ----------
           雞霸。左邊排字、右邊一只黑描邊的大橢圓盤，
@@ -343,74 +420,6 @@ export default function StorePage() {
 
             <figcaption>{HERO.caption}</figcaption>
           </figure>
-        </section>
-
-        {/*
-          ---------- 盤面 ----------
-          中央一鍋，四周九只碟子，每只碟子掛一張白色標籤牌。
-          整個盤面裝在一個固定長寬比的框裡，碟子用座標排，所以它整塊縮放。
-        */}
-        <section className="po-pot" aria-labelledby="po-pot-title">
-          <header className="po-pot__head">
-            <p className="po-eyebrow">{POT.kicker}</p>
-            <h2 className="po-pot__title" id="po-pot-title">
-              {POT.title}
-            </h2>
-            <p className="po-pot__lead">
-              {POT.lead.map((line) => (
-                <span key={line}>{line}</span>
-              ))}
-            </p>
-          </header>
-
-          <div className="po-stage">
-            {/* 中央的鍋。白鍋緣上兩圈灰色放射虛線，是參考圖最認得出來的那一處。 */}
-            <div className="po-center">
-              <span className="po-center__rim" aria-hidden="true" />
-              <span className="po-ticks po-ticks--outer" aria-hidden="true" />
-              <span className="po-ticks po-ticks--inner" aria-hidden="true" />
-
-              <figure className="po-center__bowl">
-                <Art
-                  art={POT.art}
-                  alt={POT.alt}
-                  sizes={SIZES.pot}
-                  className="po-center__art"
-                  priority
-                />
-              </figure>
-
-              <Image
-                className="po-peek"
-                src={POT.peek.art}
-                alt={POT.peek.alt}
-                sizes={SIZES.peek}
-                priority
-              />
-
-              <a
-                className="po-tag po-tag--center"
-                href={POT.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="po-tag__bullet" aria-hidden="true" />
-                <span className="po-tag__body">
-                  <span className="po-tag__name">{POT.label}</span>
-                  <span className="po-tag__note">{POT.note}</span>
-                  <span className="po-tag__price po-tag__price--cta">
-                    {POT.cta}
-                  </span>
-                </span>
-              </a>
-            </div>
-
-            <ul className="po-plates">
-              {PLATES.map((plate) => (
-                <Plate key={plate.name} plate={plate} />
-              ))}
-            </ul>
-          </div>
         </section>
 
         {/*
