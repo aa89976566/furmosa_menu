@@ -119,11 +119,6 @@
   color: var(--po-ink);
 }
 
-.po-eyebrow--ink {
-  border-color: var(--po-orange-deep);
-  color: var(--po-orange-deep);
-}
-
 /* 數字。海報的數字一律用重黑的拉丁字，配一個小單位與一行註。 */
 .po-figure {
   margin: 0;
@@ -154,8 +149,9 @@
   letter-spacing: 0.08em;
 }
 
+/* 已捐金額。整頁最大的數字，所以用紙白壓在橘底上。 */
 .po-figure--ink .po-figure__value {
-  color: var(--po-orange-deep);
+  color: var(--po-paper);
 }
 
 /* 連結。粗體加底線，游標過去線加粗，沒有膠囊、沒有陰影。 */
@@ -972,6 +968,10 @@
  * 這一段的底是白的。月餅照與收據維持原彩——它們陳述的是事實，
  * 不能被染色，也不能被橘底吃掉。
  */
+/*
+ * 公益段。參考圖從頭到尾只有一個底色，所以這一段也直接畫在橘底上，
+ * 不另外開一塊白紙——白只留給牌子、照片與那張收據本身。
+ */
 .po-charity {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 30%;
@@ -980,9 +980,8 @@
     "receipt receipt"
     "dogs dogs";
   gap: clamp(18px, 2.6vw, 40px);
-  padding: clamp(24px, 3.4vw, 52px);
-  background: var(--po-paper);
-  border: var(--po-edge) solid var(--po-ink);
+  padding: clamp(32px, 4.4vw, 68px) 0;
+  border-top: var(--po-edge) solid var(--po-ink);
 }
 
 .po-charity__text {
@@ -1012,7 +1011,7 @@
 .po-charity__pull {
   margin: 0;
   padding: 0.5em 0.85em;
-  background: var(--po-orange-deep);
+  background: var(--po-ink);
   color: var(--po-paper);
   font-size: clamp(14px, 1.5vw, 20px);
   font-weight: 900;
@@ -1078,7 +1077,6 @@
   font-size: clamp(10px, 0.95vw, 12px);
   font-weight: 900;
   letter-spacing: 0.18em;
-  color: var(--po-orange-deep);
 }
 
 .po-receipt__header {
@@ -1118,14 +1116,14 @@
   grid-template-columns: 3.4em minmax(0, 1fr);
   gap: 0.6em;
   padding-bottom: 0.35em;
-  border-bottom: 1px solid #d9d6cf;
+  border-bottom: 1px solid rgb(28 27 27 / 35%);
 }
 
 .po-receipt__row dt {
   font-size: clamp(10px, 0.95vw, 12px);
   font-weight: 900;
   letter-spacing: 0.1em;
-  color: #6f6d68;
+  color: rgb(28 27 27 / 70%);
 }
 
 .po-receipt__row dd {
@@ -1142,7 +1140,7 @@
   font-size: clamp(10px, 0.92vw, 12px);
   font-weight: 500;
   line-height: 1.6;
-  color: #6f6d68;
+  color: rgb(28 27 27 / 70%);
 }
 
 /* 七隻狗狗。公益段的腳註，所以收在同一塊的最下面。 */
@@ -1495,11 +1493,24 @@
 
   .po-plate,
   .po-plate__link,
-  .po-plate__frame,
-  .po-plate--pan .po-plate__frame {
+  .po-plate__frame {
     position: static;
     inset: auto;
     width: auto;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  /*
+   * 黑鍋的兩只耳朵是碟框的 ::before/::after，所以碟框不能跟著攤平成
+   * static——不然耳朵會跑去貼著盤面的邊。鍋身收到格子的 78%，
+   * 兩邊各留出 11% 讓耳朵有地方掛。
+   */
+  .po-plate--pan .po-plate__frame {
+    position: relative;
+    inset: auto;
+    width: 78%;
+    margin: 0 auto;
     transform: none;
     pointer-events: auto;
   }

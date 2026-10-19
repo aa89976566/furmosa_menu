@@ -507,7 +507,7 @@ export default function StorePage() {
         */}
         <section className="po-charity" aria-labelledby="po-charity-title">
           <div className="po-charity__text">
-            <p className="po-eyebrow po-eyebrow--ink">{CHARITY.kicker}</p>
+            <p className="po-eyebrow">{CHARITY.kicker}</p>
 
             <h2 className="po-charity__title" id="po-charity-title">
               {CHARITY.title}
