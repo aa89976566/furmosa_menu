@@ -12,25 +12,32 @@ import type { StaticImageData } from "next/image";
  * 同樣的規矩也管文案：品名、價格、網址全部取自 furmosa.com，
  * 沒有一項規格或促銷是為了填滿標籤牌寫出來的。
  */
-import beefCubes from "@/assets/poster/beef-cubes-loading.jpg";
 import canning from "@/assets/poster/canning.jpg";
 import charityReceipt from "@/assets/poster/charity-receipt-wide.png";
-import cutletBag from "@/assets/poster/cutlet-bag.jpg";
 import cutletDog from "@/assets/poster/drop-cutlet-dog.jpg";
 import dogDada from "@/assets/poster/dog-dada.jpg";
 import dogHeitang from "@/assets/poster/dog-heitang.jpg";
 import dogSasa from "@/assets/poster/dog-sasa.jpg";
 import dogSiaohuei from "@/assets/poster/stray-dog-siaohuei.jpg";
 import dryingRacks from "@/assets/poster/drying-racks.jpg";
-import friesCup from "@/assets/poster/drop-all-fries-cup.jpg";
 import handTrim from "@/assets/poster/hand-trim.jpg";
-import catGrass from "@/assets/poster/drop-cat-catgrass.jpg";
 import menuSign from "@/assets/poster/menu-sign.jpg";
 import mooncakePacks from "@/assets/poster/mooncake-packs-pair.jpg";
-import moonPacks from "@/assets/poster/drop-moon-packs.jpg";
-import partnerPigEar from "@/assets/poster/drop-partner-pigear.jpg";
 import peekDog from "@/assets/poster/dog-cutlet-cutout.webp";
-import wovenBowl from "@/assets/poster/hero-06-bowl.webp";
+
+/*
+ * 去背的實拍。參考圖的碟子上擺的是去背食材、而且會溢出碟緣，所以碟子裡
+ * 不能放方形照片——得有帶 alpha 的素材才做得出同一件事。
+ * 這幾張是用 scripts/make-cutouts.py 把原圖的單色背景挖掉的，
+ * 食材本身的像素一個都沒動，原彩完全保留。
+ */
+import beefMound from "@/assets/poster/cutout/beef-mound.webp";
+import catGrass from "@/assets/poster/cutout/cat-grass.webp";
+import cutletFillet from "@/assets/poster/cutout/cutlet-fillet.webp";
+import moonPack from "@/assets/poster/cutout/moon-pack.webp";
+import partnerPigEar from "@/assets/poster/cutout/pig-ear.webp";
+import potFill from "@/assets/poster/cutout/pot-fill.webp";
+import wovenBowl from "@/assets/poster/cutout/woven-bowl.webp";
 
 import { SWAP_REGIONS } from "@/data/about";
 import {
@@ -133,29 +140,34 @@ export const HERO = {
  * 鍋心 (49.4%W, 49.6%H)、直徑 52.25%W。鍋緣上兩圈放射刻度的數量、
  * 角寬與半徑則是沿著那一圈逐度取樣量的。
  *
- * 參考圖的鍋裡是畫出來的一整鍋乾貨；這一版放的是實拍的一杯雞肉乾條——
- * 同樣是「一只容器裝滿了貨」，而且是真的照片。
+ * 參考圖的鍋裡是畫出來的一整鍋乾貨：塞到鍋緣，而且是好幾種不同的東西混裝。
+ * 手上沒有任何一張實拍是一鍋混裝的乾貨，所以這一鍋是把去背的實拍疊出來的
+ * （見 scripts/make-cutouts.py 的 pack_pot）——肉乾堆、雞排、豬耳朵、牛肉丁，
+ * 全是真的商品照，只做了縮放與擺位，像素與顏色一個都沒改。
+ * 片與片的縫會透出鍋底的深褐色，那個色是量參考圖鍋裡沒被貨蓋到的地方取的，
+ * rgb(70, 43, 34)。
  */
 export const POT = {
   /** 鍋心與鍋徑，盤面寬的百分比。 */
   x: 49.4,
   y: 49.6,
   d: 52.25,
-  art: friesCup,
-  alt: "實拍：一只印著匠寵肉掌標誌的紙杯裝滿立著的雞肉乾條",
+  art: potFill,
+  alt: "一鍋混裝的乾貨實拍：肉乾、雞肉乾、豬耳朵與牛肉丁凍乾塞滿整個鍋子",
   /**
-   * 參考圖的鍋緣趴著一隻畫出來的狗：頭頂在 2.9%H、頭的中線 33.5%W，
-   * 剛好跨在鍋緣上。那一隻不重畫——同一個座標換成原本就有的去背實拍。
+   * 參考圖的鍋緣趴著一隻畫出來的狗：量出來的黑色輪廓是
+   * 26.29–38.39%W（寬 12.17、中線 32.34）、4.26–25.43%H，剛好跨在鍋緣上。
+   * 那一隻不重畫——同一個座標換成原本就有的去背實拍。
    * 實拍是一整隻坐著的狗，頭只佔圖寬的 0.57、中心偏右 0.628，
-   * 所以 x 放的是整張圖的中線 32%，算回去頭正好落在 33.5%W。
-   * y 量的是頭頂而不是身體中心，狗才不會被盤面的上緣切掉。
+   * 所以 x 放的是整張圖的中線，y 量的是頭頂而不是身體中心，
+   * 狗才不會被盤面的上緣切掉。
    */
   peek: {
     art: peekDog,
     alt: "實拍去背：一隻黑色的台灣犬坐在一袋嚎大大雞排旁邊",
-    x: 32,
-    y: 2.9,
-    w: 11.5,
+    x: 32.3,
+    y: 3.6,
+    w: 13.5,
   },
   /**
    * 參考圖的鍋沒有牌，牠自己就是主角。但鍋要能點，所以把「全部商品」
@@ -186,6 +198,21 @@ export type Plate = {
   external?: boolean;
   art?: StaticImageData;
   alt?: string;
+  /**
+   * 這張是去背的，所以照參考圖的做法擺：食材壓在碟面上、不裁進橢圓裡，
+   * 還會溢出碟緣。數值是食材寬度除以碟寬。
+   *
+   * 參考圖的食材幾乎塞滿碟面：量過寶藍碟是碟寬的 0.98、灰白碟 1.02、
+   * 底中那一組 1.2（罐子整個站出碟外）。所以這裡的目標是寬度 0.98、
+   * 高度 0.95，取兩者算出來較小的那一個：
+   *   cut = min(0.98, 0.95 × 素材長寬比 × 碟高比)
+   * 每一碟的素材長寬比都不同，所以值也都不同。
+   *
+   * 沒有這一項的碟子就是方形照片裁進橢圓——那是退而求其次，不是參考圖的樣子。
+   */
+  cut?: number;
+  /** 食材在碟面上往上或往下挪一點，碟寬的百分比。 */
+  cutY?: number;
   /** 沒有實拍時，占位框上寫的是「該放哪一張」。 */
   pending?: string;
   tone: PlateTone;
@@ -203,22 +230,30 @@ export type Plate = {
 };
 
 /*
- * 八只碟子。座標、碟寬、壓扁程度與每一張標籤牌的左上角，
- * 全部逐一量自參考圖（1594×987）：
+ * 八只碟子，全部量自參考圖（1594×987）。
  *
- *   碟子   碟心 x/y        碟寬    碟高/碟寬   牌的左上角
- *   ----   -------------   -----   ---------   -------------
- *   左上   13.2 / 13.9     17.7    0.52        17.31 / 26.24
- *   右上   78.0 / 14.7     16.0    0.96        65.56 / 15.60
- *   右中上 89.0 / 33.5     15.0    0.83        75.72 / 34.04
- *   左鍋   12.1 / 46.2     19.3    0.75        22.52 / 51.06
- *   右鍋   88.7 / 57.6     20.2    0.70        75.66 / 61.90
- *   左下   12.6 / 71.1     18.1    0.83        17.69 / 73.96
- *   右下   83.5 / 81.6     21.0    0.72        72.90 / 84.09
- *   底中   55.5 / 89.1     19.1    0.60        55.02 / 88.55
+ * 碟子是橢圓，而且上面都壓著食材，所以用目測抓不準。量法是：先用碟色的
+ * 容差遮罩挑出碟面露出來的部分，取每一列與每一欄的左右／上下極值當邊界點，
+ * 再用 soft_l1 做最小平方擬合一個正置橢圓——食材壓出來的假邊界會被當成
+ * 離群值丟掉。擬合完的八個橢圓畫回參考圖上逐一對過。
+ *
+ *   碟子   碟心 x/y        碟寬    碟高/碟寬   碟色              牌的左上角
+ *   ----   -------------   -----   ---------   ---------------   -------------
+ *   左上   12.83 / 18.69   16.72   0.89        淺藍 196,212,218  17.31 / 26.24
+ *   右上   78.02 / 14.66   15.74   0.97        青   139,194,201  65.56 / 15.60
+ *   右中上 89.81 / 33.51   16.19   0.91        白   244,245,244  75.72 / 34.04
+ *   左鍋   12.10 / 47.01   18.40   0.73        黑    34, 34, 35  22.52 / 51.06
+ *   右鍋   87.99 / 57.68   18.87   0.72        黑    34, 33, 34  75.66 / 61.90
+ *   左下   11.90 / 70.90   16.10   0.89        寶藍  56,113,180  17.69 / 73.96
+ *   右下   83.12 / 80.34   16.14   0.81        灰白 230,234,232  72.90 / 83.79
+ *   底中   45.72 / 89.00   15.91   0.74        淺藍 197,219,224  55.02 / 88.55
  *
  * 參考圖的牌是空白的，每一張都從碟子底下往鍋子的方向長出去。
  * 這一版把真的品名與價格排進同一個位置、同一個尺寸，數量也一樣是八張。
+ *
+ * 哪一樣商品排到哪一只碟子，是按素材的長寬比配的：很扁的碟子要配很扁的
+ * 素材，很圓的碟子要配立起來的素材，不然碟面會空一大半或整個被蓋掉。
+ * 碟子的座標與形狀一律照參考圖，不會為了遷就素材而移動。
  */
 export const PLATES: Plate[] = [
   {
@@ -226,13 +261,14 @@ export const PLATES: Plate[] = [
     price: "NT$165",
     href: `${SHOP_ORIGIN}/products/chicken-fillet`,
     external: true,
-    art: cutletBag,
-    alt: "實拍：一片大雞肉乾插在印著匠寵圖章與 Thank you very much 的紙袋裡",
+    art: cutletFillet,
+    alt: "實拍去背：一整片烤成金黃的雞肉乾",
+    cut: 0.98,
     tone: "pale",
-    x: 13.2,
-    y: 13.9,
-    w: 17.7,
-    ratio: 0.52,
+    x: 12.83,
+    y: 18.69,
+    w: 16.72,
+    ratio: 0.89,
     tx: 17.31,
     ty: 26.24,
   },
@@ -241,13 +277,15 @@ export const PLATES: Plate[] = [
     price: "NT$180",
     href: `${SHOP_ORIGIN}/products/jian-ji-niu-rou-di-gua-su`,
     external: true,
-    art: beefCubes,
-    alt: "實拍：牛肉丁凍乾排成一條 LOADING 進度條",
+    art: beefMound,
+    alt: "實拍去背：九塊牛肉地瓜凍乾堆成一小堆",
+    /* 這一只碟子幾乎是圓的（0.96），所以配一堆、不配躺平的一條。 */
+    cut: 0.97,
     tone: "teal",
-    x: 78,
-    y: 14.7,
-    w: 16,
-    ratio: 0.96,
+    x: 78.02,
+    y: 14.66,
+    w: 15.74,
+    ratio: 0.97,
     tx: 65.56,
     ty: 15.6,
   },
@@ -258,10 +296,10 @@ export const PLATES: Plate[] = [
     external: true,
     pending: "鴨喉商品照",
     tone: "white",
-    x: 89,
-    y: 33.5,
-    w: 15,
-    ratio: 0.83,
+    x: 89.81,
+    y: 33.51,
+    w: 16.19,
+    ratio: 0.91,
     tx: 75.72,
     ty: 34.04,
   },
@@ -270,13 +308,14 @@ export const PLATES: Plate[] = [
     href: PARTNER_URL,
     external: true,
     art: partnerPigEar,
-    alt: "實拍：一只豬耳朵零食擺在白底上，底下寫著今天乖乖嗎",
+    alt: "實拍去背：一只烘乾的豬耳朵零食",
+    cut: 0.77,
     tone: "pan",
     pan: true,
     x: 12.1,
-    y: 46.2,
-    w: 19.3,
-    ratio: 0.75,
+    y: 47.01,
+    w: 18.4,
+    ratio: 0.73,
     tx: 22.52,
     ty: 51.06,
   },
@@ -286,13 +325,14 @@ export const PLATES: Plate[] = [
     href: rowHref(6),
     external: true,
     art: wovenBowl,
-    alt: "實拍：藤編外圈搭深綠釉內裡的寵物碗",
+    alt: "實拍去背：藤編外圈搭深綠釉內裡的寵物碗",
+    cut: 0.86,
     tone: "pan",
     pan: true,
-    x: 88.7,
-    y: 57.6,
-    w: 20.2,
-    ratio: 0.7,
+    x: 87.99,
+    y: 57.68,
+    w: 18.87,
+    ratio: 0.72,
     tx: 75.66,
     ty: 61.9,
   },
@@ -303,10 +343,10 @@ export const PLATES: Plate[] = [
     external: true,
     pending: "混蔬菜凍乾商品照",
     tone: "blue",
-    x: 12.6,
-    y: 71.1,
-    w: 18.1,
-    ratio: 0.83,
+    x: 11.9,
+    y: 70.9,
+    w: 16.1,
+    ratio: 0.89,
     tx: 17.69,
     ty: 73.96,
   },
@@ -315,27 +355,34 @@ export const PLATES: Plate[] = [
     href: CATNIP_URL,
     external: true,
     art: catGrass,
-    alt: "一片台灣形狀的貓草雞肉乾浮在星雲裡，右下角一隻黑貓抬頭看著",
+    alt: "實拍去背：一片台灣形狀的貓草雞肉乾，表面撒著貓草碎",
+    cut: 0.835,
     tone: "mist",
-    x: 83.5,
-    y: 81.6,
-    w: 21,
-    ratio: 0.72,
+    x: 83.12,
+    y: 80.34,
+    w: 16.14,
+    ratio: 0.81,
     tx: 72.9,
-    ty: 84.09,
+    ty: 83.79,
   },
   {
     name: "浪浪交易所",
     price: "已結單",
     href: rowHref(3),
     external: true,
-    art: moonPacks,
-    alt: "實拍：印著「牠的月餅」與一隻黑白狗的中秋月餅包裝",
-    tone: "white",
-    x: 55.5,
-    y: 89.1,
-    w: 19.1,
-    ratio: 0.6,
+    art: moonPack,
+    alt: "實拍去背：印著「牠的月餅」與一隻黑白狗的中秋月餅立袋",
+    /*
+     * 參考圖這個位置站著一只玻璃罐，立起來、罐身整個超出底下的橢圓。
+     * 手上沒有玻璃罐的實拍，但月餅立袋是同一種「站著的高物」，
+     * 所以放在這裡，溢出的方式也跟參考圖一樣。
+     */
+    cut: 0.54,
+    tone: "pale",
+    x: 45.72,
+    y: 89,
+    w: 15.91,
+    ratio: 0.74,
     tx: 55.02,
     ty: 88.55,
   },

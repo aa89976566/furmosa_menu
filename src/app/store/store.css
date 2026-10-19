@@ -13,22 +13,25 @@
 .po-page {
   /*
    * ---- 色 ---- 全部取樣自參考圖：乾淨的橘底是 243,100,57；
-   * 碟子一只一個色，不是同一個淺藍重複用——量出來依序是
-   * 淺藍 196,208,216、青 138,192,200、白 240,240,240、
-   * 寶藍 56,116,180、灰白 224,232,232。鍋緣白 251,252,252、
-   * 刻度灰 197,193,191。
+   * 碟子一只一個色，不是同一個淺藍重複用。每一只的碟色是取碟面露出來的
+   * 那一圈的中位數量的——淺藍 196,212,218、青 139,194,201、白 244,245,244、
+   * 寶藍 56,113,180、灰白 230,234,232，兩只黑鍋 34,34,35。
+   * 鍋緣白 251,252,252、刻度灰 197,193,191。
    */
   --po-orange: #f36439;
   --po-orange-deep: #d8441c;
   --po-ink: #1c1b1b;
   --po-paper: #fbfcfc;
-  --po-teal: #8ac2ca;
-  --po-pale: #c4d2da;
-  --po-white: #f0f0f0;
-  --po-mist: #e2eaea;
-  --po-blue: #3874b4;
+  --po-teal: #8bc2c9;
+  --po-pale: #c4d4da;
+  --po-white: #f4f5f4;
+  --po-mist: #e6eae8;
+  --po-blue: #3871b4;
+  --po-pan: #222223;
   --po-rim: #fbfcfc;
   --po-dash: #c5c1bf;
+  /* 鍋底。量參考圖鍋裡沒被貨蓋到的地方取的。 */
+  --po-pot: #462b22;
   --po-pending: #d6d4cf;
   --po-pending-ink: #6f6d68;
 
@@ -550,24 +553,30 @@
   margin: 0;
   border-radius: 50%;
   border: 0.78cqw solid var(--po-dash);
+  background: var(--po-pot);
   box-shadow: inset 0 0 0 0.3cqw rgb(0 0 0 / 14%);
   overflow: hidden;
 }
 
-.po-center__art,
-.po-center__art img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
+/*
+ * 參考圖的鍋裡是一整鍋塞到鍋緣的乾貨，看不到鍋底。這裡放的是疊出來的一鍋
+ * 去背實拍，本身已經是方形的圓，所以只要比圓稍微大一點就蓋滿了。
+ * 貨要留在鍋裡，所以裁切是在鍋上做（鍋有 overflow: hidden），不是在貨上。
+ */
+.po-center__art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* 疊出來的那一鍋圓內覆蓋率約九成，放大到 118% 讓邊緣的缺口落在鍋壁外。 */
+  width: 118%;
+  height: auto;
+  overflow: visible;
+  transform: translate(-50%, -50%);
 }
 
-/*
- * 參考圖的鍋裡是一整鍋塞滿的乾貨。這一格是實拍，所以往杯子推近一些，
- * 讓貨佔滿圓裡，而不是連著整片店內背景一起放進來。
- */
 .po-center__art img {
-  transform: scale(1.52);
-  transform-origin: 47% 42%;
+  width: 100%;
+  height: auto;
 }
 
 /*
@@ -640,12 +649,11 @@
   display: block;
   aspect-ratio: 1 / var(--r, 0.72);
   border-radius: 50%;
-  overflow: hidden;
 }
 
 /*
- * 碟子裡的實拍。參考圖的貨是去背畫上去的，碟邊整圈都露出來；實拍是方的，
- * 所以得往內縮多一點，碟色才看得到——縮到 11%，碟邊才像一只碟子的邊。
+ * 沒有去背素材的碟子，只能把方形照片裁進一個圓裡、往內縮到 11% 讓碟色露出來。
+ * 這是退而求其次——參考圖的碟子不是這樣。
  */
 .po-disc__art {
   position: absolute;
@@ -655,6 +663,30 @@
 
 .po-disc__art img {
   border-radius: 50%;
+}
+
+/*
+ * 有去背素材的碟子就照參考圖的做法：食材壓在碟面上、不裁進橢圓裡，
+ * 而且會溢出碟緣——參考圖那只藍碟左下角就有一塊凍乾整塊落在碟子外面。
+ * --cut 是食材寬度除以碟寬，參考圖量出來大約 0.88。
+ */
+.po-plate--cut .po-disc__art {
+  inset: auto;
+  left: 50%;
+  top: calc(50% + var(--cut-y, 0) * 1%);
+  width: calc(var(--cut, 0.88) * 100%);
+  height: auto;
+  overflow: visible;
+  border-radius: 0;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0.3cqw 0.45cqw rgb(28 27 27 / 32%));
+}
+
+.po-plate--cut .po-disc__art img {
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  object-fit: contain;
 }
 
 .po-plate--pale .po-disc {
@@ -678,19 +710,15 @@
 }
 
 /*
- * 黑鍋。實心墨色，左右各一只鍋耳。鍋身收到碟寬的 78%、
- * 鍋耳往外凸 14% 鍋身寬，加起來剛好是量到的那個總寬。
+ * 黑鍋。實心墨色，左右各掛一只鍋耳。量到的 --w 是鍋身那個橢圓的寬度
+ * （擬合時鍋耳被當成離群值丟掉了），所以鍋耳是往鍋身外面長的。
  * 耳朵畫在鍋身後面，所以只看得到外半圈。
  */
-.po-plate--pan .po-plate__frame {
-  width: calc(var(--w) * 0.78%);
-}
-
 .po-plate--pan .po-disc {
-  background: var(--po-ink);
+  background: var(--po-pan);
 }
 
-.po-plate--pan .po-disc__art {
+.po-plate--pan .po-disc__art:not(.po-plate--cut *) {
   inset: 14%;
 }
 
@@ -699,19 +727,19 @@
   content: "";
   position: absolute;
   top: 50%;
-  width: 26%;
+  width: 22%;
   aspect-ratio: 1;
-  border: 0.62cqw solid var(--po-ink);
+  border: 0.62cqw solid var(--po-pan);
   border-radius: 50%;
   transform: translateY(-50%);
 }
 
 .po-plate--pan .po-plate__frame::before {
-  left: -14%;
+  left: -13%;
 }
 
 .po-plate--pan .po-plate__frame::after {
-  right: -14%;
+  right: -13%;
 }
 
 /* ---- 標籤牌 ---- */

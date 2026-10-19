@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python（scripts/ 下的去背script跑過會留下來的）
+__pycache__/

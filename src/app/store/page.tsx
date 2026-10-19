@@ -150,7 +150,14 @@ function Art({
 function Plate({ plate }: { plate: PlateData }) {
   return (
     <li
-      className={`po-plate po-plate--${plate.tone}${plate.pan ? " po-plate--pan" : ""}`}
+      className={[
+        "po-plate",
+        `po-plate--${plate.tone}`,
+        plate.pan ? "po-plate--pan" : "",
+        plate.cut ? "po-plate--cut" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={
         {
           "--x": plate.x,
@@ -159,6 +166,8 @@ function Plate({ plate }: { plate: PlateData }) {
           "--r": plate.ratio,
           "--tx": plate.tx,
           "--ty": plate.ty,
+          ...(plate.cut ? { "--cut": plate.cut } : null),
+          ...(plate.cutY ? { "--cut-y": plate.cutY } : null),
         } as React.CSSProperties
       }
     >

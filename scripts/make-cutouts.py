@@ -16,6 +16,8 @@
   open_px     商品照上印的線框、文字這類細結構離背景色很遠，挖不掉。
               用形態學開運算把比這個寬度細的東西清掉，再只留最大的一塊。
 
+挖完之後還會把其中幾張疊成中央那一鍋的內容，詳見 pack_pot()。
+
 用法：python3 scripts/make-cutouts.py
 輸出：src/assets/poster/cutout/*.webp
 """
@@ -47,6 +49,8 @@ class Job:
     crop: tuple[float, float, float, float] = (0, 0, 1, 1)
     # 連落影一起挖：(彩度上限, 亮度下限)。商品本身必須比這個暖或這個暗。
     neutral: tuple[float, float] | None = None
+    # 只留暖色：要求 R 比 B 高出這個值。商品是褐色、落影是背景色染出來的冷調時用。
+    warm_only: float = 0
     # 清掉比這個半徑細的結構（線框、文字），單位是像素。
     open_px: int = 0
     # 只留面積最大的一塊。清完細結構後用來掃掉殘餘的碎片。
@@ -64,10 +68,13 @@ class Job:
 
 
 JOBS = [
-    Job("hero-07-partner.webp", "jerky-heap.webp", lo=14, hi=40,
-        note="一堆方形肉乾，白底。拿來填中央那一鍋。"),
+    Job("hero-07-partner.webp", "jerky-heap.webp", lo=22, hi=56,
+        warm_only=14, fill_holes=False, connected=False,
+        note="一堆方形肉乾，白底。拿來填中央那一鍋。片與片之間的縫也是白底，"
+             "那些縫不是被線框圍住的孤島、是真的縫，所以不限連通、也不補洞——"
+             "縫要透出來，鍋底的深褐色才看得見，一鍋貨才有層次。"),
     Job("cutlet-bag.jpg", "cutlet-fillet.webp", lo=22, hi=56,
-        crop=(0.2, 0.08, 0.785, 0.33), neutral=(20, 205),
+        crop=(0.2, 0.08, 0.773, 0.33), neutral=(20, 205),
         note="嚎大大雞排。整張是雞排插在白紙袋裡，袋子跟白底同色挖不開，"
              "所以只裁露在袋口以上的那一片雞排——袋口斜線在 0.38 以下。"),
     Job("drop-partner-pigear.jpg", "pig-ear.webp", lo=20, hi=50,
@@ -82,10 +89,18 @@ JOBS = [
         note="藤編寵物碗。碗底那一圈中性灰的落影連著挖掉——藤是暖色、"
              "內裡是墨綠、織紋是黑，都不會被誤傷。"),
     Job("beef-cubes-loading.jpg", "beef-cubes.webp", bg=(129, 186, 201),
-        lo=48, hi=86, crop=(0.135, 0.45, 0.865, 0.578),
-        fill_holes=False, connected=False,
+        lo=40, hi=78, crop=(0.135, 0.45, 0.865, 0.578),
+        warm_only=22, patch_holes=4000, fill_holes=False, connected=False,
         note="牛肉丁。整張是青底的 LOADING 進度條，只裁框線內那排肉丁；"
-             "背景色直接指定那個青，不然裁切邊上的黑框線會把取樣帶歪。"),
+             "背景色直接指定那個青，不然裁切邊上的黑框線會把取樣帶歪。"
+             "每一塊右邊都有一道青色的落影，離背景色更遠所以門檻挖不掉，"
+             "改用「只留暖色」把它清掉——肉丁本身是褐的，不會被誤傷。"),
+    Job("drop-cat-catgrass.jpg", "cat-grass.webp", bg=(12, 10, 16),
+        lo=95, hi=150, crop=(0.27, 0.17, 0.82, 0.75),
+        patch_holes=3000, keep_largest=True, fill_holes=False, connected=False,
+        note="草上飛貓草雞肉乾。原圖是一片台灣形狀的肉乾浮在星雲裡，"
+             "先裁到肉乾那一塊（把貓與亮色的星雲臂裁在外面），"
+             "剩下的背景是近黑的星空，離肉乾很遠，門檻一刀就切得開。"),
     Job("drop-moon-packs.jpg", "moon-pack.webp", bg=(253, 216, 96),
         lo=52, hi=88, crop=(0.04, 0.035, 0.855, 1.0),
         note="牠的月餅包裝。黃底本身很均勻，但上緣有一條白邊、左緣一條淡黃、"
@@ -133,6 +148,10 @@ def alpha_for(a: np.ndarray, bg: np.ndarray, job: Job) -> np.ndarray:
             np.clip((lum_min - lum) / 20, 0, 1),
         )
         soft = np.minimum(soft, keep)
+
+    if job.warm_only:
+        warm = np.clip((a[:, :, 0] - a[:, :, 2] - job.warm_only) / 10, 0, 1)
+        soft = np.minimum(soft, warm)
 
     if job.connected:
         # 只有「從邊框連得過來」的背景才挖掉，主體內部的白留著。
@@ -185,6 +204,156 @@ def despill(a: np.ndarray, bg: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     return out
 
 
+"""中央那一鍋。
+
+參考圖的鍋裡是一整鍋塞到鍋緣的乾貨，而且是好幾種不同的東西混在一起。
+手上沒有任何一張實拍是「一鍋混裝的乾貨」——最接近的那張肉乾堆只有一種
+肉乾，放大到蓋滿圓之後每一片會大得不成比例。
+
+所以這一鍋是把前面挖出來的去背實拍疊起來鋪滿的：縮放、旋轉、擺位，
+像素本身一個都沒改，顏色完全是原彩，沒有任何生成或重繪的東西。
+鍋的牌寫的是「全部商品」，鍋裡混裝好幾樣真的商品正好對得上。
+
+擺位表是寫死的，不是隨機的，所以每次跑出來都一樣。
+r 與 ang 是極座標（r 為鍋半徑的比例），w 是寬度佔鍋直徑的比例。
+"""
+POT_SIZE = 1400
+POT_LAYOUT = [
+    # 最外一圈：八堆肉乾沿著鍋壁鋪一圈，先把圓的外緣蓋掉。
+    ("jerky-heap.webp", 0.70, 0, 0.48, 14),
+    ("jerky-heap.webp", 0.70, 45, 0.48, 96),
+    ("jerky-heap.webp", 0.70, 90, 0.48, 178),
+    ("jerky-heap.webp", 0.70, 135, 0.48, 253),
+    ("jerky-heap.webp", 0.70, 180, 0.48, 31),
+    ("jerky-heap.webp", 0.70, 225, 0.48, 118),
+    ("jerky-heap.webp", 0.70, 270, 0.48, 201),
+    ("jerky-heap.webp", 0.70, 315, 0.48, 288),
+    # 中間一圈。
+    ("jerky-heap.webp", 0.42, 30, 0.56, 62),
+    ("jerky-heap.webp", 0.42, 120, 0.56, 147),
+    ("jerky-heap.webp", 0.42, 210, 0.56, 234),
+    ("jerky-heap.webp", 0.42, 300, 0.56, 321),
+    # 大件的單品插在中層。參考圖的鍋裡是好幾種顏色混在一起，所以這裡也
+    # 把金黃的雞排、淺褐的豬耳朵、橘紅的貓草肉乾都插進去，不是一鍋同色。
+    ("cutlet-fillet.webp", 0.30, 95, 0.44, -18),
+    ("pig-ear.webp", 0.33, 205, 0.42, 24),
+    ("cat-grass.webp", 0.34, 330, 0.30, 52),
+    ("cutlet-fillet.webp", 0.46, 255, 0.36, 146),
+    ("cat-grass.webp", 0.44, 160, 0.26, -38),
+    ("cat-grass.webp", 0.52, 55, 0.26, 128),
+    # 最後兩堆蓋住正中間的縫。
+    ("jerky-heap.webp", 0.14, 40, 0.54, 212),
+    ("jerky-heap.webp", 0.0, 0, 0.56, 120),
+]
+POT_CUBES = [
+    (0.62, 15, 0.085, 20),
+    (0.58, 75, 0.085, -35),
+    (0.66, 125, 0.08, 62),
+    (0.60, 175, 0.09, -8),
+    (0.64, 235, 0.085, 41),
+    (0.56, 285, 0.09, -62),
+    (0.30, 20, 0.08, 15),
+    (0.26, 160, 0.085, -24),
+    (0.34, 265, 0.08, 78),
+    (0.42, 340, 0.085, -47),
+]
+
+
+def _place(canvas: Image.Image, art: Image.Image, r: float, ang: float,
+           w: float, rot: float) -> None:
+    d = canvas.width
+    scaled = art.resize(
+        (max(1, round(w * d)), max(1, round(w * d * art.height / art.width))),
+        Image.LANCZOS,
+    )
+    turned = scaled.rotate(rot, expand=True, resample=Image.BICUBIC)
+    rad = np.radians(ang)
+    cx = d / 2 + r * (d / 2) * np.cos(rad)
+    cy = d / 2 + r * (d / 2) * np.sin(rad)
+    canvas.alpha_composite(
+        turned, (round(cx - turned.width / 2), round(cy - turned.height / 2))
+    )
+
+
+def _cubes() -> list[Image.Image]:
+    """把那一條五塊的牛肉丁拆成單塊，才好零散地撒在鍋裡。"""
+    strip = Image.open(OUT / "beef-cubes.webp")
+    alpha = np.asarray(strip)[:, :, 3] > 128
+    lab, n = ndimage.label(alpha)
+    out = []
+    for i in range(1, n + 1):
+        ys, xs = np.where(lab == i)
+        if len(ys) < 2000:
+            continue
+        out.append(strip.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)))
+    return out
+
+
+"""那一堆牛肉丁。
+
+原圖是五塊排成一列，長寬比 6.2，擺到任何一只碟子上都只是細細一條；
+參考圖的碟子上是一小堆。所以這裡把那一列拆成單塊，再堆成一小堆——
+跟中央那一鍋同一招，像素與顏色都是原圖的，只做縮放與擺位。
+"""
+BEEF_MOUND = [
+    (0.27, 0.78, 0.34, -9),
+    (0.55, 0.82, 0.32, 14),
+    (0.79, 0.72, 0.33, -21),
+    (0.15, 0.52, 0.31, 7),
+    (0.45, 0.56, 0.35, -14),
+    (0.74, 0.45, 0.32, 19),
+    (0.28, 0.25, 0.30, -26),
+    (0.56, 0.26, 0.33, 11),
+    (0.84, 0.21, 0.29, -5),
+]
+
+
+def pack_beef() -> None:
+    cubes = _cubes()
+    size = 900
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    for i, (fx, fy, w, rot) in enumerate(BEEF_MOUND):
+        art = cubes[i % len(cubes)]
+        scaled = art.resize(
+            (round(w * size), round(w * size * art.height / art.width)),
+            Image.LANCZOS,
+        )
+        turned = scaled.rotate(rot, expand=True, resample=Image.BICUBIC)
+        canvas.alpha_composite(
+            turned,
+            (round(fx * size - turned.width / 2),
+             round(fy * size - turned.height / 2)),
+        )
+    a = np.asarray(canvas)
+    ys, xs = np.where(a[:, :, 3] > 10)
+    out = canvas.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+    out.save(OUT / "beef-mound.webp", lossless=True)
+    print(f"  {'beef-mound.webp':20s} {out.width:4d}x{out.height:4d}"
+          f"  長寬比 {out.width / out.height:.2f}  九塊牛肉丁堆成一小堆")
+
+
+def pack_pot() -> None:
+    canvas = Image.new("RGBA", (POT_SIZE, POT_SIZE), (0, 0, 0, 0))
+    for name, r, ang, w, rot in POT_LAYOUT:
+        _place(canvas, Image.open(OUT / name), r, ang, w, rot)
+
+    cubes = _cubes()
+    for i, (r, ang, w, rot) in enumerate(POT_CUBES):
+        _place(canvas, cubes[i % len(cubes)], r, ang, w, rot)
+
+    # 裁成圓的，邊緣羽化一點，鍋緣才不會出現一條硬邊。
+    yy, xx = np.mgrid[0:POT_SIZE, 0:POT_SIZE]
+    rr = np.hypot(xx - POT_SIZE / 2, yy - POT_SIZE / 2) / (POT_SIZE / 2)
+    mask = np.clip((1.0 - rr) / 0.015, 0, 1)
+    a = np.asarray(canvas).astype(np.float32)
+    a[:, :, 3] *= mask
+    Image.fromarray(a.astype(np.uint8), "RGBA").save(OUT / "pot-fill.webp",
+                                                     lossless=True)
+    cover = float((a[:, :, 3] > 128)[rr < 0.98].mean())
+    print(f"  {'pot-fill.webp':20s} {POT_SIZE}x{POT_SIZE}  圓內覆蓋率 {cover:.0%}"
+          "  鍋裡：肉乾堆、雞排、豬耳朵、牛肉丁，全是去背實拍疊的")
+
+
 def run() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     for job in JOBS:
@@ -204,6 +373,8 @@ def run() -> int:
         Image.fromarray(rgba, "RGBA").save(OUT / job.out, lossless=True)
         cover = float(keep[y0:y1, x0:x1].mean())
         print(f"  {job.out:20s} {x1 - x0:4d}x{y1 - y0:4d}  覆蓋率 {cover:.0%}  {job.note}")
+    pack_beef()
+    pack_pot()
     return 0
 
 
