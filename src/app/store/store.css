@@ -20,7 +20,7 @@
   --po-pale: #c0d8d8;
   --po-blue: #3060a8;
   --po-rim: #f1f2f2;
-  --po-dash: #b2b5b5;
+  --po-dash: #a9adad;
   --po-pending: #d6d4cf;
   --po-pending-ink: #6f6d68;
 
@@ -358,7 +358,6 @@
 
 .po-hero__head span:nth-child(2) {
   color: var(--po-paper);
-  -webkit-text-stroke: 2px var(--po-ink);
 }
 
 .po-hero__lead {
@@ -439,9 +438,8 @@
 }
 
 .po-hero__plate {
-  position: static;
+  display: block;
   width: 100%;
-  transform: none;
 }
 
 /* ================= 盤面 ================= */
@@ -492,12 +490,12 @@
   margin-top: clamp(10px, 1.4vw, 20px);
 }
 
-/* ---- 中央的鍋 ---- 直徑是盤面寬的 54%，量自參考圖 ---- */
+/* ---- 中央的鍋 ---- 直徑是盤面寬的 52.5%，量自參考圖 ---- */
 .po-center {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 54%;
+  width: 52.5%;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
 }
@@ -517,40 +515,63 @@
 .po-ticks {
   position: absolute;
   border-radius: 50%;
+}
+
+/*
+ * 外圈：57 格刻度，實虛各半，徑向的峰值落在鍋緣半徑的 0.87–0.91。
+ * 數量、角寬與半徑都是沿著參考圖的鍋緣一圈一圈取樣量出來的；
+ * 遮罩的兩端留了漸層，刻度的頭尾才會收掉，而不是一截硬邊的長方塊。
+ */
+.po-ticks--outer {
+  inset: 2.25%;
   background: repeating-conic-gradient(
     from 0deg,
-    var(--po-dash) 0deg 3deg,
-    #0000 3deg 6deg
+    var(--po-dash) 0deg 3.15deg,
+    #0000 3.15deg 6.3deg
   );
-}
-
-.po-ticks--outer {
-  inset: 1.5%;
   -webkit-mask-image: radial-gradient(
     closest-side,
-    #0000 0 90.5%,
-    #000 91% 100%
+    #0000 86%,
+    #000 91% 95.5%,
+    #0000 100%
   );
-  mask-image: radial-gradient(closest-side, #0000 0 90.5%, #000 91% 100%);
+  mask-image: radial-gradient(
+    closest-side,
+    #0000 86%,
+    #000 91% 95.5%,
+    #0000 100%
+  );
 }
 
+/* 內圈：刻度少一些、寬一些——39 格，徑向 0.715–0.815。 */
 .po-ticks--inner {
-  inset: 10%;
+  inset: 9.25%;
+  background: repeating-conic-gradient(
+    from 2.3deg,
+    var(--po-dash) 0deg 4.6deg,
+    #0000 4.6deg 9.2deg
+  );
   -webkit-mask-image: radial-gradient(
     closest-side,
-    #0000 0 90%,
-    #000 90.5% 100%
+    #0000 86%,
+    #000 92% 94.5%,
+    #0000 100%
   );
-  mask-image: radial-gradient(closest-side, #0000 0 90%, #000 90.5% 100%);
+  mask-image: radial-gradient(
+    closest-side,
+    #0000 86%,
+    #000 92% 94.5%,
+    #0000 100%
+  );
 }
 
 /* 鍋裡。灰色的鍋壁加上一張實拍。 */
 .po-center__bowl {
   position: absolute;
-  inset: 17.5%;
+  inset: 16%;
   margin: 0;
   border-radius: 50%;
-  border: 1.1cqw solid #a9acac;
+  border: 1cqw solid #a9acac;
   overflow: hidden;
 }
 
@@ -561,14 +582,23 @@
   border-radius: 50%;
 }
 
+/*
+ * 參考圖的鍋裡是一整鍋塞滿的乾貨。這一格是實拍，所以往杯子推近一些，
+ * 讓貨佔滿圓裡，而不是連著整片店內背景一起放進來。
+ */
+.po-center__art img {
+  transform: scale(1.34);
+  transform-origin: 36% 48%;
+}
+
 /* 從鍋緣後面探出來的那一隻。去背實拍，不是插畫。 */
 .po-peek {
   position: absolute;
-  left: 4%;
-  bottom: 76%;
+  left: 2%;
+  bottom: 70%;
   /* 鍋緣是後面的兄弟元素，所以牠會被鍋緣壓住下半身——這就是探出來的那一下。 */
   z-index: -1;
-  width: 34%;
+  width: 30%;
   height: auto;
   transform: rotate(-7deg);
   pointer-events: none;
@@ -766,8 +796,8 @@
 /* 鍋子自己那一張牌。掛在鍋緣的下方，比碟子的牌大一級。 */
 .po-tag--center {
   left: 50%;
-  top: 86%;
-  width: 46%;
+  top: 71%;
+  width: 38%;
   transform: translateX(-50%);
   align-items: flex-start;
 }
@@ -1478,12 +1508,17 @@
     transform: none;
   }
 
-  /* 牌改成接在碟子下面。繼續掛在旁邊的話，兩欄的牌會互相壓住。 */
+  /*
+   * 牌改成接在碟子下面。繼續掛在旁邊的話，兩欄的牌會互相壓住。
+   * 牌要壓在碟子上緣，所以得留著 position——碟框本身是 relative，
+   * 排版流裡的元素會被它蓋掉。
+   */
   .po-tag,
   .po-plate--hang-left .po-tag,
   .po-plate--hang-right .po-tag,
   .po-plate--round .po-tag {
-    position: static;
+    position: relative;
+    z-index: 1;
     left: auto;
     right: auto;
     top: auto;
@@ -1500,8 +1535,12 @@
     transform: translateX(-50%);
   }
 
+  /*
+   * 鍋收小了，趴在鍋緣上的那一隻就只剩一小截認不出來的毛——
+   * 看不出是什麼的照片不如不放，所以窄螢幕直接收掉。
+   */
   .po-peek {
-    width: 40%;
+    display: none;
   }
 
   .po-making {

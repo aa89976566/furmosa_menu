@@ -326,7 +326,8 @@ export default function StorePage() {
           </div>
 
           <figure className="po-hero__figure">
-            <span className="po-plate po-plate--pale po-plate--plate po-hero__plate">
+            {/* 碟色與碟形沿用盤面那一套，但不帶 .po-plate——它不吃座標，是順著版面排的。 */}
+            <span className="po-plate--pale po-hero__plate">
               <span className="po-plate__frame">
                 <span className="po-disc">
                   <Art
