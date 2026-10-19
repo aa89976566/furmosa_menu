@@ -1439,27 +1439,14 @@
 /* ================= 窄螢幕 ================= */
 
 /*
- * 盤面的座標排法只在桌機成立。到了平板以下，盤子收成網格：
- * 中央的鍋先獨自站一行，九只碟子跟著排兩欄，標籤牌改成接在碟子下面，
- * 不再掛到旁邊去——掛在旁邊會互相壓住。
+ * 1:1 的盤面只到 1000px。參考圖的牌子是固定大小的——量出來一律 37 到 40 像素高，
+ * 不隨碟子縮放——換算成盤寬是 1.05cqw，而字再小就看不清了，所以牌有 10.5px 的下限。
+ * 盤面窄到 1000px 以下，牌就撐破那個比例開始壓到隔壁的碟子。
+ *
+ * 所以這裡換一種排法，而不是把 1:1 硬撐下去：鍋先獨自站一行，
+ * 八只碟子跟著排兩欄，牌接在各自的碟子下面壓住碟緣。
  */
-@media (max-width: 900px) {
-  .po-top {
-    grid-template-columns: auto auto;
-    row-gap: clamp(10px, 2vw, 18px);
-  }
-
-  .po-top__nav {
-    grid-column: 1 / -1;
-    order: 3;
-    justify-content: flex-start;
-  }
-
-  /*
-   * 1:1 的盤面只到這裡。再窄下去，那張牌照比例算出來不到十個像素，
-   * 照著排就是一張看不懂的圖。所以手機把盤面拆成網格：
-   * 鍋先獨自站一行，八只碟子跟著排兩欄，牌接在碟子下面。
-   */
+@media (max-width: 1000px) {
   .po-poster {
     padding: 0 var(--po-pad);
   }
@@ -1553,6 +1540,20 @@
    */
   .po-peek {
     display: none;
+  }
+}
+
+/* 內文的欄位收成一欄。 */
+@media (max-width: 900px) {
+  .po-top {
+    grid-template-columns: auto auto;
+    row-gap: clamp(10px, 2vw, 18px);
+  }
+
+  .po-top__nav {
+    grid-column: 1 / -1;
+    order: 3;
+    justify-content: flex-start;
   }
 
   .po-hero {
