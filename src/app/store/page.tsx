@@ -197,6 +197,47 @@ function Plate({ plate }: { plate: PlateData }) {
   );
 }
 
+/**
+ * 窄螢幕的品名表。
+ *
+ * 海報本身是一張固定長寬比的圖，窄螢幕就整塊等比縮小，排法一格都不改——
+ * 要跟參考圖一模一樣，就不能在某個寬度以下把它拆成別的版面。
+ *
+ * 但有一樣東西是縮不下去的：牌子上的字。參考圖的牌高固定 37–40px、
+ * 不隨碟子縮放，換算成盤寬是 1.05cqw，所以盤面低於 1000px 時字就會低於
+ * 10.5px 的可讀下限，而且牌開始互相壓。所以牌在那個寬度以下收起來，
+ * 品名與價格改排成這張表接在海報下面——海報維持原樣，字回到讀得到的大小。
+ *
+ * 碟子本身一直是連結，所以收掉牌不會讓任何東西點不到；這張表是另一個入口。
+ */
+function PosterIndex() {
+  const rows: { href: string; external?: boolean; name: string; price?: string }[] = [
+    { href: POT.href, external: true, name: POT.label, price: POT.note },
+    ...PLATES.map((plate) => ({
+      href: plate.href,
+      external: plate.external,
+      name: plate.name,
+      price: plate.price,
+    })),
+  ];
+
+  return (
+    <ul className="po-index" aria-label="盤面上的商品">
+      {rows.map((row) => (
+        <li className="po-index__row" key={row.name}>
+          <Anchor item={row} className="po-index__link">
+            <span className="po-tag__bullet" aria-hidden="true" />
+            <span className="po-index__name">{row.name}</span>
+            {row.price ? (
+              <span className="po-index__price">{row.price}</span>
+            ) : null}
+          </Anchor>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** 七隻狗狗的一格。名字一定在，照片不一定在。 */
 function DogCell({ dog }: { dog: StrayDog }) {
   return (
@@ -361,6 +402,9 @@ export default function StorePage() {
             <span className="po-tag__price">{POT.note}</span>
           </a>
         </div>
+
+        {/* 牌子縮不下去的寬度才出現，見 PosterIndex。 */}
+        <PosterIndex />
       </section>
 
       <div className="po-page__body">

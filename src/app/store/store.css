@@ -1500,115 +1500,77 @@
 /* ================= 窄螢幕 ================= */
 
 /*
- * 1:1 的盤面只到 1000px。參考圖的牌子是固定大小的——量出來一律 37 到 40 像素高，
- * 不隨碟子縮放——換算成盤寬是 1.05cqw，而字再小就看不清了，所以牌有 10.5px 的下限。
- * 盤面窄到 1000px 以下，牌就撐破那個比例開始壓到隔壁的碟子。
+ * 盤面在每一個寬度都是 1:1 的。
  *
- * 所以這裡換一種排法，而不是把 1:1 硬撐下去：鍋先獨自站一行，
- * 八只碟子跟著排兩欄，牌接在各自的碟子下面壓住碟緣。
+ * 海報是一張固定長寬比的圖，窄螢幕就整塊等比縮小——鍋、碟子、夾子、
+ * 趴在鍋緣上的那一隻，相對位置一格都不改。這一頁的要求是跟參考圖一模一樣，
+ * 所以不能在某個寬度以下把它換成另一種版面。
+ *
+ * 真正縮不下去的只有牌子上的字。參考圖的牌高固定 37 到 40 像素、不隨碟子
+ * 縮放，換算成盤寬是 1.05cqw，所以盤面低於 1000px 時字就會低於 10.5px 的
+ * 可讀下限，而且牌開始互相壓。所以牌在那個寬度以下收起來，品名與價格改排成
+ * 一張表接在海報下面（見 .po-index）——海報維持原樣，字回到讀得到的大小。
+ *
+ * 碟子本身一直是連結，所以收掉牌不會讓任何東西點不到。
  */
+/*
+ * 窄螢幕的品名表。牌子收起來之後，品名與價格排在這裡。
+ * 樣式跟牌一致：白底、黑粗字、價格是橘的、前面一個小黑方塊——
+ * 它讀起來還是同一套語言，只是從海報上搬了下來。
+ */
+.po-index {
+  display: none;
+  margin: clamp(14px, 3vw, 22px) 0 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(6px, 1.4vw, 10px);
+}
+
+.po-index__row {
+  display: flex;
+}
+
+.po-index__link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.62em 0.85em;
+  border-radius: 2px;
+  background: var(--po-paper);
+  color: var(--po-ink);
+  font-size: clamp(13px, 3.4vw, 16px);
+  font-weight: 900;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.po-index .po-tag__bullet {
+  position: static;
+  flex: none;
+  width: 0.78em;
+  height: 0.78em;
+  margin: 0;
+  border-width: 1.5px;
+}
+
+.po-index__name {
+  flex: 1;
+}
+
+.po-index__price {
+  flex: none;
+  color: var(--po-orange);
+}
+
 @media (max-width: 1000px) {
-  .po-poster {
-    padding: 0 var(--po-pad);
-  }
-
-  .po-stage {
-    aspect-ratio: auto;
-    display: grid;
-    gap: clamp(30px, 8vw, 56px);
-    padding: clamp(16px, 4vw, 28px) 0;
-  }
-
-  /*
-   * 夾子的座標是綁在 1:1 盤面上的，盤面一改成網格就沒有依據了——
-   * 硬留下來只會橫跨在兩欄碟子上面。所以這個斷點以下整支收起來。
-   */
-  .po-tongs {
-    display: none;
-  }
-
-  .po-center {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: min(100%, 420px);
-    justify-self: center;
-    transform: none;
-  }
-
-  .po-plates {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(26px, 6vw, 44px) clamp(14px, 3.5vw, 28px);
-  }
-
-  /* 碟形拉成一致。0.52 的扁盤跟 0.96 的圓盤並排在網格裡會參差不齊。 */
-  .po-plate .po-disc {
-    --r: 0.82;
-  }
-
-  .po-plate,
-  .po-plate__link,
-  .po-plate__frame {
-    position: static;
-    inset: auto;
-    width: auto;
-    transform: none;
-    pointer-events: auto;
-  }
-
-  /*
-   * 黑鍋的兩只耳朵是碟框的 ::before/::after，所以碟框不能跟著攤平成
-   * static——不然耳朵會跑去貼著盤面的邊。鍋身收到格子的 78%，
-   * 兩邊各留出 11% 讓耳朵有地方掛。
-   */
-  .po-plate--pan .po-plate__frame {
-    position: relative;
-    inset: auto;
-    width: 78%;
-    margin: 0 auto;
-    transform: none;
-    pointer-events: auto;
-  }
-
-  /*
-   * 牌要壓在碟子上緣，所以得留著 position——碟框本身是 relative，
-   * 排版流裡的元素會被它蓋掉。小黑方塊收回牌裡面，不然會凸出格子外。
-   */
   .po-tag {
-    position: relative;
-    z-index: 1;
-    left: auto;
-    top: auto;
-    width: auto;
-    min-width: 0;
-    margin-top: -8%;
-    font-size: clamp(11px, 3vw, 14px);
-    white-space: normal;
-  }
-
-  .po-tag__bullet {
-    position: static;
-    flex: none;
-    width: 0.78em;
-    height: 0.78em;
-    margin: 0;
-    border-width: 1.5px;
-    align-self: center;
-  }
-
-  .po-tag--pot {
-    justify-self: center;
-    margin-top: 0;
-    font-size: clamp(13px, 3.6vw, 17px);
-  }
-
-  /*
-   * 鍋收小了，趴在鍋緣上的那一隻就只剩一小截認不出來的毛——
-   * 看不出是什麼的照片不如不放，所以窄螢幕直接收掉。
-   */
-  .po-peek {
     display: none;
+  }
+
+  .po-index {
+    display: grid;
   }
 }
 

@@ -33,7 +33,7 @@ import peekDog from "@/assets/poster/dog-cutlet-cutout.webp";
  */
 import beefMound from "@/assets/poster/cutout/beef-mound.webp";
 import catGrass from "@/assets/poster/cutout/cat-grass.webp";
-import cutletFillet from "@/assets/poster/cutout/cutlet-fillet.webp";
+import cutletFillet from "@/assets/poster/cutout/cutlet-plate.webp";
 import moonPack from "@/assets/poster/cutout/moon-pack.webp";
 import partnerPigEar from "@/assets/poster/cutout/pig-ear-pan.webp";
 import potFill from "@/assets/poster/cutout/pot-fill.webp";
@@ -273,8 +273,16 @@ export const PLATES: Plate[] = [
     href: `${SHOP_ORIGIN}/products/chicken-fillet`,
     external: true,
     art: cutletFillet,
-    alt: "實拍去背：一整片烤成金黃的雞肉乾",
-    cut: 0.98,
+    alt: "實拍去背：八片烤成金黃的雞肉乾疊成一盤",
+    /*
+     * 參考圖這一只是五六片細長的亮橘片排成一把扇形。手上的雞排只有一張大片，
+     * 整片鋪上去碟面覆蓋率是對的（67%，參考圖 70%），但會變成一塊沒有形狀的
+     * 橘色板子——顆粒完全不對。所以放的是八片疊出來的一盤
+     * （見 scripts/make-cutouts.py 的 pack_plate）。
+     * 疊出來的那一盤本身就是碟子的扁率，cut 取 0.94——1.02 會蓋到 82%，
+     * 參考圖這一只是 70%。
+     */
+    cut: 0.94,
     tone: "pale",
     x: 12.83,
     y: 18.69,

@@ -479,6 +479,27 @@ PAN_PIG_EAR = [
 ]
 
 
+"""那只淺藍碟子上的雞排。
+
+參考圖左上那只碟子上是五六片細長的亮橘片排成一把扇形，不是一整塊。
+手上的雞排只有一張 399×234 的大片，整片鋪上去會變成一塊沒有形狀的橘色板子
+——碟面覆蓋率是對的（67%，參考圖 70%），但顆粒完全不對。
+
+所以同一招：把那一片縮小、轉開、疊成一盤。旋轉角沿著扇形的方向遞增，
+讓它讀成一片片疊著的片。
+"""
+PLATE_CUTLET = [
+    (0.28, 0.76, 0.44, 34),
+    (0.54, 0.82, 0.42, 12),
+    (0.76, 0.72, 0.40, -16),
+    (0.22, 0.46, 0.42, 52),
+    (0.50, 0.50, 0.46, 26),
+    (0.78, 0.44, 0.40, -4),
+    (0.36, 0.22, 0.40, 68),
+    (0.64, 0.20, 0.38, 42),
+]
+
+
 def pack_plate(out_name: str, ratio: float, source: str,
                layout: list[tuple[float, float, float, float]],
                note: str, width: int = 1200) -> None:
@@ -573,7 +594,9 @@ def run() -> int:
         print(f"  {job.out:20s} {x1 - x0:4d}x{y1 - y0:4d}  覆蓋率 {cover:.0%}  {job.note}")
     pack_beef()
     pack_plate("pig-ear-pan.webp", 0.73, "pig-ear.webp", PAN_PIG_EAR,
-               "十只豬耳朵疊成一鍋（參考圖那只黑鍋量到 86% 覆蓋率）")
+               "十七只豬耳朵疊成一鍋（參考圖那只黑鍋量到 86% 覆蓋率）")
+    pack_plate("cutlet-plate.webp", 0.89, "cutlet-fillet.webp", PLATE_CUTLET,
+               "八片雞排疊成一盤（參考圖左上那只碟子是一把扇形的細長片）")
     pack_pot()
     return 0
 
