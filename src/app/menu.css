@@ -1,0 +1,1214 @@
+/*
+ * 匠寵首頁 ─ 一張寵物餐桌。
+ *
+ * 色、顆粒與盤緣沿用 /store 那張海報量出來的那一套（橘底 rgb(246,82,38)、
+ * 深紅 rgb(136,15,20)、奶白 rgb(250,246,230)），所以兩頁看起來是同一家店。
+ * 但這一頁不是海報：每一只盤子都是按鈕，中央大盤會換內容，所以版面是算出來
+ * 的圓環，不是照參考圖逐點描的座標。
+ *
+ * 命名一律 mn-（menu）。這一份只管首頁。
+ */
+
+.mn-page {
+  /* ---- 色 ---- 取樣自參考圖，與 store.css 同一組。 */
+  --mn-orange: #f65226;
+  --mn-orange-deep: #d8441c;
+  --mn-ink: #1a1a1a;
+  --mn-cream: #faf6e6;
+  --mn-tag: #fcf8e9;
+  --mn-strip: #fdf5db;
+  --mn-crimson: #880f14;
+  --mn-crimson-deep: #94151c;
+  --mn-gold: #fce7b1;
+  --mn-green: #1f6b3a;
+
+  /* 盤底色。盤子比照片大，露出來的那一圈就是這個色。 */
+  --mn-pale: #e2e6ea;
+  --mn-teal: #7fb2b6;
+  --mn-paper: #eeeeeb;
+  --mn-mist: #e7ebeb;
+  --mn-blue: #2f71c0;
+  --mn-pan: #1e1b1c;
+  --mn-rim: #fbfcfc;
+  --mn-dash: #c2bebd;
+
+  /* ---- 版面 ---- */
+  --mn-bar-h: 48px;
+  --mn-pad: clamp(14px, 3vw, 44px);
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: clip;
+  padding-top: var(--mn-bar-h);
+  background: var(--mn-orange);
+  color: var(--mn-ink);
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-weight: 500;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * 網版的顆粒。跟 store.css 同一張雜訊：filter 指定 sRGB、alpha 壓成 1，
+ * 混色用 overlay——overlay 對 0.5 的灰不作用，所以底色的平均值留得住，
+ * 只有顆粒在上下擺。層壓在最底，盤子與實拍都畫在牠上面，照片不會被蓋雜訊。
+ */
+.mn-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.73;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+.mn-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================ 頂端固定條 ============================ */
+
+.mn-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  height: var(--mn-bar-h);
+  background: var(--mn-crimson);
+  color: var(--mn-cream);
+}
+
+.mn-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1480px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--mn-pad);
+}
+
+.mn-bar__ship {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(12px, 1.1vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+.mn-bar__text {
+  white-space: nowrap;
+}
+
+/* 參考圖上緣那條金色的槽。這一版讓牠真的跟著小計動。 */
+.mn-bar__meter {
+  position: relative;
+  flex: 0 1 200px;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #b15958;
+}
+
+.mn-bar__fill,
+.mn-drawer__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mn-gold);
+  /* scaleX 從左邊長出來，所以原點要壓在左緣。 */
+  transform-origin: 0 50%;
+  transition: transform 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.mn-bar__fill[data-full],
+.mn-drawer__fill[data-full] {
+  background: #7ddc9b;
+}
+
+.mn-bar__cart {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #0000;
+  color: inherit;
+  font: inherit;
+  font-size: clamp(12px, 1.1vw, 15px);
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.mn-bar__cart:hover,
+.mn-bar__cart:focus-visible {
+  background: #ffffff22;
+}
+
+.mn-bar__icon {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.mn-bar__count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mn-cream);
+  color: var(--mn-crimson);
+  font-size: 0.86em;
+}
+
+.mn-bar__count--empty {
+  background: #ffffff2e;
+  color: var(--mn-cream);
+}
+
+.mn-bar__sep {
+  opacity: 0.6;
+}
+
+/* ============================== 餐桌 ============================== */
+
+.mn-table {
+  position: relative;
+  z-index: 2;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 40px) var(--mn-pad) clamp(40px, 6vw, 80px);
+}
+
+/*
+ * 圓環。開 container-type: inline-size，所以 1cqw 就是盤面寬度的 1%——
+ * 菜盤的橫豎位移共用這一把尺，整桌縮放時橢圓不會被拉歪（見 MenuTable.tsx）。
+ * 高度用 aspect-ratio 綁在寬度上，理由同上。
+ */
+.mn-ring {
+  container-type: inline-size;
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+  aspect-ratio: 1 / 0.95;
+}
+
+/* ---------------------------- 中央大盤 ---------------------------- */
+
+.mn-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56cqw;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--mn-rim);
+  box-shadow:
+    0 0 0 0.5cqw var(--mn-ink),
+    0 2cqw 4cqw #00000026;
+}
+
+/* 盤緣內側那一圈白溝。 */
+.mn-center__rim {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  background: #f1f0ee;
+}
+
+/*
+ * 盤緣那一圈刻度。沿用海報量到的做法：一圈重複的扇形，再用一個環狀的遮罩
+ * 把牠切成帶狀。這裡不追參考圖的 66 格——那是另一張圖的鍋，這一頁的盤子
+ * 尺寸不同，格數取 72（5 度一格）剛好整除，收邊不會出現半格。
+ */
+.mn-center__ticks {
+  position: absolute;
+  inset: 2.5%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 2.5deg,
+    var(--mn-dash) 0deg 3.9deg,
+    #0000 4.1deg 5deg
+  );
+  mask-image: radial-gradient(
+    closest-side,
+    #0000 80%,
+    #000 82% 95%,
+    #0000 97%
+  );
+}
+
+/* 盤心那一塊放內容的面。 */
+.mn-dish {
+  position: absolute;
+  inset: 17%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.2cqw;
+  text-align: center;
+  /* 切換分類時整塊重建，所以這一下淡入就是「換盤」的那個動作。 */
+  animation: mn-serve 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes mn-serve {
+  from {
+    opacity: 0;
+    transform: translateY(1.4cqw) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mn-dish {
+    animation-duration: 1ms;
+  }
+  .mn-bar__fill,
+  .mn-drawer__fill,
+  .mn-plate__btn,
+  .mn-drawer__panel {
+    transition-duration: 1ms;
+  }
+}
+
+.mn-dish__head {
+  display: grid;
+  gap: 0.7cqw;
+}
+
+.mn-dish__title {
+  margin: 0;
+  font-size: 4.1cqw;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--mn-ink);
+}
+
+.mn-dish__blurb {
+  margin: 0 auto;
+  max-width: 34cqw;
+  font-size: 1.42cqw;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #4a4542;
+}
+
+.mn-dish__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2cqw;
+  width: 100%;
+}
+
+.mn-dish__state {
+  margin: 0;
+  max-width: 30cqw;
+  font-size: 1.45cqw;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #6b6560;
+}
+
+.mn-dish__more {
+  color: var(--mn-crimson);
+  font-size: 1.4cqw;
+  font-weight: 900;
+  text-decoration: none;
+  border-bottom: 0.18cqw solid currentColor;
+}
+
+.mn-dish__more:hover,
+.mn-dish__more:focus-visible {
+  color: var(--mn-orange-deep);
+}
+
+/* -------------------------- 盤上的一份 -------------------------- */
+
+.mn-item {
+  display: flex;
+  flex: 0 1 11.5cqw;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7cqw;
+  min-width: 0;
+}
+
+/* 商品照的圓形容器。照片一律 object-fit: cover，不變形。 */
+.mn-item__disc {
+  display: block;
+  width: 10.4cqw;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #eceae4;
+  box-shadow: 0 0 0 0.22cqw #00000018;
+}
+
+.mn-item__disc img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mn-item__blank {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    #dedbd4 0 5px,
+    #e9e6e0 5px 10px
+  );
+  color: #7b756e;
+  font-size: 1.1cqw;
+  font-weight: 700;
+}
+
+.mn-item__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  font-size: 1.24cqw;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--mn-ink);
+}
+
+.mn-item__price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5cqw;
+  margin: 0;
+  font-size: 1.5cqw;
+  font-weight: 900;
+  color: var(--mn-crimson);
+}
+
+.mn-item__was {
+  font-size: 0.8em;
+  font-weight: 700;
+  color: #8d8781;
+}
+
+.mn-item__add {
+  padding: 0.62cqw 1.3cqw;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mn-crimson);
+  color: var(--mn-cream);
+  font: inherit;
+  font-size: 1.18cqw;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.mn-item__add:hover:not(:disabled),
+.mn-item__add:focus-visible:not(:disabled) {
+  background: var(--mn-crimson-deep);
+  transform: translateY(-1px);
+}
+
+.mn-item__add:disabled {
+  background: #b9b3ad;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+/* 還在讀商品時的骨架。 */
+.mn-item--skeleton .mn-item__disc,
+.mn-item__bar {
+  background: #e3e0da;
+  animation: mn-pulse 1.3s ease-in-out infinite;
+}
+
+.mn-item__bar {
+  width: 8.6cqw;
+  height: 1.1cqw;
+  border-radius: 999px;
+}
+
+.mn-item__bar--short {
+  width: 5cqw;
+}
+
+@keyframes mn-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* --------------------------- 八只菜盤 --------------------------- */
+
+.mn-plates {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * 一只菜盤。--dx/--dy 由 MenuTable 算出來，單位都是盤面寬度的 1%，
+ * 所以縱向也用 cqw——橫豎同一把尺，橢圓才不會被拉歪。
+ */
+.mn-plate {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 13.5cqw;
+  transform: translate(
+    calc(-50% + var(--dx) * 1cqw),
+    calc(-50% + var(--dy) * 1cqw)
+  );
+}
+
+.mn-plate__btn {
+  display: grid;
+  gap: 0.7cqw;
+  justify-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #0000;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.mn-plate__btn:hover,
+.mn-plate__btn:focus-visible {
+  transform: scale(1.05);
+}
+
+/* 選中的那一只放大，牌子換成深紅。 */
+.mn-plate__btn[data-on] {
+  transform: scale(1.11);
+}
+
+.mn-plate__disc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 0.42cqw var(--mn-rim),
+    0 0.8cqw 1.8cqw #00000024;
+  transition: box-shadow 240ms ease;
+}
+
+/* 選中：盤緣外面再加一圈紅。 */
+.mn-plate__btn[data-on] .mn-plate__disc {
+  box-shadow:
+    0 0 0 0.42cqw var(--mn-rim),
+    0 0 0 0.95cqw var(--mn-crimson),
+    0 1cqw 2.2cqw #0000002e;
+}
+
+.mn-plate__disc[data-tone="pale"] {
+  background: var(--mn-pale);
+}
+.mn-plate__disc[data-tone="teal"] {
+  background: var(--mn-teal);
+}
+.mn-plate__disc[data-tone="paper"] {
+  background: var(--mn-paper);
+}
+.mn-plate__disc[data-tone="mist"] {
+  background: var(--mn-mist);
+}
+.mn-plate__disc[data-tone="blue"] {
+  background: var(--mn-blue);
+}
+.mn-plate__disc[data-tone="pan"] {
+  background: var(--mn-pan);
+}
+.mn-plate__disc[data-tone="cream"] {
+  background: var(--mn-cream);
+}
+
+/* 整張商品照裁進圓裡：填滿、不變形。 */
+.mn-plate__btn[data-fit="photo"] .mn-plate__disc img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+/* 去背的素材浮在盤面上，所以只佔 --cut 那麼寬、不裁滿。 */
+.mn-plate__btn[data-fit="cut"] .mn-plate__disc img {
+  width: calc(var(--cut, 0.9) * 100%);
+  height: auto;
+  object-fit: contain;
+}
+
+.mn-plate__tag {
+  padding: 0.5cqw 1.1cqw;
+  border-radius: 0.5cqw;
+  background: var(--mn-tag);
+  color: var(--mn-ink);
+  font-size: 1.24cqw;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: 0 0.3cqw 0.8cqw #0000001f;
+  transition:
+    background 240ms ease,
+    color 240ms ease;
+}
+
+.mn-plate__btn[data-on] .mn-plate__tag {
+  background: var(--mn-crimson);
+  color: var(--mn-cream);
+}
+
+/* ========================== 運送資訊列 ========================== */
+
+.mn-ship {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  margin: clamp(10px, 2vw, 26px) auto 0;
+  max-width: 900px;
+}
+
+.mn-ship__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 13px clamp(14px, 2vw, 26px);
+  border-radius: 999px;
+  background: var(--mn-strip);
+  color: var(--mn-crimson);
+  font-size: clamp(12px, 1.15vw, 16px);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+/* 一格一條規則。分隔線放在格子前面，所以整格會一起換行，
+   不會出現一行結尾吊著一個「｜」。 */
+.mn-ship__cell {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.mn-ship__sep {
+  margin: 0 0.5em;
+  opacity: 0.45;
+}
+
+/* 條件成立才出現的那兩條。good 是綠、warn 是深橘。 */
+.mn-ship__flag {
+  margin: 0;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  text-align: center;
+}
+
+.mn-ship__flag[data-tone="good"] {
+  background: var(--mn-green);
+  color: #eafff1;
+}
+
+.mn-ship__flag[data-tone="warn"] {
+  background: var(--mn-crimson-deep);
+  color: var(--mn-cream);
+}
+
+/* ========================= 底部功能標籤 ========================= */
+
+/*
+ * 這四個不是商品分類，所以權重壓低：沒有盤緣、沒有照片，牌子比菜盤小一號，
+ * 底色是半透明的奶白而不是盤色。
+ */
+.mn-tabs {
+  margin: clamp(24px, 4vw, 52px) auto 0;
+  max-width: 1000px;
+}
+
+.mn-tabs__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 1.4vw, 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-tab {
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  padding: 13px 8px;
+  border-radius: 10px;
+  background: #faf6e6cc;
+  color: #3d3835;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.mn-tab:hover,
+.mn-tab:focus-visible {
+  background: var(--mn-cream);
+  transform: translateY(-2px);
+}
+
+.mn-tab__icon {
+  width: 21px;
+  height: 21px;
+  opacity: 0.75;
+}
+
+.mn-tab__label {
+  font-size: clamp(11px, 1vw, 14px);
+  font-weight: 800;
+}
+
+.mn-tab__note {
+  font-size: clamp(10px, 0.85vw, 12px);
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+/* ============================ 小提示 ============================ */
+
+.mn-toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  z-index: 70;
+  margin: 0;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+
+.mn-toast[data-on] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.mn-toast button,
+.mn-toast--bad {
+  padding: 11px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mn-ink);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 22px #00000038;
+}
+
+.mn-toast--bad {
+  background: var(--mn-crimson-deep);
+  cursor: default;
+}
+
+/* ========================== 購物車抽屜 ========================== */
+
+.mn-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mn-drawer[data-open] {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.mn-drawer__veil {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #00000061;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 240ms ease;
+}
+
+.mn-drawer[data-open] .mn-drawer__veil {
+  opacity: 1;
+}
+
+.mn-drawer__panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100vw);
+  background: var(--mn-cream);
+  transform: translateX(100%);
+  transition: transform 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.mn-drawer[data-open] .mn-drawer__panel {
+  transform: none;
+}
+
+.mn-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--mn-crimson);
+  color: var(--mn-cream);
+}
+
+.mn-drawer__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.mn-drawer__close {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff26;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mn-drawer__ship {
+  display: grid;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--mn-strip);
+}
+
+.mn-drawer__shipText {
+  margin: 0;
+  color: var(--mn-crimson);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mn-drawer__meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e3d9b6;
+}
+
+.mn-drawer__fill {
+  background: var(--mn-crimson);
+}
+
+.mn-drawer__error {
+  margin: 0;
+  padding: 11px 20px;
+  background: var(--mn-crimson-deep);
+  color: var(--mn-cream);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mn-drawer__empty {
+  display: grid;
+  gap: 10px;
+  padding: 34px 20px;
+  color: #5c564f;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mn-drawer__empty a {
+  color: var(--mn-crimson);
+  font-weight: 900;
+}
+
+.mn-drawer__list {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+}
+
+.mn-line {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e6dfc6;
+}
+
+.mn-line__disc {
+  display: block;
+  width: 62px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #e8e4dc;
+}
+
+.mn-line__disc img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mn-line__body {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mn-line__name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.mn-line__variant,
+.mn-line__unit {
+  margin: 0;
+  color: #6f6962;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mn-line__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.mn-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid #d8cfae;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.mn-step button {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: #0000;
+  color: var(--mn-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mn-step button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mn-step span {
+  min-width: 20px;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.mn-line__total {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--mn-crimson);
+}
+
+.mn-line__remove {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: #0000;
+  color: #8a837b;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mn-line__remove:hover:not(:disabled) {
+  color: var(--mn-crimson);
+}
+
+.mn-drawer__foot {
+  display: grid;
+  gap: 8px;
+  padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 2px solid #e6dfc6;
+  background: var(--mn-cream);
+}
+
+.mn-drawer__sum {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.mn-drawer__sum strong {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--mn-crimson);
+}
+
+.mn-drawer__note {
+  margin: 0;
+  color: #6f6962;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mn-drawer__checkout {
+  display: block;
+  padding: 14px;
+  border-radius: 999px;
+  background: var(--mn-crimson);
+  color: var(--mn-cream);
+  font-size: 15px;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+}
+
+.mn-drawer__checkout:hover,
+.mn-drawer__checkout:focus-visible {
+  background: var(--mn-crimson-deep);
+}
+
+/* ============================ 窄螢幕 ============================ */
+
+/*
+ * 手機版不改成普通的商品 grid。中央大盤留在上面、照樣是現在那一盤，
+ * 八只菜盤改成一列可以左右滑的圓——盤子還是圓的、還是同一顆按鈕，
+ * 只是從環形排成一條線。頂端那條與購物車照樣固定、隨時打得開。
+ */
+@media (max-width: 860px) {
+  .mn-ring {
+    container-type: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: none;
+    aspect-ratio: auto;
+  }
+
+  /* 大盤脫離絕對定位，回到流程裡、排在最上面。 */
+  .mn-center {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(100%, 460px);
+    margin: 0 auto;
+    transform: none;
+    box-shadow:
+      0 0 0 3px var(--mn-ink),
+      0 10px 26px #00000026;
+  }
+
+  /*
+   * 大盤裡的字原本用 cqw（盤寬的 1%）。這裡關掉 container，所以改用
+   * 固定的 px/% 重寫一遍——不然 cqw 會退回 viewport 寬度、字會爆掉。
+   */
+  .mn-dish {
+    inset: 15%;
+    gap: 10px;
+  }
+
+  .mn-dish__title {
+    font-size: clamp(20px, 6.2vw, 30px);
+  }
+
+  .mn-dish__blurb {
+    max-width: 78%;
+    font-size: clamp(10px, 2.8vw, 13px);
+  }
+
+  .mn-dish__row {
+    gap: clamp(6px, 2.4vw, 14px);
+  }
+
+  .mn-dish__state {
+    max-width: 80%;
+    font-size: clamp(10px, 2.8vw, 13px);
+  }
+
+  .mn-dish__more {
+    font-size: clamp(10px, 2.9vw, 13px);
+    border-bottom-width: 1px;
+  }
+
+  .mn-item {
+    flex: 0 1 clamp(64px, 23vw, 108px);
+    gap: 4px;
+  }
+
+  .mn-item__disc {
+    width: clamp(54px, 20vw, 94px);
+    box-shadow: 0 0 0 2px #00000018;
+  }
+
+  .mn-item__name {
+    font-size: clamp(9px, 2.5vw, 12px);
+  }
+
+  .mn-item__price {
+    gap: 4px;
+    font-size: clamp(11px, 3vw, 14px);
+  }
+
+  .mn-item__add {
+    padding: 5px 10px;
+    font-size: clamp(9px, 2.5vw, 12px);
+  }
+
+  .mn-item__bar {
+    width: clamp(44px, 16vw, 76px);
+    height: 9px;
+  }
+
+  .mn-item__bar--short {
+    width: clamp(26px, 10vw, 46px);
+  }
+
+  .mn-item__blank {
+    font-size: 9px;
+  }
+
+  /* 八只菜盤：一條可以左右滑的圓形清單。 */
+  .mn-plates {
+    display: flex;
+    gap: 12px;
+    /* 讓盤子滑到兩端時還留一點邊，不要貼死。 */
+    margin-inline: calc(var(--mn-pad) * -1);
+    padding: 4px var(--mn-pad) 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .mn-plates::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mn-plate {
+    position: static;
+    flex: 0 0 auto;
+    width: clamp(86px, 25vw, 112px);
+    transform: none;
+    scroll-snap-align: center;
+  }
+
+  .mn-plate__btn {
+    gap: 6px;
+  }
+
+  .mn-plate__disc {
+    box-shadow:
+      0 0 0 3px var(--mn-rim),
+      0 4px 10px #00000024;
+  }
+
+  .mn-plate__btn[data-on] {
+    /* 滑動清單裡放大太多會把鄰居擠掉，所以收一點。 */
+    transform: scale(1.06);
+  }
+
+  .mn-plate__btn[data-on] .mn-plate__disc {
+    box-shadow:
+      0 0 0 3px var(--mn-rim),
+      0 0 0 6px var(--mn-crimson),
+      0 5px 12px #0000002e;
+  }
+
+  .mn-plate__tag {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: clamp(10px, 2.9vw, 12px);
+  }
+
+  .mn-tabs__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 頂端那條在很窄的螢幕會擠：進度槽先收掉，字與購物車優先。 */
+@media (max-width: 560px) {
+  .mn-page {
+    --mn-bar-h: 44px;
+  }
+
+  .mn-bar__meter {
+    flex-basis: 54px;
+  }
+
+  .mn-bar__inner {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .mn-bar__meter {
+    display: none;
+  }
+}
