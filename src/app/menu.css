@@ -331,19 +331,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mn-stage__slide {
-    animation-duration: 1ms;
-  }
-  .mn-bar__fill,
-  .mn-drawer__fill,
-  .mn-plate__btn,
-  .mn-plate__disc,
-  .mn-drawer__panel {
-    transition-duration: 1ms;
-  }
-}
-
 .mn-stage__label {
   margin: 0;
   font-size: 5.2cqw;
@@ -1159,6 +1146,33 @@
 
 /*
  * 舊版這裡還有一組 360 以下的覆寫，因為盤心塞了三份商品、按鈕會頂到邊。
- * 現在圓台上只有三行字，320 那一檔還留 40px，所以那一組整個拿掉了。
+ * 現在圓台上只有三行字，320 那一檔還留 23px，所以那一組整個拿掉了。
  * 要是哪天又往圓台上加東西，記得回來重量一遍 320。
  */
+
+/* ============================ 不要動畫 ============================ */
+
+/*
+ * 這一組一定要排在整份的最後面。選擇器跟上面那些是同一個權重，靠的是後來
+ * 者勝——排在前面的話，後面那些帶 transition 的規則會把這裡寫的時間蓋回去
+ * （量過：原本放在圓台那一段後面，盤子的 0.22s 完全沒被關掉）。
+ *
+ * 時間不設成 0 是刻意的：0 在部分瀏覽器上不會送出 transitionend，
+ * 1ms 等於沒有動畫但事件照樣有。
+ */
+@media (prefers-reduced-motion: reduce) {
+  .mn-stage__slide {
+    animation-duration: 1ms;
+  }
+
+  .mn-stage__cta,
+  .mn-plate__btn,
+  .mn-plate__disc,
+  .mn-plate__tag,
+  .mn-bar__fill,
+  .mn-bar__cart,
+  .mn-drawer__fill,
+  .mn-drawer__panel {
+    transition-duration: 1ms;
+  }
+}
