@@ -96,10 +96,6 @@ JOBS = [
         note="KONG 幼犬玩具組，純白棚拍。原圖左上角壓了 KONG 的商標組合，"
              "那是印上去的字、不是貨，所以上緣裁到 0.28 把它留在外面。"
              "玩具是粉紅與水藍，離白底很遠，門檻一刀就切得開。"),
-    Job("drop-all-shampoo.jpg", "shampoo-bottle.webp", bg=(255, 255, 255),
-        lo=12, hi=40,
-        note="Earthbath 洗毛精。整瓶站在純白底上，瓶身是薰衣草紫、瓶蓋是白的，"
-             "白蓋被瓶身的深藍肩線圍在中間、連不到邊框，所以 connected 保得住它。"),
     Job("beef-cubes-loading.jpg", "beef-cubes.webp", bg=(129, 186, 201),
         lo=40, hi=78, crop=(0.135, 0.45, 0.865, 0.578),
         warm_only=22, patch_holes=4000, fill_holes=False, connected=False,
@@ -551,6 +547,51 @@ def _art(ref: str, cache: dict[str, Image.Image | list[Image.Image]]) -> Image.I
     return pieces[int(index) % len(pieces)]
 
 
+"""清潔與洗護那只黑鍋上的洗毛精。
+
+這一只碟子的扁率量到 0.690，是七只裡最扁的一只（碟寬 276px、碟高只有 190px）。
+但 寵物清潔與洗護 這一類的商品照清一色是立起來的 473ml 瓶子（長寬比 0.53），
+一支放上去只蓋到碟面的四分之一，放大到填滿又會變成一支穿過整張海報的柱子。
+
+所以這裡排三支——同一類裡三個真的品項（燕麥蘆薈潤絲精、低敏無香洗毛精、
+髒狗狗洗毛精），擺成一排。三支並排之後整組的長寬比變成 1.4 左右，
+剛好對上這只扁碟子，而且瓶肩會稍微高過碟緣，跟參考圖那只塞滿的黑鍋一樣。
+中間那一支抬高一點、左右兩支往下壓，讀起來才是一組貨而不是三張貼圖。
+
+這三張原圖本身就帶 alpha（Shopify 上就是去好背的 PNG／WebP），
+所以不經過上面的鍵控，直接裁掉透明邊就用——像素一個都沒動。
+"""
+SHAMPOO_ROW = [
+    # 檔名, 中心 x（整組寬度的比例）, 中心 y（整組高度的比例）, 瓶高（整組高度的比例）
+    ("shop-earthbath-conditioner.webp", 0.195, 0.530, 0.94),
+    ("shop-earthbath-dirtydog.webp", 0.805, 0.530, 0.94),
+    ("shop-earthbath-hypoallergenic.webp", 0.500, 0.490, 1.00),
+]
+
+
+def pack_shampoo() -> None:
+    width, height = 1200, 830
+    canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    for name, fx, fy, fh in SHAMPOO_ROW:
+        art = Image.open(SRC / name).convert("RGBA")
+        h = round(fh * height)
+        w = round(h * art.width / art.height)
+        scaled = art.resize((w, h), Image.LANCZOS)
+        canvas.alpha_composite(
+            scaled,
+            (round(fx * width - w / 2), round(fy * height - h / 2)),
+        )
+    canvas.save(OUT / "shampoo-row.webp", lossless=True)
+
+    yy, xx = np.mgrid[0:height, 0:width]
+    inside = (((xx - width / 2) / (width / 2)) ** 2
+              + ((yy - height / 2) / (height / 2)) ** 2) <= 1.0
+    solid = np.asarray(canvas)[:, :, 3] > 128
+    print(f"  {'shampoo-row.webp':20s} {width:4d}x{height:4d}"
+          f"  長寬比 {width / height:.2f}  橢圓內覆蓋率 {float(solid[inside].mean()):.0%}"
+          f"  三支 Earthbath 473ml 排成一列")
+
+
 def pack_pot() -> None:
     canvas = Image.new("RGBA", (POT_SIZE, POT_SIZE), (0, 0, 0, 0))
     cache: dict[str, Image.Image | list[Image.Image]] = {}
@@ -606,6 +647,7 @@ def run() -> int:
                "十七只豬耳朵疊成一鍋（參考圖那只黑鍋量到 86% 覆蓋率）")
     pack_plate("cutlet-plate.webp", 0.89, "cutlet-fillet.webp", PLATE_CUTLET,
                "八片雞排疊成一盤（參考圖左上那只碟子是一把扇形的細長片）")
+    pack_shampoo()
     pack_pot()
     return 0
 
