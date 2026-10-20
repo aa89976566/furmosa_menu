@@ -803,6 +803,12 @@
 
 .po-cover--photo .po-disc__art img {
   border-radius: 50%;
+  /*
+   * 三張裡只有雞霸那一張是直幅的（726×1024），裁成近圓的碟面會切掉上下
+   * 29%。主體（那一片雞排加紙袋）落在原圖的 12%–81%，中心在 45.2%，
+   * 換算回 object-position 是 33%——另外兩張是正方的，這一行對牠們沒作用。
+   */
+  object-position: 50% 33%;
 }
 
 /*
@@ -979,7 +985,13 @@
   border-radius: 1.4cqw;
   background: var(--po-strip);
   color: var(--po-crimson);
-  font-size: max(10px, 1.95cqw);
+  /*
+   * 參考圖那三格的字高量到 31px（1.95cqw），但那三格寫的是
+   * 「7 11 六片雞霸免運／宅配 NT$120／滿 NT$1199 宅配免運」。
+   * 這一版換成真的三項之後字變長了，1.95cqw 排出來是 932px、滿出量到的 845px，
+   * 所以字收到 1.72cqw（27px），三格連分隔線一共 798px，剛好落在條子裡。
+   */
+  font-size: max(10px, 1.72cqw);
   font-weight: 900;
   letter-spacing: 0.01em;
   text-decoration: none;
@@ -988,7 +1000,7 @@
 }
 
 .po-strip__cell {
-  padding: 0 1.5cqw;
+  padding: 0 1.1cqw;
 }
 
 /* 分隔線量到 2px 寬，縱向只佔條高的六成。 */
@@ -1028,7 +1040,7 @@
   background: var(--po-crimson-deep);
   box-shadow: 0 0 0 0.42cqw var(--po-cream);
   color: var(--po-cream);
-  font-size: max(9px, 1.5cqw);
+  font-size: max(9px, 1.35cqw);
   font-weight: 900;
   line-height: 1.3;
   letter-spacing: 0.01em;
