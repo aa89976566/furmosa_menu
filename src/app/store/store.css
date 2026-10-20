@@ -1,0 +1,2028 @@
+/*
+ * 匠寵 /store ─ 一張食物海報。
+ *
+ * 整頁只有一個底色：網版印刷的橘。所有東西都畫在上面——壓扁的橢圓碟、
+ * 黑描邊的鍋、白色的標籤牌，還有中央那一鍋的兩圈放射虛線。
+ *
+ * 顏色、形狀比例與九只碟子的座標都是從參考圖量出來的；
+ * 碟子裡的內容則一律是專案與 Shopify 的實拍，沒有一張是畫的。
+ *
+ * 命名一律 po-（poster）。這一份只管 /store，不外漏到其他頁。
+ */
+
+.po-page {
+  /*
+   * ---- 色 ---- 全部取樣自參考圖。
+   *
+   * 橘底不是隨便挑一塊量的：先取整張圖的眾數色，再用 uniform_filter 找出
+   * 「30×30 的視窗裡有 99% 以上都落在容差內」的乾淨視窗，一共找到 237 個，
+   * 在那上面取中位數 → rgb(246,82,38)（亮度 122.7、標準差 4.5）。
+   * 手挑方框量出來的 rgb(219,167,132) 是被牌與鍋緣污染過的，不能用。
+   *
+   * 深紅取自上緣那條與膠囊（兩處都是 rgb(136,15,20)，取樣要避開金色的進度槽，
+   * 不然會讀成 rgb(172,79,63)）；對話框的紅深一點，rgb(148,21,28)。
+   * 碟子一只一個色，是取碟面露出來的那一圈的中位數量的。
+   * 鍋緣白 251,252,252、刻度灰 194,190,189、鍋壁灰 196,192,190（跟刻度同一個灰）。
+   */
+  --po-orange: #f65226;
+  --po-orange-deep: #d8441c;
+  --po-ink: #1a1a1a;
+  --po-paper: #fbfcfc;
+  /* 奶白。頁尾、標題描邊、牌、夾子的墊都在這一帶。 */
+  --po-cream: #faf6e6;
+  --po-tag: #fcf8e9;
+  --po-strip: #fdf5db;
+  /* 上緣那條與膠囊的深紅，與對話框那個更深的紅。 */
+  --po-crimson: #880f14;
+  --po-crimson-deep: #94151c;
+  /* 七只碟子的底色。 */
+  --po-pale: #e2e6ea;
+  --po-teal: #7fb2b6;
+  --po-sheet: #eeeeeb;
+  --po-mist: #e7ebeb;
+  --po-blue: #2f71c0;
+  --po-pan: #1e1b1c;
+  --po-rim: #fbfcfc;
+  --po-dash: #c2bebd;
+  --po-wall: #c4c0be;
+  /* 鍋底。量參考圖鍋裡沒被貨蓋到的地方取的。 */
+  --po-pot: #462b22;
+  --po-pending: #d6d4cf;
+  --po-pending-ink: #6f6d68;
+
+  /* ---- 線 ---- 海報上的描邊只有兩級：碟子的粗邊與字牌的細邊 ---- */
+  --po-rule: 2px;
+  --po-edge: 4px;
+
+  /* ---- 版面 ---- */
+  --po-max: 1360px;
+  --po-pad: clamp(16px, 3vw, 48px);
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background: var(--po-orange);
+  color: var(--po-ink);
+  font-family: var(--po-font-sans), "PingFang TC", "Noto Sans TC",
+    "Microsoft JhengHei", sans-serif;
+  font-weight: 500;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * 網版的顆粒。顆粒只壓在橘底上——層壓在最底，碟子、牌子與實拍都畫在牠上面。
+ * 參考圖就是這樣：橘底三個通道的標準差是 (3, 10, 9)，但牌子的白是
+ * (253, 253, 253) 標準差不到 1，乾乾淨淨。實拍要維持原彩，更不能被蓋上雜訊。
+ *
+ * 混色用 overlay 而不是 multiply：參考圖的顆粒幾乎不動紅（已經接近滿格），
+ * 動的是綠與藍——也就是在橘底上搖的是彩度，不是亮度。overlay 對 0.5 的灰
+ * 不作用，所以底色的平均值留得住，只有顆粒在上下擺。
+ *
+ * 兩個不能省的設定：filter 要指定 sRGB（預設的 linearRGB 會把雜訊推歪，
+ * 平均值跑到 0.73），alpha 要壓成 1（feTurbulence 連 alpha 一起生雜訊，
+ * 不壓的話這一層是半透明的，算不準）。兩個都設好之後雜訊就是平均 0.5、
+ * 標準差 0.089 的灰，opacity 0.73 換算回橘底的綠通道剛好是 13，
+ * 跟參考圖量到的 (3, 13, 13) 對得上。
+ */
+.po-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.73;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+.po-page__head,
+.po-page__body {
+  position: relative;
+  z-index: 2;
+  max-width: var(--po-max);
+  margin: 0 auto;
+  padding: 0 var(--po-pad);
+}
+
+.po-page__body {
+  padding-bottom: clamp(40px, 6vw, 88px);
+}
+
+.po-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================= 通用零件 ================= */
+
+/* 眉題。小、粗、寬字距，橘底上用墨色的小框框住。 */
+.po-eyebrow {
+  margin: 0;
+  display: inline-block;
+  padding: 0.3em 0.7em;
+  border: var(--po-rule) solid var(--po-ink);
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  color: var(--po-ink);
+}
+
+/* 數字。海報的數字一律用重黑的拉丁字，配一個小單位與一行註。 */
+.po-figure {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 0.2em;
+  width: max-content;
+}
+
+.po-figure__value {
+  font-family: var(--po-font-display), var(--po-font-sans), sans-serif;
+  font-size: clamp(42px, 5.6vw, 76px);
+  line-height: 0.82;
+  letter-spacing: -0.01em;
+}
+
+.po-figure__unit {
+  font-size: clamp(13px, 1.3vw, 17px);
+  font-weight: 900;
+}
+
+.po-figure__note {
+  grid-column: 1 / -1;
+  margin-top: 0.4em;
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* 已捐金額。整頁最大的數字，所以用紙白壓在橘底上。 */
+.po-figure--ink .po-figure__value {
+  color: var(--po-paper);
+}
+
+/* 連結。粗體加底線，游標過去線加粗，沒有膠囊、沒有陰影。 */
+.po-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: var(--po-rule) solid currentColor;
+  padding-bottom: 0.15em;
+}
+
+.po-link:hover,
+.po-link:focus-visible {
+  border-bottom-width: var(--po-edge);
+}
+
+/* 圓形的小工具鈕。只有描邊，沒有填色。 */
+.po-icon {
+  display: grid;
+  place-items: center;
+  width: 2.3em;
+  height: 2.3em;
+  border: var(--po-rule) solid var(--po-ink);
+  border-radius: 50%;
+  color: var(--po-ink);
+}
+
+.po-icon svg {
+  width: 60%;
+  height: 60%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.po-icon:hover,
+.po-icon:focus-visible {
+  background: var(--po-ink);
+  color: var(--po-paper);
+}
+
+/* 買的鈕。實心墨塊，直角，白字。 */
+.po-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.75em 1.3em;
+  background: var(--po-ink);
+  color: var(--po-paper);
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  border: var(--po-rule) solid var(--po-ink);
+}
+
+.po-button:hover,
+.po-button:focus-visible {
+  background: var(--po-paper);
+  color: var(--po-ink);
+}
+
+.po-button__cart {
+  width: 1.25em;
+  height: 1.25em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ================= 圖 ================= */
+
+.po-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.po-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*
+ * 沒有實拍的格子。灰階、寫出該放哪一張、標明照片待補。
+ * 不拿一張像的照片頂替，也不生成。
+ */
+.po-art--pending {
+  display: grid;
+  place-content: center;
+  gap: 0.35em;
+  padding: 0.8em;
+  text-align: center;
+  background: var(--po-pending);
+  background-image: repeating-linear-gradient(
+    45deg,
+    #0000 0 7px,
+    rgb(0 0 0 / 0.05) 7px 14px
+  );
+  color: var(--po-pending-ink);
+}
+
+.po-art__name {
+  font-size: clamp(11px, 1.05vw, 13px);
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.po-art__note {
+  font-size: clamp(10px, 0.9vw, 11px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* ================= 上緣 ================= */
+
+.po-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 40px);
+  padding: clamp(12px, 1.5vw, 20px) 0;
+}
+
+.po-top__mark {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 0.45em;
+  text-decoration: none;
+  color: inherit;
+}
+
+.po-top__word {
+  font-family: var(--po-font-display), var(--po-font-sans), sans-serif;
+  font-size: clamp(22px, 2.4vw, 34px);
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+}
+
+.po-top__brand {
+  font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.po-top__motto {
+  grid-column: 1 / -1;
+  margin-top: 0.3em;
+  font-size: clamp(10px, 0.9vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.po-top__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35em clamp(12px, 1.6vw, 26px);
+}
+
+.po-top__link {
+  font-size: clamp(12px, 1.1vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: var(--po-rule) solid transparent;
+  padding-bottom: 0.15em;
+}
+
+.po-top__link:hover,
+.po-top__link:focus-visible {
+  border-bottom-color: var(--po-ink);
+}
+
+.po-top__tools {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 0.7vw, 10px);
+  font-size: clamp(13px, 1.2vw, 16px);
+}
+
+/* ================= 頭盤：雞霸 ================= */
+
+.po-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40%;
+  align-items: center;
+  gap: clamp(20px, 3vw, 56px);
+  padding: clamp(28px, 4vw, 64px) 0 clamp(20px, 2.6vw, 40px);
+}
+
+.po-hero__text {
+  display: grid;
+  justify-items: start;
+  gap: clamp(12px, 1.6vw, 22px);
+}
+
+/*
+ * 主標。海報的字就是要壓到極限：兩行、行距咬在一起、字距收緊。
+ * 斷行是資料裡指定的，不交給自動折行。
+ */
+.po-hero__head {
+  margin: 0;
+  display: grid;
+  font-size: clamp(34px, 6.2vw, 92px);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.po-hero__head span:nth-child(2) {
+  color: var(--po-paper);
+}
+
+.po-hero__lead {
+  margin: 0;
+  max-width: 30ch;
+  font-size: clamp(14px, 1.35vw, 18px);
+  font-weight: 500;
+  line-height: 1.8;
+}
+
+.po-hero__spec {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 0.8em;
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.po-hero__spec span {
+  padding: 0.35em 0.7em;
+  background: var(--po-paper);
+  border: var(--po-rule) solid var(--po-ink);
+}
+
+.po-hero__buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(12px, 1.6vw, 24px);
+  margin-top: 0.3em;
+}
+
+.po-price {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.15em;
+  font-family: var(--po-font-display), var(--po-font-sans), sans-serif;
+}
+
+.po-price__currency {
+  font-size: clamp(14px, 1.4vw, 20px);
+}
+
+.po-price__figure {
+  font-size: clamp(42px, 5.4vw, 78px);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+}
+
+/* 免運那一塊小牌。兩行，白底墨邊，跟盤面上的標籤牌同一套。 */
+.po-ship {
+  margin: 0;
+  display: grid;
+  padding: 0.5em 0.8em;
+  background: var(--po-paper);
+  border: var(--po-rule) solid var(--po-ink);
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+}
+
+.po-hero__figure {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.9em;
+}
+
+.po-hero__figure figcaption {
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.po-hero__plate {
+  display: block;
+  width: 100%;
+}
+
+.po-hero__plate .po-disc {
+  --r: 0.74;
+}
+
+/* ================= 盤面 ================= */
+
+/*
+ * 這一塊就是參考圖本身：滿版、長寬比鎖在 1594×987。
+ * 裡面每一樣東西的座標都是盤面寬的百分比，所以它是整塊等比縮放的一張海報。
+ */
+.po-poster {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/*
+ * 海報自己當 container：描邊、鍋壁、字級、圖示全部用 cqw 給，
+ * 整塊就會等比縮放。換成 vw 的話，視窗一寬線就會比盤面長得快。
+ *
+ * 換算的參考值：盤寬 1594px 時 1cqw = 15.94px；盤高是寬的 61.92%，
+ * 所以縱向的 1% 是 9.87px。下面每一處都會標出量到的像素值。
+ */
+.po-stage {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1594 / 987;
+  overflow: hidden;
+}
+
+/* ---- 上緣那一條深紅 ---- 量到高 52px（5.27%H）、左右內距 64px 與 65px ---- */
+.po-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5cqw;
+  height: 5.27%;
+  padding: 0 4.05cqw;
+  background: var(--po-crimson);
+  color: var(--po-cream);
+  /* 左邊那行白字的字高量到 29px = 1.82cqw。 */
+  font-size: max(9px, 1.82cqw);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.po-bar__note {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.po-bar__cart {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.45em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.po-bar__cart svg {
+  width: 1.4em;
+  height: 1.4em;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.po-bar__cart:hover,
+.po-bar__cart:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.22em;
+}
+
+/*
+ * ---- 中央的鍋 ----
+ *
+ * 鍋心 (49.20%W, 50.39%H)、鍋寬 49.79%W、鍋高除以鍋寬 0.9057。
+ * 這四個數是用鍋緣外側 25 個手工對過的邊界點做最小平方擬合出來的：
+ * 橢圓的 rms 是 1.84px、正圓是 3.93px，所以它是橢圓，不是圓。
+ */
+.po-center {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  aspect-ratio: 1 / var(--r);
+  transform: translate(-50%, -50%);
+}
+
+/* 鍋緣的白。白邊與白溝是同一片白，所以整個橢圓先鋪滿。 */
+.po-center__rim {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--po-rim);
+}
+
+/*
+ * 鍋緣上的那一圈刻度。這是整張參考圖最認得出來的一處，所以把鍋緣展成一條
+ * 長條量過：從外往內是「白邊 → 一圈刻度 → 白溝 → 一圈灰鍋壁 → 鍋裡」。
+ * 只有一圈刻度，灰鍋壁是實心的——不是第二圈刻度。
+ *
+ * 格數是 66。量法不是看頻譜（頻譜在這種只有九成可用角度的訊號上分不出
+ * 66、67 跟 68），是在三段沒被貨與夾子壓到的弧上量「20 個間隔總共跨多少度」：
+ * 108.850° ÷ 20 = 5.4425°，跟 360/66 = 5.4545 差 0.0120，
+ * 比 67 格（差 0.0896）與 68 格（差 0.1526）好一個數量級。
+ * 灰的中位數 4.65°、佔比 0.853，所以看起來是一塊塊挨著的方磚，不是細線。
+ * 三段弧量到的第一格起點換算回週期內都落在 2.2° 附近，所以起角取 2.2°。
+ *
+ * 徑向界線是把鍋緣展開量的，單位是半軸的比例：這一圈是 0.850 到 0.935。
+ * radial-gradient 的 closest-side 在橢圓的框上，兩個半徑剛好就是 rx 與 ry，
+ * 所以百分比可以直接寫量到的比例。兩端各留 1.5% 的過渡讓鋸齒不要爆開。
+ */
+.po-ticks {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 2.2deg,
+    var(--po-dash) 0deg 4.6545deg,
+    #0000 4.78deg 5.4545deg
+  );
+  -webkit-mask-image: radial-gradient(
+    closest-side,
+    #0000 83.5%,
+    #000 85% 93.5%,
+    #0000 95%
+  );
+  mask-image: radial-gradient(
+    closest-side,
+    #0000 83.5%,
+    #000 85% 93.5%,
+    #0000 95%
+  );
+}
+
+/*
+ * 鍋裡。鍋壁是一圈實心的灰，跟刻度同一個灰
+ * （兩邊量出來是 rgb(196,192,190) 與 rgb(194,190,189)）。
+ *
+ * 外緣 0.772、內緣 0.734 個半軸——所以這個框往內縮 11.4%
+ * （1 − 2×0.114 = 0.772），邊寬 0.038 × rx = 15.1px = 0.95cqw。
+ * 內緣壓的那道淡影不是量到的，是用來收疊出來那一鍋的毛邊。
+ */
+.po-center__bowl {
+  position: absolute;
+  inset: 11.4%;
+  margin: 0;
+  border-radius: 50%;
+  border: 0.95cqw solid var(--po-wall);
+  background: var(--po-pot);
+  box-shadow: inset 0 0 0 0.3cqw rgb(0 0 0 / 14%);
+  overflow: hidden;
+}
+
+/*
+ * 參考圖的鍋裡是一整鍋塞到鍋緣的乾貨，看不到鍋底。這裡放的是疊出來的一鍋
+ * 去背實拍，本身是個正圓（圓內覆蓋率 94%），但鍋裡是壓扁的橢圓，
+ * 所以照寬度鋪滿、上下讓鍋去裁（鍋有 overflow: hidden）。
+ */
+.po-center__art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 106%;
+  height: auto;
+  overflow: visible;
+  transform: translate(-50%, -50%);
+}
+
+.po-center__art img {
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * ---- 夾子與印刷記號 ----
+ *
+ * 兩支 svg 的 viewBox 都是參考圖的 1594×987，跟盤面同一個長寬比，
+ * 所以整支鋪滿盤面之後每一個座標都落在量到的位置上，不必再換算。
+ *
+ * 疊在鍋緣上面、碟子與牌下面：DOM 上牠們排在鍋後面、碟子前面，
+ * 同一個堆疊脈絡裡照順序畫，所以不用 z-index。
+ */
+.po-tongs,
+.po-marks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/*
+ * 鍋緣上那一隻。參考圖那隻插畫的黑色輪廓量到 x 417–580（中線 31.27%W）、
+ * y 108–309（頭頂 10.94%H）。所以這裡用上緣對位（--y 是頭頂，不是中心），
+ * 牠才不會被盤面的上緣切掉。鍋是後面的兄弟元素，所以牠的下半身被鍋緣壓住
+ * ——那就是探出來的那一下。
+ */
+.po-peek {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  z-index: -1;
+  width: calc(var(--w) * 1%);
+  height: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/*
+ * ---- 大標 ----
+ *
+ * 四個字框是一個一個量的（見 store.ts）：字墨 76×82、字距平均 87.7px，
+ * 整個詞的中線落在 49.97%W。字級與字距是對著量到的字墨外框調出來的——
+ * 5.45cqw（87px）配 −0.02em，排出來的黑字外框是 x 628–964、高 98px，
+ * 參考圖是 x 628–965、高 98px。
+ *
+ * 外面包一圈奶白：奶白的外框量到 x 618–975、y 60–176，比黑字每邊寬約
+ * 10px，也就是 0.63cqw。
+ *
+ * 這一圈不能用 -webkit-text-stroke。描邊是沿著字的輪廓往外推，中文字那些
+ * 銳角的轉折會被 miter 拉成尖刺——實測奶白的框會從 y 176 一路漏到 229，
+ * 參考圖上是一圈圓的。改成一圈零模糊的 text-shadow：每一份都是整個字往外
+ * 挪 0.63cqw，疊起來的聯集就是字墨被一顆半徑 0.63cqw 的圓滾過一圈，轉角
+ * 自然是圓的。text-shadow 本來就畫在字的後面，所以不必再管 paint-order。
+ *
+ * 份數要三十二份。份數決定轉角的階梯有多粗：一個 90° 的外角只分到總份數的
+ * 四分之一，十六份時那裡只有四階、每階約 2.5px，放大看是看得出來的鋸齒；
+ * 三十二份變成八階、每階約 1.2px，就平了。
+ *
+ * 字拱起來的那一下在 .po-headline__glyph——一個字一個位移與旋轉角。
+ */
+.po-headline {
+  position: absolute;
+  left: 49.97%;
+  top: 6.9%;
+  z-index: 3;
+  margin: 0;
+  transform: translateX(-50%);
+  font-size: 5.45cqw;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.po-headline__link {
+  display: inline-block;
+  color: var(--po-ink);
+  text-decoration: none;
+}
+
+/*
+ * 一個字一格。dy 的單位是 cqw，所以整個拱形會跟著盤面等比縮放。
+ * 旋轉的原點放在字的下緣，轉起來才是沿著弧擺、不是原地歪。
+ */
+.po-headline__glyph {
+  display: inline-block;
+  transform: translateY(calc(var(--dy) * 1cqw)) rotate(calc(var(--rot) * 1deg));
+  transform-origin: 50% 100%;
+  text-shadow:
+    0.63cqw 0 0 var(--po-cream), 0.62cqw 0.12cqw 0 var(--po-cream),
+    0.58cqw 0.24cqw 0 var(--po-cream), 0.52cqw 0.35cqw 0 var(--po-cream),
+    0.45cqw 0.45cqw 0 var(--po-cream), 0.35cqw 0.52cqw 0 var(--po-cream),
+    0.24cqw 0.58cqw 0 var(--po-cream), 0.12cqw 0.62cqw 0 var(--po-cream),
+    0 0.63cqw 0 var(--po-cream), -0.12cqw 0.62cqw 0 var(--po-cream),
+    -0.24cqw 0.58cqw 0 var(--po-cream), -0.35cqw 0.52cqw 0 var(--po-cream),
+    -0.45cqw 0.45cqw 0 var(--po-cream), -0.52cqw 0.35cqw 0 var(--po-cream),
+    -0.58cqw 0.24cqw 0 var(--po-cream), -0.62cqw 0.12cqw 0 var(--po-cream),
+    -0.63cqw 0 0 var(--po-cream), -0.62cqw -0.12cqw 0 var(--po-cream),
+    -0.58cqw -0.24cqw 0 var(--po-cream), -0.52cqw -0.35cqw 0 var(--po-cream),
+    -0.45cqw -0.45cqw 0 var(--po-cream), -0.35cqw -0.52cqw 0 var(--po-cream),
+    -0.24cqw -0.58cqw 0 var(--po-cream), -0.12cqw -0.62cqw 0 var(--po-cream),
+    0 -0.63cqw 0 var(--po-cream), 0.12cqw -0.62cqw 0 var(--po-cream),
+    0.24cqw -0.58cqw 0 var(--po-cream), 0.35cqw -0.52cqw 0 var(--po-cream),
+    0.45cqw -0.45cqw 0 var(--po-cream), 0.52cqw -0.35cqw 0 var(--po-cream),
+    0.58cqw -0.24cqw 0 var(--po-cream), 0.62cqw -0.12cqw 0 var(--po-cream);
+}
+
+.po-headline__link:hover,
+.po-headline__link:focus-visible {
+  color: var(--po-crimson);
+}
+
+/* ---- 七只分類碟 ---- */
+
+.po-covers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * 一只碟子。--x/--y 是碟心、--w 是碟寬、--r 是碟高除以碟寬，全部逐一量自
+ * 參考圖。x 與 w 是整張圖寬度的百分比，y 是高度的百分比——left/width 吃寬、
+ * top 吃高，所以三個值直接用，不必換算。
+ *
+ * 碟子跟牠的牌是兩個獨立的座標，不是牌掛在碟子上。所以 li 與 a 都攤平成
+ * 一整張盤面大小的透明層，碟身與牌各自用盤面的百分比定位——
+ * 兩組數字就能直接照抄參考圖上量到的值。層是透明的，所以不吃點擊。
+ */
+.po-cover {
+  --x: 50;
+  --y: 50;
+  --w: 16;
+  --r: 0.8;
+}
+
+.po-cover,
+.po-cover__link {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.po-cover__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.po-cover__frame {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+/* 碟身。俯視的橢圓盤，壓扁程度一碟一個值。 */
+.po-disc {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / var(--r, 0.8);
+  border-radius: 50%;
+}
+
+/*
+ * fit = photo 的碟子：整張商品照裁進圓裡，往內縮 6% 讓碟色露出一圈。
+ * 這三張原圖的背景本身就是一片乾淨的淺色，所以裁圓之後那片背景就接著碟面
+ * ——參考圖那三只碟子就是這樣做的。
+ */
+.po-cover--photo .po-disc__art {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+}
+
+.po-cover--photo .po-disc__art img {
+  border-radius: 50%;
+  /*
+   * 三張裡只有雞霸那一張是直幅的（726×1024），裁成近圓的碟面會切掉上下
+   * 29%。主體（那一片雞排加紙袋）落在原圖的 12%–81%，中心在 45.2%，
+   * 換算回 object-position 是 33%——另外兩張是正方的，這一行對牠們沒作用。
+   */
+  object-position: 50% 33%;
+}
+
+/*
+ * fit = cut 的碟子就照參考圖的做法：素材壓在碟面上、不裁進橢圓裡，
+ * 而且會溢出碟緣。--cut 是素材寬度除以碟寬，一碟一個值（見 store.ts）。
+ */
+.po-cover--cut .po-disc__art {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--cut-y, 0) * 1%);
+  width: calc(var(--cut, 0.9) * 100%);
+  height: auto;
+  overflow: visible;
+  border-radius: 0;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0.3cqw 0.45cqw rgb(28 27 27 / 32%));
+}
+
+.po-cover--cut .po-disc__art img {
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  object-fit: contain;
+}
+
+.po-cover--pale .po-disc {
+  background: var(--po-pale);
+}
+
+.po-cover--teal .po-disc {
+  background: var(--po-teal);
+}
+
+.po-cover--paper .po-disc {
+  background: var(--po-sheet);
+}
+
+.po-cover--blue .po-disc {
+  background: var(--po-blue);
+}
+
+.po-cover--mist .po-disc {
+  background: var(--po-mist);
+}
+
+/*
+ * 黑鍋。實心墨色，左右各掛一只鍋耳。
+ *
+ * 參考圖那兩只黑鍋是裝食物的鍋子，所以有鍋耳。這一版那兩只裝的是玩具與
+ * 洗毛精，掛鍋耳就讀不通了，所以只留量到的黑與形狀，不掛耳朵。
+ */
+.po-cover--pan .po-disc {
+  background: var(--po-pan);
+}
+
+/* ---- 標籤牌 ---- */
+
+/*
+ * 奶白的標籤牌。參考圖的七張牌都只排一行字，而且牌寬是跟著字長走的：
+ * 兩個字的牌量到 121px、五個字的 188px，牌高固定 50–54px、字高 30–31px。
+ * 換算成盤寬就是下面這幾個 cqw：字 1.88、牌最小寬 7.59、左右內距 1.0。
+ *
+ * 每一張牌的座標也是量出來的，而且不是都從同一邊長：左半邊的碟子牌往右長
+ * （指回鍋子）、右上兩只往左長、右下兩只往右長。所以用 --tag-at 配上
+ * .po-tag--left / --right 決定對位的那一邊。
+ *
+ *   左上 287–407 × 246–299　右上 1098–1219 × 204–253
+ *   右中上 1193–1362 × 355–405　左中 255–436 × 456–505
+ *   左下 244–427 × 704–753　右中 1356–1543 × 594–644
+ *   右下 1392–1548 × 771–820
+ */
+.po-tag {
+  position: absolute;
+  top: calc(var(--tag-top) * 1%);
+  z-index: 5;
+  display: block;
+  min-width: 7.59cqw;
+  padding: 0.6cqw 1cqw;
+  border-radius: 1cqw;
+  background: var(--po-tag);
+  color: var(--po-ink);
+  font-size: max(9px, 1.88cqw);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-align: center;
+  /* 參考圖的牌都是一行。折成兩行就不是那張圖了。 */
+  white-space: nowrap;
+  box-shadow: 0 0.2cqw 0.4cqw rgb(28 27 27 / 18%);
+  pointer-events: auto;
+}
+
+.po-tag--left {
+  left: calc(var(--tag-at) * 1%);
+}
+
+.po-tag--right {
+  right: calc(var(--tag-at) * 1%);
+}
+
+.po-cover__link:hover .po-tag,
+.po-cover__link:focus-visible .po-tag {
+  background: var(--po-crimson);
+  color: var(--po-cream);
+}
+
+/*
+ * ---- 鍋下那一枚膠囊 ----
+ *
+ * 量到 x 586–1007（寬 422px、26.47%W）、y 691–790（高 100px、10.13%H），
+ * 中心 (49.97%W, 75.03%H)。圓角就是半個高：量到的左緣內縮在 dy=0 是 49px、
+ * dy=4 是 30、dy=8 是 23、dy=16 是 14，跟 r=50 的圓算出來的 50／30.4／22.9／13.3
+ * 一一對得上，所以它是完整的膠囊、不是一般的圓角矩形。
+ * 外面一圈奶白的描邊量到約 8px = 0.5cqw。字是五個字共 248px，一個字 49.6px。
+ */
+.po-cta {
+  position: absolute;
+  left: 49.97%;
+  top: 75.03%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  width: 26.47%;
+  height: 10.13%;
+  border-radius: 999px;
+  background: var(--po-crimson);
+  box-shadow: 0 0 0 0.5cqw var(--po-cream);
+  color: var(--po-cream);
+  font-size: max(13px, 3.11cqw);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.po-cta__cart {
+  width: 1.32em;
+  height: 1.32em;
+  flex: none;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.po-cta:hover,
+.po-cta:focus-visible {
+  background: var(--po-ink);
+}
+
+/*
+ * ---- 奶白的運送條 ----
+ *
+ * 量到 x 373–1217（寬 845px、53.01%W）、y 808–878（高 71px、7.19%H），
+ * 底色 rgb(253,245,219)。裡面兩道分隔線在 44.48%W 與 56.52%W，分成三格。
+ * 這一版三格的字長跟參考圖不同（參考圖那格「宅配 NT$120」站上沒有這個價），
+ * 所以格子改成跟著字長、整列居中——條子的外框維持量到的尺寸。
+ */
+.po-strip {
+  position: absolute;
+  left: 49.87%;
+  top: 85.41%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 53.01%;
+  height: 7.19%;
+  padding: 0 1.4cqw;
+  border-radius: 1.4cqw;
+  background: var(--po-strip);
+  color: var(--po-crimson);
+  /*
+   * 參考圖那三格的字高量到 31px（1.95cqw），但那三格寫的是
+   * 「7 11 六片雞霸免運／宅配 NT$120／滿 NT$1199 宅配免運」。
+   * 這一版換成真的三項之後字變長了，1.95cqw 排出來是 932px、滿出量到的 845px，
+   * 所以字收到 1.72cqw（27px），三格連分隔線一共 798px，剛好落在條子裡。
+   */
+  font-size: max(10px, 1.72cqw);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.po-strip__cell {
+  padding: 0 1.1cqw;
+}
+
+/* 分隔線量到 2px 寬，縱向只佔條高的六成。 */
+.po-strip__cell + .po-strip__cell {
+  border-left: 0.125cqw solid rgb(136 15 20 / 38%);
+}
+
+.po-strip:hover,
+.po-strip:focus-visible {
+  background: var(--po-cream);
+}
+
+/*
+ * ---- 左下角那一枚對話框 ----
+ *
+ * 量到 x 55–294（寬 240px、15.06%W）、y 743–855（高 113px、11.45%H），
+ * 底色 rgb(148,21,28)，裡面是白字。
+ *
+ * 參考圖寫兩行，這一版寫三行——因為真的那件事（KALI 是預購、出貨日）
+ * 比參考圖編的那兩行長，排兩行會滿出這個寬度。框的尺寸照量到的，
+ * 字級收到 1.5cqw（24px），三行剛好落在 113px 裡面。
+ * 左下那一枚尖角是對話框的尾巴，參考圖就有。
+ */
+.po-bubble {
+  position: absolute;
+  left: 3.45%;
+  top: 75.28%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.18em;
+  width: 15.06%;
+  height: 11.45%;
+  padding: 0 1.1cqw;
+  border-radius: 1.2cqw;
+  background: var(--po-crimson-deep);
+  box-shadow: 0 0 0 0.42cqw var(--po-cream);
+  color: var(--po-cream);
+  font-size: max(9px, 1.35cqw);
+  font-weight: 900;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.po-bubble::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  bottom: -0.55cqw;
+  width: 1.5cqw;
+  height: 1.5cqw;
+  background: var(--po-crimson-deep);
+  box-shadow: 0 0 0 0.42cqw var(--po-cream);
+  transform: rotate(45deg);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+.po-bubble:hover,
+.po-bubble:focus-visible,
+.po-bubble:hover::after,
+.po-bubble:focus-visible::after {
+  background: var(--po-ink);
+}
+
+/*
+ * ---- 海報自己的頁尾 ----
+ *
+ * 整條量到 y 895–986（高 92px、9.32%H），四個項目的左右界是
+ * x 150–390、510–744、851–1141、1251–1443，整排的中線落在 49.97%W
+ * ——也就是一列居中。項目之間的空隙量到 120／107／110px，取 110px；
+ * 三道分隔線在 27.79%W、49.65%W、74.75%W，寬 2px、縱向 y 909–964（56px）。
+ * 字高 29px = 1.82cqw，圖示 40–46px，圖示到字之間 29px。
+ */
+.po-foot {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 9.32%;
+  background: var(--po-cream);
+}
+
+.po-foot__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.82cqw;
+  color: var(--po-ink);
+  font-size: max(10px, 1.82cqw);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.po-foot__link svg {
+  width: 2.75cqw;
+  height: 2.75cqw;
+  flex: none;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.po-foot__link + .po-foot__link {
+  margin-left: 3.45cqw;
+  padding-left: 3.45cqw;
+}
+
+.po-foot__link + .po-foot__link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.125cqw;
+  height: 3.51cqw;
+  background: var(--po-ink);
+  transform: translateY(-50%);
+}
+
+.po-foot__link:hover,
+.po-foot__link:focus-visible {
+  color: var(--po-crimson);
+}
+
+/* ================= 鍋邊加點 ================= */
+
+/*
+ * 這幾項站上有品名、沒有單品頁與標價，所以它只排名字，
+ * 排成一條字牌而不是另一排商品卡。
+ */
+.po-sides {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(14px, 2vw, 32px);
+  padding: clamp(16px, 2vw, 28px) clamp(16px, 2vw, 28px);
+  border: var(--po-edge) solid var(--po-ink);
+}
+
+.po-sides__title {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 30px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.po-sides__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 0.6em;
+}
+
+.po-sides__list li {
+  padding: 0.4em 0.75em;
+  background: var(--po-paper);
+  border: var(--po-rule) solid var(--po-ink);
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.po-sides__foot {
+  grid-column: 1 / -1;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6em 1.2em;
+  padding-top: clamp(10px, 1.2vw, 16px);
+  border-top: var(--po-rule) solid var(--po-ink);
+}
+
+.po-sides__note {
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* ================= 怎麼做的 ================= */
+
+.po-making {
+  display: grid;
+  grid-template-columns: 33% minmax(0, 1fr) 18%;
+  align-items: start;
+  gap: clamp(18px, 2.6vw, 44px);
+  padding: clamp(36px, 5vw, 76px) 0;
+}
+
+.po-making__text {
+  display: grid;
+  justify-items: start;
+  gap: clamp(12px, 1.4vw, 20px);
+}
+
+.po-making__title {
+  margin: 0;
+  font-size: clamp(26px, 3.4vw, 48px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.po-making__body {
+  display: grid;
+  gap: 0.8em;
+}
+
+.po-making__body p {
+  margin: 0;
+  font-size: clamp(13px, 1.2vw, 16px);
+  line-height: 1.85;
+}
+
+/* 三張製程實拍，排成一列圓盤。 */
+.po-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 22px);
+}
+
+.po-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.7em;
+}
+
+.po-step__no {
+  position: absolute;
+  left: 4%;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2em;
+  height: 2em;
+  background: var(--po-paper);
+  border: var(--po-rule) solid var(--po-ink);
+  border-radius: 50%;
+  font-family: var(--po-font-display), var(--po-font-sans), sans-serif;
+  font-size: clamp(12px, 1.1vw, 15px);
+}
+
+.po-step__art {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--po-pale);
+}
+
+.po-step__art img,
+.po-step__art.po-art--pending {
+  border-radius: 50%;
+}
+
+.po-step__caption {
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.po-sign {
+  margin: 0;
+  display: grid;
+  gap: 0.7em;
+}
+
+.po-sign__art {
+  width: 100%;
+  aspect-ratio: 971 / 1536;
+  border: var(--po-edge) solid var(--po-ink);
+}
+
+.po-sign figcaption {
+  font-size: clamp(10px, 0.95vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+/* ================= 公益 ================= */
+
+/*
+ * 這一段的底是白的。月餅照與收據維持原彩——它們陳述的是事實，
+ * 不能被染色，也不能被橘底吃掉。
+ */
+/*
+ * 公益段。參考圖從頭到尾只有一個底色，所以這一段也直接畫在橘底上，
+ * 不另外開一塊白紙——白只留給牌子、照片與那張收據本身。
+ */
+.po-charity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30%;
+  grid-template-areas:
+    "text photo"
+    "receipt receipt"
+    "dogs dogs";
+  gap: clamp(18px, 2.6vw, 40px);
+  padding: clamp(32px, 4.4vw, 68px) 0;
+  border-top: var(--po-edge) solid var(--po-ink);
+}
+
+.po-charity__text {
+  grid-area: text;
+  display: grid;
+  justify-items: start;
+  gap: clamp(10px, 1.3vw, 18px);
+}
+
+.po-charity__title {
+  margin: 0;
+  font-size: clamp(26px, 3.6vw, 52px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+}
+
+.po-charity__lead {
+  margin: 0;
+  font-size: clamp(15px, 1.7vw, 24px);
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+/* 捐款比例。整頁只說一次，就說在這一條上。 */
+.po-charity__pull {
+  margin: 0;
+  padding: 0.5em 0.85em;
+  background: var(--po-ink);
+  color: var(--po-paper);
+  font-size: clamp(14px, 1.5vw, 20px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.po-charity__body {
+  display: grid;
+  gap: 0.7em;
+}
+
+.po-charity__body p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: clamp(13px, 1.15vw, 15px);
+  line-height: 1.85;
+}
+
+.po-charity__figure {
+  grid-area: photo;
+  margin: 0;
+  display: grid;
+  align-content: start;
+  gap: 0.7em;
+}
+
+.po-charity__art {
+  width: 100%;
+  aspect-ratio: 550 / 386;
+  border: var(--po-rule) solid var(--po-ink);
+  background: var(--po-pending);
+}
+
+.po-charity__figure figcaption {
+  font-size: clamp(10px, 0.95vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+}
+
+/* 收據。一份文件，所以給它一個雙線框。 */
+.po-receipt {
+  grid-area: receipt;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-areas:
+    "kicker kicker"
+    "header header"
+    "art figure"
+    "art fields"
+    "art note";
+  align-content: start;
+  gap: 0.6em clamp(14px, 2vw, 32px);
+  padding: clamp(14px, 1.8vw, 24px);
+  border: var(--po-rule) solid var(--po-ink);
+  outline: var(--po-rule) solid var(--po-ink);
+  outline-offset: 4px;
+}
+
+.po-receipt__kicker {
+  grid-area: kicker;
+  margin: 0;
+  font-size: clamp(10px, 0.95vw, 12px);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.po-receipt__header {
+  grid-area: header;
+  margin: 0;
+  padding-bottom: 0.5em;
+  border-bottom: var(--po-rule) solid var(--po-ink);
+  font-size: clamp(12px, 1.15vw, 16px);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.po-receipt__art {
+  grid-area: art;
+  align-self: start;
+  width: 100%;
+  aspect-ratio: 662 / 393;
+  border: var(--po-rule) solid var(--po-ink);
+}
+
+.po-receipt .po-figure {
+  grid-area: figure;
+  align-self: start;
+}
+
+.po-receipt__fields {
+  grid-area: fields;
+  margin: 0;
+  display: grid;
+  gap: 0.35em;
+  align-content: start;
+}
+
+.po-receipt__row {
+  display: grid;
+  grid-template-columns: 3.4em minmax(0, 1fr);
+  gap: 0.6em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid rgb(28 27 27 / 35%);
+}
+
+.po-receipt__row dt {
+  font-size: clamp(10px, 0.95vw, 12px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: rgb(28 27 27 / 70%);
+}
+
+.po-receipt__row dd {
+  margin: 0;
+  font-size: clamp(11px, 1.05vw, 13px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.po-receipt__note {
+  grid-area: note;
+  margin: 0;
+  align-self: start;
+  font-size: clamp(10px, 0.92vw, 12px);
+  font-weight: 500;
+  line-height: 1.6;
+  color: rgb(28 27 27 / 70%);
+}
+
+/* 七隻狗狗。公益段的腳註，所以收在同一塊的最下面。 */
+.po-dogs {
+  grid-area: dogs;
+  display: grid;
+  gap: clamp(10px, 1.3vw, 18px);
+  padding-top: clamp(12px, 1.6vw, 22px);
+  border-top: var(--po-rule) solid var(--po-ink);
+}
+
+.po-dogs__label {
+  margin: 0;
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.po-dogs__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(8px, 1.1vw, 18px);
+}
+
+.po-dog {
+  display: grid;
+  justify-items: center;
+  gap: 0.5em;
+}
+
+.po-dog__art {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: var(--po-rule) solid var(--po-ink);
+}
+
+.po-dog__art img,
+.po-dog__art.po-art--pending {
+  border-radius: 50%;
+}
+
+.po-dog__name {
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+/* ================= 換罐計畫 ================= */
+
+.po-swap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42%;
+  align-items: start;
+  gap: clamp(18px, 2.6vw, 44px);
+  padding: clamp(32px, 4.4vw, 68px) 0;
+}
+
+.po-swap__text {
+  display: grid;
+  justify-items: start;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+
+.po-swap__title {
+  margin: 0;
+  max-width: 22ch;
+  font-size: clamp(22px, 2.9vw, 40px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+
+.po-swap__body {
+  display: grid;
+}
+
+.po-swap__body p {
+  margin: 0;
+  font-size: clamp(13px, 1.2vw, 16px);
+  line-height: 1.85;
+}
+
+.po-swap__data {
+  display: grid;
+  gap: clamp(14px, 1.8vw, 26px);
+}
+
+.po-swap__figures {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 2.4vw, 40px);
+}
+
+.po-regions {
+  margin: 0;
+  display: grid;
+  gap: 0.5em;
+}
+
+.po-regions__row {
+  display: grid;
+  grid-template-columns: 5.6em minmax(0, 1fr);
+  gap: 0.8em;
+  padding-bottom: 0.5em;
+  border-bottom: var(--po-rule) solid var(--po-ink);
+}
+
+.po-regions__row dt {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4em;
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.po-regions__row dt span {
+  font-family: var(--po-font-display), var(--po-font-sans), sans-serif;
+  font-size: clamp(13px, 1.3vw, 17px);
+}
+
+.po-regions__row dd {
+  margin: 0;
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* ================= 訂閱 ================= */
+
+.po-subscribe {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(14px, 2vw, 36px);
+  padding: clamp(18px, 2.4vw, 32px) clamp(16px, 2.2vw, 32px);
+  background: var(--po-ink);
+  color: var(--po-paper);
+}
+
+.po-subscribe__title {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 30px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.po-subscribe__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0;
+}
+
+.po-subscribe__input {
+  min-width: 0;
+  padding: 0.8em 1em;
+  background: var(--po-paper);
+  border: var(--po-rule) solid var(--po-paper);
+  color: var(--po-ink);
+  font: inherit;
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 700;
+}
+
+.po-subscribe__input::placeholder {
+  color: #8d8a85;
+  font-weight: 500;
+}
+
+.po-subscribe__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.8em 1.2em;
+  background: var(--po-orange);
+  border: var(--po-rule) solid var(--po-paper);
+  border-left: none;
+  color: var(--po-ink);
+  font: inherit;
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.po-subscribe__submit:hover,
+.po-subscribe__submit:focus-visible {
+  background: var(--po-paper);
+}
+
+/* ================= 報尾 ================= */
+
+.po-footer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(14px, 2vw, 36px);
+  padding: clamp(24px, 3vw, 44px) 0 0;
+  margin-top: clamp(24px, 3vw, 44px);
+  border-top: var(--po-edge) solid var(--po-ink);
+}
+
+.po-footer__brand {
+  display: grid;
+  gap: 0.35em;
+}
+
+.po-footer__mark {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45em;
+}
+
+.po-footer__word {
+  font-family: var(--po-font-display), var(--po-font-sans), sans-serif;
+  font-size: clamp(20px, 2.2vw, 30px);
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+}
+
+.po-footer__cjk {
+  font-size: clamp(13px, 1.2vw, 17px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.po-footer__line {
+  margin: 0;
+  font-size: clamp(10px, 0.9vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.po-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35em clamp(10px, 1.4vw, 22px);
+}
+
+.po-footer__link {
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: var(--po-rule) solid transparent;
+  padding-bottom: 0.15em;
+}
+
+.po-footer__link:hover,
+.po-footer__link:focus-visible {
+  border-bottom-color: var(--po-ink);
+}
+
+.po-footer__socials {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: clamp(6px, 0.7vw, 10px);
+  font-size: clamp(13px, 1.2vw, 16px);
+}
+
+.po-footer__rights {
+  grid-column: 1 / -1;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4em 1.2em;
+  padding-top: clamp(14px, 1.8vw, 24px);
+  border-top: var(--po-rule) solid var(--po-ink);
+  font-size: clamp(10px, 0.95vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.po-footer__slogan {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: clamp(11px, 1.1vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* ================= 窄螢幕 ================= */
+
+/*
+ * 盤面在每一個寬度都是 1:1 的。
+ *
+ * 海報是一張固定長寬比的圖，窄螢幕就整塊等比縮小——鍋、碟子、夾子、
+ * 趴在鍋緣上的那一隻，相對位置一格都不改。這一頁的要求是跟參考圖一模一樣，
+ * 所以不能在某個寬度以下把它換成另一種版面。
+ *
+ * 真正縮不下去的只有牌子上的字。參考圖的牌高固定 50 到 54 像素、字高 30 到
+ * 31 像素，都不隨碟子縮放，換算成盤寬是 1.88cqw，所以盤面低於 640px 時
+ * 字就會低於 12px 的可讀下限。所以牌在那個寬度以下收起來，分類名改排成
+ * 一張表接在海報下面（見 .po-index）——海報維持原樣，字回到讀得到的大小。
+ *
+ * 碟子本身一直是連結，所以收掉牌不會讓任何東西點不到。
+ */
+/*
+ * 窄螢幕的分類表。牌子收起來之後，分類名排在這裡。
+ * 樣式跟牌一致：奶白底、黑粗字——它讀起來還是同一套語言，
+ * 只是從海報上搬了下來。
+ */
+.po-index {
+  display: none;
+  margin: clamp(14px, 3vw, 22px) 0 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(6px, 1.4vw, 10px);
+}
+
+.po-index__row {
+  display: flex;
+}
+
+.po-index__link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.62em 0.85em;
+  border-radius: 0.4em;
+  background: var(--po-tag);
+  color: var(--po-ink);
+  font-size: clamp(13px, 3.4vw, 16px);
+  font-weight: 900;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.po-index__name {
+  flex: 1;
+}
+
+/*
+ * 牌與海報上的三條字（上緣那條、運送條、頁尾）是同一個問題：字級都綁在
+ * 盤寬上，盤面一窄就低於可讀下限。牌的下限是 640px（字 1.88cqw ÷ 12px），
+ * 上緣那條與頁尾是 1.82cqw、運送條 1.95cqw，三個的下限都落在同一帶，
+ * 所以同一個斷點一起收：牌搬到 .po-index，另外三條在海報下面本來就有
+ * 對應的入口（鍋邊加點、常見問題、報尾的連結），所以直接收掉不補。
+ */
+@media (max-width: 640px) {
+  .po-tag {
+    display: none;
+  }
+
+  .po-index {
+    display: grid;
+  }
+
+  .po-bar,
+  .po-strip,
+  .po-bubble,
+  .po-foot {
+    display: none;
+  }
+}
+
+/* 內文的欄位收成一欄。 */
+@media (max-width: 900px) {
+  .po-top {
+    grid-template-columns: auto auto;
+    row-gap: clamp(10px, 2vw, 18px);
+  }
+
+  .po-top__nav {
+    grid-column: 1 / -1;
+    order: 3;
+    justify-content: flex-start;
+  }
+
+  .po-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: clamp(20px, 5vw, 36px);
+  }
+
+  .po-hero__figure {
+    max-width: 78%;
+    justify-self: center;
+  }
+
+  .po-making {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .po-sign {
+    grid-template-columns: 38% minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .po-charity {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "text"
+      "photo"
+      "receipt"
+      "dogs";
+  }
+
+  .po-receipt {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "kicker"
+      "header"
+      "art"
+      "figure"
+      "fields"
+      "note";
+  }
+
+  .po-dogs__list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .po-swap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .po-footer {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .po-footer__nav {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .po-page {
+    --po-edge: 3px;
+  }
+
+  .po-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .po-top__motto {
+    display: none;
+  }
+
+  .po-hero__figure {
+    max-width: 100%;
+  }
+
+  .po-hero__buy {
+    gap: 12px;
+  }
+
+  .po-sides {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .po-steps {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 68%;
+  }
+
+  .po-sign {
+    grid-template-columns: 52% minmax(0, 1fr);
+  }
+
+  .po-dogs__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .po-subscribe {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .po-subscribe__form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .po-subscribe__submit {
+    border-left: var(--po-rule) solid var(--po-paper);
+    justify-content: center;
+  }
+
+  .po-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .po-footer__rights {
+    flex-direction: column;
+    gap: 0.4em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .po-page * {
+    transition: none !important;
+  }
+}
