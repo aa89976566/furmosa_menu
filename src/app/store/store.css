@@ -704,20 +704,34 @@
 /*
  * ---- 大標 ----
  *
- * 黑字量到 x 628–965（寬 338px，一個字 84.5px）、y 69–166（高 98px），
- * 中線 49.97%W——整張圖的正中。外面包一圈奶白的描邊：
- * 奶白的外框量到 x 618–975、y 60–176，比黑字每邊寬約 10px，
- * 所以 stroke 取 1.3cqw（20.7px，描邊是對中的，往外剛好 10.4px）。
- * paint-order 一定要指定，不然描邊會蓋在字面上、字就糊了。
+ * 四個字框是一個一個量的（見 store.ts）：字墨 76×82、字距平均 87.7px，
+ * 整個詞的中線落在 49.97%W。字級與字距是對著量到的字墨外框調出來的——
+ * 5.45cqw（87px）配 −0.02em，排出來的黑字外框是 x 628–964、高 98px，
+ * 參考圖是 x 628–965、高 98px。
+ *
+ * 外面包一圈奶白：奶白的外框量到 x 618–975、y 60–176，比黑字每邊寬約
+ * 10px，也就是 0.63cqw。
+ *
+ * 這一圈不能用 -webkit-text-stroke。描邊是沿著字的輪廓往外推，中文字那些
+ * 銳角的轉折會被 miter 拉成尖刺——實測奶白的框會從 y 176 一路漏到 229，
+ * 參考圖上是一圈圓的。改成一圈零模糊的 text-shadow：每一份都是整個字往外
+ * 挪 0.63cqw，疊起來的聯集就是字墨被一顆半徑 0.63cqw 的圓滾過一圈，轉角
+ * 自然是圓的。text-shadow 本來就畫在字的後面，所以不必再管 paint-order。
+ *
+ * 份數要三十二份。份數決定轉角的階梯有多粗：一個 90° 的外角只分到總份數的
+ * 四分之一，十六份時那裡只有四階、每階約 2.5px，放大看是看得出來的鋸齒；
+ * 三十二份變成八階、每階約 1.2px，就平了。
+ *
+ * 字拱起來的那一下在 .po-headline__glyph——一個字一個位移與旋轉角。
  */
 .po-headline {
   position: absolute;
   left: 49.97%;
-  top: 6.99%;
+  top: 6.9%;
   z-index: 3;
   margin: 0;
   transform: translateX(-50%);
-  font-size: 6.15cqw;
+  font-size: 5.45cqw;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -725,10 +739,36 @@
 }
 
 .po-headline__link {
+  display: inline-block;
   color: var(--po-ink);
   text-decoration: none;
-  -webkit-text-stroke: 1.3cqw var(--po-cream);
-  paint-order: stroke fill;
+}
+
+/*
+ * 一個字一格。dy 的單位是 cqw，所以整個拱形會跟著盤面等比縮放。
+ * 旋轉的原點放在字的下緣，轉起來才是沿著弧擺、不是原地歪。
+ */
+.po-headline__glyph {
+  display: inline-block;
+  transform: translateY(calc(var(--dy) * 1cqw)) rotate(calc(var(--rot) * 1deg));
+  transform-origin: 50% 100%;
+  text-shadow:
+    0.63cqw 0 0 var(--po-cream), 0.62cqw 0.12cqw 0 var(--po-cream),
+    0.58cqw 0.24cqw 0 var(--po-cream), 0.52cqw 0.35cqw 0 var(--po-cream),
+    0.45cqw 0.45cqw 0 var(--po-cream), 0.35cqw 0.52cqw 0 var(--po-cream),
+    0.24cqw 0.58cqw 0 var(--po-cream), 0.12cqw 0.62cqw 0 var(--po-cream),
+    0 0.63cqw 0 var(--po-cream), -0.12cqw 0.62cqw 0 var(--po-cream),
+    -0.24cqw 0.58cqw 0 var(--po-cream), -0.35cqw 0.52cqw 0 var(--po-cream),
+    -0.45cqw 0.45cqw 0 var(--po-cream), -0.52cqw 0.35cqw 0 var(--po-cream),
+    -0.58cqw 0.24cqw 0 var(--po-cream), -0.62cqw 0.12cqw 0 var(--po-cream),
+    -0.63cqw 0 0 var(--po-cream), -0.62cqw -0.12cqw 0 var(--po-cream),
+    -0.58cqw -0.24cqw 0 var(--po-cream), -0.52cqw -0.35cqw 0 var(--po-cream),
+    -0.45cqw -0.45cqw 0 var(--po-cream), -0.35cqw -0.52cqw 0 var(--po-cream),
+    -0.24cqw -0.58cqw 0 var(--po-cream), -0.12cqw -0.62cqw 0 var(--po-cream),
+    0 -0.63cqw 0 var(--po-cream), 0.12cqw -0.62cqw 0 var(--po-cream),
+    0.24cqw -0.58cqw 0 var(--po-cream), 0.35cqw -0.52cqw 0 var(--po-cream),
+    0.45cqw -0.45cqw 0 var(--po-cream), 0.52cqw -0.35cqw 0 var(--po-cream),
+    0.58cqw -0.24cqw 0 var(--po-cream), 0.62cqw -0.12cqw 0 var(--po-cream);
 }
 
 .po-headline__link:hover,

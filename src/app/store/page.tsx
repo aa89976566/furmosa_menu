@@ -448,7 +448,28 @@ export default function StorePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {TITLE.text}
+              {/*
+                一個字一個 span：參考圖的四個字不是排成一條直線，中間兩個字
+                比外面兩個高 13px，所以各帶一個位移與旋轉角（見 store.ts）。
+                aria-label 給完整的詞，拆成 span 不會讓它被讀成四個字。
+              */}
+              <span aria-hidden="true">
+                {TITLE.glyphs.map((glyph) => (
+                  <span
+                    className="po-headline__glyph"
+                    key={glyph.ch}
+                    style={
+                      {
+                        "--dy": glyph.dy,
+                        "--rot": glyph.rot,
+                      } as React.CSSProperties
+                    }
+                  >
+                    {glyph.ch}
+                  </span>
+                ))}
+              </span>
+              <span className="po-vh">{TITLE.text}</span>
             </a>
           </h1>
 
