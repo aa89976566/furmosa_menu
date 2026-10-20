@@ -356,6 +356,14 @@
 /*
  * 那一句 OS。字距給正的：這一行是中文短句，收緊反而黏成一團，放開一點才
  * 看得出斷詞——句子裡的半形空格就是斷句的地方，所以不能讓牠被擠掉。
+ *
+ * word-break: keep-all 是必要的，不是裝飾。中文預設任兩個字之間都能斷行，
+ * 窄螢幕上「肉可以多 飯先不用」會斷成「肉可以多 飯先」／「不用」——斷在詞
+ * 中間，整句就讀不出來了。keep-all 之後只剩那個半形空格能斷，所以不管斷
+ * 不斷行都是斷在句子原本的停頓上。
+ *
+ * 最長的一節是「我就不拆紙箱」六個字，比任何一檔的可用寬度都短，所以
+ * keep-all 不會造成溢出。
  */
 .mn-stage__os {
   margin: 0;
@@ -364,6 +372,7 @@
   font-weight: 600;
   line-height: 1.55;
   letter-spacing: 0.04em;
+  word-break: keep-all;
   color: var(--mn-stage-ink);
 }
 
@@ -431,15 +440,11 @@
   font: inherit;
   text-decoration: none;
   cursor: pointer;
-  opacity: 0.42;
   scale: 0.96;
-  transition:
-    opacity 220ms ease-out,
-    scale 220ms ease-out;
+  transition: scale 220ms ease-out;
 }
 
 .mn-plate__btn[data-on] {
-  opacity: 1;
   scale: 1.04;
 }
 
@@ -453,6 +458,13 @@
   outline-offset: 0.5cqw;
 }
 
+/*
+ * 淡的那 0.42 壓在商品照上，不是壓整只盤子——品名牌跟著淡下去就看不清了。
+ * 量過的：牌子是奶白底深墨字，整只盤子壓到 0.42 之後跟底下的橘混起來，
+ * 對比只剩 3.25:1，而字級 14.4px 要 4.5:1 才合 WCAG AA。所以照片照 0.42
+ * 走（照片沒有對比的要求），牌子自己停在 0.6——量到 5.63:1，是還過得了的
+ * 最低一檔。兩個都在選中時回到 1。
+ */
 .mn-plate__disc {
   position: relative;
   display: grid;
@@ -461,14 +473,18 @@
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
+  opacity: 0.42;
   box-shadow:
     0 0 0 0.42cqw var(--mn-rim),
     0 0.5cqw 1.1cqw #0000001c;
-  transition: box-shadow 220ms ease-out;
+  transition:
+    opacity 220ms ease-out,
+    box-shadow 220ms ease-out;
 }
 
-/* 選中：影子壓深、拉遠，盤子看起來從桌面上浮起來一點。 */
+/* 選中：回到全不透明，影子壓深、拉遠，盤子看起來從桌面上浮起來一點。 */
 .mn-plate__btn[data-on] .mn-plate__disc {
+  opacity: 1;
   box-shadow:
     0 0 0 0.42cqw var(--mn-rim),
     0 1.5cqw 3cqw #00000038;
@@ -519,13 +535,16 @@
   font-size: 1.24cqw;
   font-weight: 900;
   white-space: nowrap;
+  opacity: 0.6;
   box-shadow: 0 0.3cqw 0.8cqw #0000001f;
   transition:
+    opacity 220ms ease-out,
     background 220ms ease-out,
     color 220ms ease-out;
 }
 
 .mn-plate__btn[data-on] .mn-plate__tag {
+  opacity: 1;
   background: var(--mn-crimson);
   color: var(--mn-cream);
 }
@@ -1038,8 +1057,14 @@
     font-size: clamp(22px, 6.4vw, 34px);
   }
 
+  /*
+   * 寬度不能寫百分比。.mn-stage__slide 是個 justify-items: center 的 grid
+   * 項目，寬度是縮到內容的，所以 82% 會拿「內容決定出來的寬度」當分母——
+   * 分母本身又被這一行的寬度影響，算出來的結果比看起來小得多，短句也會被
+   * 擠到斷行。改成絕對值：70vw 顧窄螢幕、330px 壓住 460 盤面那幾檔。
+   */
   .mn-stage__os {
-    max-width: 82%;
+    max-width: min(70vw, 330px);
     font-size: clamp(13px, 3.6vw, 18px);
   }
 
