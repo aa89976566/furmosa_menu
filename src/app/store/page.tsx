@@ -1,27 +1,36 @@
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 
+import Marks from "@/components/store/Marks";
 import Tongs from "@/components/store/Tongs";
 import {
   BRAND,
   CART_URL,
   CHARITY,
+  COVERS,
+  CTA,
   FOOTER,
   FOOTER_NAV,
   HERO,
+  KALI_NOTE,
   LOGIN_URL,
   MAKING,
+  MORE_COLLECTIONS,
   NAV,
   NEWSLETTER_ACTION,
   PENDING_NOTE,
-  PLATES,
+  POSTER_FOOT,
   POT,
   SEARCH_URL,
+  SHIP_STRIP,
   SIDES,
   SOCIALS,
   SUBSCRIBE,
   SWAP,
-  type Plate as PlateData,
+  TITLE,
+  TOPBAR,
+  type Cover as CoverData,
+  type PosterFootItem,
   type StrayDog,
 } from "@/data/store";
 
@@ -33,7 +42,7 @@ const SIZES = {
   hero: "(max-width: 900px) 86vw, 34vw",
   pot: "(max-width: 900px) 62vw, 24vw",
   peek: "(max-width: 900px) 34vw, 14vw",
-  plate: "(max-width: 560px) 42vw, (max-width: 900px) 28vw, 18vw",
+  cover: "(max-width: 560px) 42vw, (max-width: 900px) 28vw, 18vw",
   step: "(max-width: 900px) 40vw, 16vw",
   sign: "(max-width: 900px) 40vw, 14vw",
   mooncake: "(max-width: 900px) 86vw, 30vw",
@@ -140,103 +149,130 @@ function Art({
 }
 
 /**
- * 盤面上的一只碟子。
+ * 盤面上的一只分類碟。
  *
- * 碟心、碟寬、壓扁程度與標籤牌的左上角四樣都是逐一量自參考圖的，
- * 用 custom property 帶進 CSS。全部都是盤面寬的百分比，所以整塊盤面縮放時
- * 八只碟子跟八張牌的相對位置一格都不會跑。
+ * 碟心、碟寬、壓扁程度與牌的座標都是逐一量自參考圖的，用 custom property
+ * 帶進 CSS。全部都是盤面寬的百分比，所以整塊盤面縮放時七只碟子跟七張牌的
+ * 相對位置一格都不會跑。
  *
- * 牌從碟子底下往鍋子的方向長出去，小黑方塊貼在牌的外側——參考圖就是這樣。
+ * 牌是獨立定位的（不是掛在碟子上），而且左半邊的碟子牌往右長、
+ * 右上兩只往左長——參考圖量出來就是這樣。
  */
-function Plate({ plate }: { plate: PlateData }) {
+function Cover({ cover }: { cover: CoverData }) {
+  const { tag } = cover;
+
   return (
     <li
-      className={[
-        "po-plate",
-        `po-plate--${plate.tone}`,
-        plate.pan ? "po-plate--pan" : "",
-        plate.cut ? "po-plate--cut" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={`po-cover po-cover--${cover.tone} po-cover--${cover.fit}`}
       style={
         {
-          "--x": plate.x,
-          "--y": plate.y,
-          "--w": plate.w,
-          "--r": plate.ratio,
-          "--tx": plate.tx,
-          "--ty": plate.ty,
-          ...(plate.cut ? { "--cut": plate.cut } : null),
-          ...(plate.cutY ? { "--cut-y": plate.cutY } : null),
+          "--x": cover.x,
+          "--y": cover.y,
+          "--w": cover.w,
+          "--r": cover.ratio,
+          "--tag-at": tag.at,
+          "--tag-top": tag.top,
+          ...(cover.cut ? { "--cut": cover.cut } : null),
+          ...(cover.cutY ? { "--cut-y": cover.cutY } : null),
         } as React.CSSProperties
       }
     >
-      <Anchor item={plate} className="po-plate__link">
-        <span className="po-plate__frame">
+      <a
+        className="po-cover__link"
+        href={cover.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        /* 牌上印的是分類全名的一段，無障礙名給全名——兩者不會互相矛盾。 */
+        aria-label={cover.title}
+      >
+        <span className="po-cover__frame">
           <span className="po-disc">
             <Art
-              art={plate.art}
-              alt={plate.alt}
-              pending={plate.pending}
-              sizes={SIZES.plate}
+              art={cover.art}
+              alt={cover.alt}
+              sizes={SIZES.cover}
               className="po-disc__art"
             />
           </span>
         </span>
 
-        <span className="po-tag">
-          <span className="po-tag__bullet" aria-hidden="true" />
-          <span className="po-tag__name">{plate.name}</span>
-          {plate.price ? (
-            <span className="po-tag__price">{plate.price}</span>
-          ) : null}
+        <span
+          className={`po-tag po-tag--${tag.side}`}
+          /* 牌是跟著字長的，兩個字就窄、五個字就寬，參考圖也是這樣。 */
+        >
+          {cover.label}
         </span>
-      </Anchor>
+      </a>
     </li>
   );
 }
 
 /**
- * 窄螢幕的品名表。
+ * 窄螢幕的分類表。
  *
  * 海報本身是一張固定長寬比的圖，窄螢幕就整塊等比縮小，排法一格都不改——
  * 要跟參考圖一模一樣，就不能在某個寬度以下把它拆成別的版面。
  *
- * 但有一樣東西是縮不下去的：牌子上的字。參考圖的牌高固定 37–40px、
- * 不隨碟子縮放，換算成盤寬是 1.05cqw，所以盤面低於 1000px 時字就會低於
- * 10.5px 的可讀下限，而且牌開始互相壓。所以牌在那個寬度以下收起來，
- * 品名與價格改排成這張表接在海報下面——海報維持原樣，字回到讀得到的大小。
+ * 但有一樣東西是縮不下去的：牌子上的字。參考圖的牌高固定 50–54px、
+ * 字高 30–31px，換算成盤寬是 1.88cqw，所以盤面低於 640px 時字就會低於
+ * 12px 的可讀下限。所以牌在那個寬度以下收起來，分類名改排成這張表接在
+ * 海報下面——海報維持原樣，字回到讀得到的大小。
  *
  * 碟子本身一直是連結，所以收掉牌不會讓任何東西點不到；這張表是另一個入口。
  */
 function PosterIndex() {
-  const rows: { href: string; external?: boolean; name: string; price?: string }[] = [
-    { href: POT.href, external: true, name: POT.label, price: POT.note },
-    ...PLATES.map((plate) => ({
-      href: plate.href,
-      external: plate.external,
-      name: plate.name,
-      price: plate.price,
-    })),
-  ];
-
   return (
-    <ul className="po-index" aria-label="盤面上的商品">
-      {rows.map((row) => (
-        <li className="po-index__row" key={row.name}>
-          <Anchor item={row} className="po-index__link">
-            <span className="po-tag__bullet" aria-hidden="true" />
-            <span className="po-index__name">{row.name}</span>
-            {row.price ? (
-              <span className="po-index__price">{row.price}</span>
-            ) : null}
-          </Anchor>
+    <ul className="po-index" aria-label="盤面上的分類">
+      {COVERS.map((cover) => (
+        <li className="po-index__row" key={cover.title}>
+          <a
+            className="po-index__link"
+            href={cover.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="po-index__name">{cover.title}</span>
+          </a>
         </li>
       ))}
     </ul>
   );
 }
+
+/* 海報頁尾那四個線條圖示。都畫在同一個 24 格的框裡，大小才會一致。 */
+const FOOT_GLYPHS: Record<PosterFootItem["icon"], React.ReactNode> = {
+  /* 編號清單：一張捲角的紙，上面三條線。 */
+  list: (
+    <>
+      <path d="M6.2 3.4h8.1l4 4v13.2H6.2Z" />
+      <path d="M14.1 3.6v3.9h3.9" />
+      <path d="M9.1 12h6M9.1 15.4h6M9.1 8.6h2.6" />
+    </>
+  ),
+  /* 文章：一本翻開的書。 */
+  book: (
+    <>
+      <path d="M12 6.6C10.3 5.2 7.9 4.6 4.4 4.8v12.9c3.5-.2 5.9.4 7.6 1.8 1.7-1.4 4.1-2 7.6-1.8V4.8c-3.5-.2-5.9.4-7.6 1.8Z" />
+      <path d="M12 6.6v12.9" />
+    </>
+  ),
+  /* 配送：一台貨車。 */
+  truck: (
+    <>
+      <path d="M2.8 6.4h10.4v9.8H2.8Z" />
+      <path d="M13.2 9.6h3.9l3.2 3.2v3.4h-7.1Z" />
+      <circle cx="7" cy="18.2" r="1.9" />
+      <circle cx="16.4" cy="18.2" r="1.9" />
+    </>
+  ),
+  /* 換罐：一只圓罐。 */
+  jar: (
+    <>
+      <ellipse cx="12" cy="7.6" rx="7.2" ry="2.9" />
+      <path d="M4.8 7.6v8.8c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9V7.6" />
+    </>
+  ),
+};
 
 /** 七隻狗狗的一格。名字一定在，照片不一定在。 */
 function DogCell({ dog }: { dog: StrayDog }) {
@@ -326,21 +362,45 @@ export default function StorePage() {
 
       {/*
         ---------- 盤面 ----------
-        這一塊是參考圖本身：滿版、長寬比鎖在 1594×987，中央一鍋、
-        四周八只碟子、八張白色標籤牌，鍋緣趴著一隻狗。
+        這一塊是參考圖本身：滿版、長寬比鎖在 1594×987。
+        上緣一條深紅的運送條、正中一只橢圓大鍋（鍋緣 66 格刻度）、
+        四周七只分類碟各掛一張奶白的牌、鍋緣趴著一隻狗、
+        鍋下一枚深紅的膠囊與一條奶白的運送說明，最下一排奶白的頁尾。
         每一個座標都量自參考圖，所以它是整塊等比縮放的一張海報，
         不是一個「放了圖的區塊」。
       */}
-      <section className="po-poster" aria-label="今日菜單：一鍋端上來">
+      <section className="po-poster" aria-label="全部商品：一鍋端上來">
         <div className="po-stage">
-          {/* 中央的鍋。白鍋緣上兩圈灰色放射刻度，是參考圖最認得出來的那一處。 */}
+          {/*
+            上緣那一條。參考圖右邊是購物車的即時金額、中間是一條金色的進度條，
+            兩樣都是這一頁讀不到的狀態（車在 furmosa.com 上），所以不畫——
+            留在條上的是公告列那一句真的免運門檻，與一個連到真購物車的入口。
+          */}
+          <div className="po-bar">
+            <p className="po-bar__note">{TOPBAR.note}</p>
+
+            <a
+              className="po-bar__cart"
+              href={TOPBAR.cartHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                {CART_ICON}
+              </svg>
+              {TOPBAR.cart}
+            </a>
+          </div>
+
+          {/* 中央的鍋。白鍋緣上一圈 66 格的灰色刻度，是參考圖最認得出來的那一處。 */}
           <div
             className="po-center"
             style={
               {
                 "--x": POT.x,
                 "--y": POT.y,
-                "--d": POT.d,
+                "--w": POT.w,
+                "--r": POT.ratio,
               } as React.CSSProperties
             }
           >
@@ -378,29 +438,89 @@ export default function StorePage() {
           />
 
           {/*
+            大標。黑字包一圈奶白的描邊，中線落在盤面正中（量到 49.97%W）。
+            兩側那四根傾斜的強調條與散在橘底上的爆炸紋都在 Marks.tsx 裡。
+          */}
+          <h1 className="po-headline">
+            <a
+              className="po-headline__link"
+              href={TITLE.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {TITLE.text}
+            </a>
+          </h1>
+
+          <Marks />
+
+          {/*
             盤面下緣交叉的那兩支夾子。疊在鍋緣上面、碟子下面——
             參考圖的疊法就是這樣。輪廓是描參考圖描下來的，見 Tongs.tsx。
           */}
           <Tongs />
 
-          <ul className="po-plates">
-            {PLATES.map((plate) => (
-              <Plate key={plate.name} plate={plate} />
+          <ul className="po-covers">
+            {COVERS.map((cover) => (
+              <Cover key={cover.title} cover={cover} />
             ))}
           </ul>
 
-          {/* 鍋要能點。排成同一種牌，放在參考圖左下角那一塊空白的橘底上。 */}
+          {/* 鍋下那一枚膠囊。量到 422×100px、圓角就是半個高。 */}
           <a
-            className="po-tag po-tag--pot"
-            href={POT.href}
+            className="po-cta"
+            href={CTA.href}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ "--tx": POT.tx, "--ty": POT.ty } as React.CSSProperties}
           >
-            <span className="po-tag__bullet" aria-hidden="true" />
-            <span className="po-tag__name">{POT.label}</span>
-            <span className="po-tag__price">{POT.note}</span>
+            <svg
+              className="po-cta__cart"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              {CART_ICON}
+            </svg>
+            {CTA.label}
           </a>
+
+          {/* 奶白的運送條。三格照抄常見問題的物流與免運那兩段。 */}
+          <a
+            className="po-strip"
+            href={SHIP_STRIP.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {SHIP_STRIP.cells.map((cell) => (
+              <span className="po-strip__cell" key={cell}>
+                {cell}
+              </span>
+            ))}
+          </a>
+
+          {/* 左下角那一枚對話框。寫的是 KALI 那一頁真的出貨時程。 */}
+          <a
+            className="po-bubble"
+            href={KALI_NOTE.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {KALI_NOTE.lines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </a>
+
+          {/* 海報自己的頁尾。四個項目居中一列，之間三道 2px 的分隔線。 */}
+          <nav className="po-foot" aria-label="其他入口">
+            {POSTER_FOOT.map((item) => (
+              <Anchor key={item.label} item={item} className="po-foot__link">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  {FOOT_GLYPHS[item.icon]}
+                </svg>
+                {item.label}
+              </Anchor>
+            ))}
+          </nav>
         </div>
 
         {/* 牌子縮不下去的寬度才出現，見 PosterIndex。 */}
@@ -463,9 +583,9 @@ export default function StorePage() {
           </div>
 
           <figure className="po-hero__figure">
-            {/* 碟色與碟形沿用盤面那一套，但不帶 .po-plate——它不吃座標，是順著版面排的。 */}
-            <span className="po-plate--pale po-hero__plate">
-              <span className="po-plate__frame">
+            {/* 碟色與碟形沿用盤面那一套，但不帶 .po-cover——它不吃座標，是順著版面排的。 */}
+            <span className="po-cover--pale po-cover--photo po-hero__plate">
+              <span className="po-cover__frame">
                 <span className="po-disc">
                   <Art
                     art={HERO.art}
@@ -495,6 +615,18 @@ export default function StorePage() {
           <ul className="po-sides__list">
             {SIDES.items.map((item) => (
               <li key={item}>{item}</li>
+            ))}
+          </ul>
+
+          {/*
+            盤面上只排得下七只碟子，但站上有十四個分類。
+            剩下的接在這裡，排成一列字——排不進盤面不代表它不存在。
+          */}
+          <ul className="po-sides__more">
+            {MORE_COLLECTIONS.map((item) => (
+              <li key={item.label}>
+                <Anchor item={item} className="po-sides__link" />
+              </li>
             ))}
           </ul>
 
