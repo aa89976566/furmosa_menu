@@ -9,7 +9,14 @@
  * 命名一律 mn-（menu）。這一份只管首頁。
  */
 
-.mn-page {
+/*
+ * 色與版面的變數掛在 :root，不是掛在 .mn-page。
+ * 購物車抽屜與那個小提示是 fixed 的，排在 .mn-page 外面（不能放進去，
+ * .mn-page 有 overflow-x: clip，會把 fixed 的子孫一起裁掉），所以變數
+ * 掛在 .mn-page 上的話抽屜那邊取不到，background: var(--mn-cream) 會
+ * 整個失效、變成透明。名字都帶 mn- 前綴，不會跟別頁撞。
+ */
+:root {
   /* ---- 色 ---- 取樣自參考圖，與 store.css 同一組。 */
   --mn-orange: #f65226;
   --mn-orange-deep: #d8441c;
@@ -35,7 +42,9 @@
   /* ---- 版面 ---- */
   --mn-bar-h: 48px;
   --mn-pad: clamp(14px, 3vw, 44px);
+}
 
+.mn-page {
   position: relative;
   isolation: isolate;
   min-height: 100vh;
@@ -111,10 +120,17 @@
   white-space: nowrap;
 }
 
-/* 參考圖上緣那條金色的槽。這一版讓牠真的跟著小計動。 */
+/*
+ * 參考圖上緣那條金色的槽。這一版讓牠真的跟著小計動。
+ *
+ * 寬度寫死在 width 而不是交給 flex-basis：槽裡面只有一個空的 span，
+ * 本身的 max-content 是 0，瀏覽器算外層 <p> 的固有寬度時 flex-basis
+ * 不會被算進去，結果整條槽會被縮成 0。量過，所以改成 flex: none。
+ */
 .mn-bar__meter {
   position: relative;
-  flex: 0 1 200px;
+  flex: none;
+  width: clamp(88px, 14vw, 200px);
   height: 9px;
   overflow: hidden;
   border-radius: 999px;
@@ -211,7 +227,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 56cqw;
+  width: 60cqw;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 50%;
@@ -221,10 +237,14 @@
     0 2cqw 4cqw #00000026;
 }
 
-/* 盤緣內側那一圈白溝。 */
+/*
+ * 盤緣內側那一塊白盤面。inset 11% 是量出來的：刻度那一圈的遮罩帶從 82%
+ * 起算，套在 inset 2.5% 的元件上就是盤寬的 0.3895，而 inset 11% 的圓半徑
+ * 剛好是 0.39——兩者對齊，刻度正好從盤面邊緣開始，中間不會露出一圈空白。
+ */
 .mn-center__rim {
   position: absolute;
-  inset: 14%;
+  inset: 11%;
   border-radius: 50%;
   background: #f1f0ee;
 }
@@ -251,16 +271,26 @@
   );
 }
 
-/* 盤心那一塊放內容的面。 */
+/*
+ * 盤心那一塊放內容的面。
+ *
+ * 整疊內容的高度是算過的，不是試出來的：標題 4.27 + 0.62 + 兩行短描述 4.41
+ * + 1.92 + 一份商品那一欄 20.97 + 1.92 + 查看全部 1.65，合起來 35.8cqw。
+ * 白盤面的半徑是 0.39 × 60 = 23.4cqw，直徑 46.8，所以上下各留 5.5cqw。
+ *
+ * 會先撞到邊的是最下面那三顆按鈕：欄心在 ±13.67，按鈕本身寬 8.1，所以最遠
+ * 伸到 17.72；牠們落在 y = +14.31，那個高度的弦長一半是 18.5——還差 0.78cqw
+ * （約 9px）。任何一個字級改大都會從這裡擠出去，要動請連著這幾個數字一起算。
+ */
 .mn-dish {
   position: absolute;
-  inset: 17%;
+  inset: 13%;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2.2cqw;
+  gap: 1.92cqw;
   text-align: center;
   /* 切換分類時整塊重建，所以這一下淡入就是「換盤」的那個動作。 */
   animation: mn-serve 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
@@ -291,12 +321,12 @@
 
 .mn-dish__head {
   display: grid;
-  gap: 0.7cqw;
+  gap: 0.62cqw;
 }
 
 .mn-dish__title {
   margin: 0;
-  font-size: 4.1cqw;
+  font-size: 4.07cqw;
   font-weight: 900;
   line-height: 1.05;
   letter-spacing: -0.01em;
@@ -305,8 +335,8 @@
 
 .mn-dish__blurb {
   margin: 0 auto;
-  max-width: 34cqw;
-  font-size: 1.42cqw;
+  max-width: 32.8cqw;
+  font-size: 1.47cqw;
   font-weight: 600;
   line-height: 1.5;
   color: #4a4542;
@@ -316,14 +346,14 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 2cqw;
+  gap: 1.92cqw;
   width: 100%;
 }
 
 .mn-dish__state {
   margin: 0;
-  max-width: 30cqw;
-  font-size: 1.45cqw;
+  max-width: 30.5cqw;
+  font-size: 1.49cqw;
   font-weight: 700;
   line-height: 1.6;
   color: #6b6560;
@@ -331,10 +361,10 @@
 
 .mn-dish__more {
   color: var(--mn-crimson);
-  font-size: 1.4cqw;
+  font-size: 1.45cqw;
   font-weight: 900;
   text-decoration: none;
-  border-bottom: 0.18cqw solid currentColor;
+  border-bottom: 0.2cqw solid currentColor;
 }
 
 .mn-dish__more:hover,
@@ -346,22 +376,22 @@
 
 .mn-item {
   display: flex;
-  flex: 0 1 11.5cqw;
+  flex: 0 1 11.75cqw;
   flex-direction: column;
   align-items: center;
-  gap: 0.7cqw;
+  gap: 0.62cqw;
   min-width: 0;
 }
 
 /* 商品照的圓形容器。照片一律 object-fit: cover，不變形。 */
 .mn-item__disc {
   display: block;
-  width: 10.4cqw;
+  width: 10.9cqw;
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
   background: #eceae4;
-  box-shadow: 0 0 0 0.22cqw #00000018;
+  box-shadow: 0 0 0 0.25cqw #00000018;
 }
 
 .mn-item__disc img {
@@ -381,17 +411,22 @@
     #e9e6e0 5px 10px
   );
   color: #7b756e;
-  font-size: 1.1cqw;
+  font-size: 1.24cqw;
   font-weight: 700;
 }
 
+/*
+ * 兩行高是固定的，不是看品名長短。品名一行一行不一樣高的話，下面的售價與
+ * 按鈕就會三份各在一個高度，看起來像沒對齊——所以不管一行還是兩行都占兩行。
+ */
 .mn-item__name {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
   margin: 0;
-  font-size: 1.24cqw;
+  min-height: 2.7em;
+  font-size: 1.29cqw;
   font-weight: 800;
   line-height: 1.35;
   color: var(--mn-ink);
@@ -403,7 +438,7 @@
   justify-content: center;
   gap: 0.5cqw;
   margin: 0;
-  font-size: 1.5cqw;
+  font-size: 1.56cqw;
   font-weight: 900;
   color: var(--mn-crimson);
 }
@@ -415,13 +450,13 @@
 }
 
 .mn-item__add {
-  padding: 0.62cqw 1.3cqw;
+  padding: 0.62cqw 1.2cqw;
   border: 0;
   border-radius: 999px;
   background: var(--mn-crimson);
   color: var(--mn-cream);
   font: inherit;
-  font-size: 1.18cqw;
+  font-size: 1.14cqw;
   font-weight: 900;
   white-space: nowrap;
   cursor: pointer;
@@ -450,13 +485,13 @@
 }
 
 .mn-item__bar {
-  width: 8.6cqw;
-  height: 1.1cqw;
+  width: 8.8cqw;
+  height: 1.13cqw;
   border-radius: 999px;
 }
 
 .mn-item__bar--short {
-  width: 5cqw;
+  width: 5.1cqw;
 }
 
 @keyframes mn-pulse {
@@ -836,14 +871,22 @@
 }
 
 .mn-drawer__meter {
+  /* 是個 span，不改成 block 的話 height 不會生效。 */
+  display: block;
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
   background: #e3d9b6;
 }
 
+/* 抽屜裡的槽底是奶白，所以填色改用深紅——金色在奶白上看不出來。 */
 .mn-drawer__fill {
   background: var(--mn-crimson);
+}
+
+/* 這一條要排在上面那條後面，不然滿額時會被蓋回深紅。 */
+.mn-drawer__fill[data-full] {
+  background: var(--mn-green);
 }
 
 .mn-drawer__error {
@@ -1066,68 +1109,81 @@
   }
 
   /*
-   * 大盤裡的字原本用 cqw（盤寬的 1%）。這裡關掉 container，所以改用
-   * 固定的 px/% 重寫一遍——不然 cqw 會退回 viewport 寬度、字會爆掉。
+   * 大盤裡的字原本用 cqw（盤面寬的 1%）。這裡關掉 container，所以整組改用
+   * px/vw 重寫一遍——不然 cqw 會退回 viewport 寬度、字會爆掉。
+   *
+   * 這一組不是把桌機的數字等比縮小。390 的螢幕盤面只剩 370px，等比縮下來
+   * 品名會變成 7.8px，根本看不清；所以字級先定在看得懂的下限，再回頭把圓盤
+   * 排得進去——也就是為什麼這裡的欄距與按鈕比桌機那一組小得多。
+   *
+   * 會先撞到白盤面邊緣的一律是最下面那三顆按鈕（桌機那一組也是）。量過的
+   * 「最遠的東西離盤心多少／白盤面半徑」：
+   *
+   *   320 → 111 / 117      560 → 162 / 179
+   *   360 → 118 / 133      860 → 163 / 179
+   *   390 → 124 / 144      861 → 178 / 189（這裡起跳回桌機那一組）
+   *
+   * 320 是最緊的一檔，還留 6px。改任何一個 clamp 都要重量一遍。
    */
   .mn-dish {
-    inset: 15%;
-    gap: 10px;
+    inset: 13%;
+    gap: 7px;
   }
 
   .mn-dish__title {
-    font-size: clamp(20px, 6.2vw, 30px);
+    font-size: clamp(20px, 5.6vw, 28px);
   }
 
   .mn-dish__blurb {
-    max-width: 78%;
-    font-size: clamp(10px, 2.8vw, 13px);
+    max-width: 80%;
+    font-size: clamp(9.5px, 2.6vw, 12px);
   }
 
   .mn-dish__row {
-    gap: clamp(6px, 2.4vw, 14px);
+    gap: clamp(5px, 2vw, 11px);
   }
 
   .mn-dish__state {
     max-width: 80%;
-    font-size: clamp(10px, 2.8vw, 13px);
+    font-size: clamp(10px, 2.7vw, 13px);
   }
 
   .mn-dish__more {
-    font-size: clamp(10px, 2.9vw, 13px);
+    font-size: clamp(10.5px, 2.9vw, 13px);
     border-bottom-width: 1px;
   }
 
   .mn-item {
-    flex: 0 1 clamp(64px, 23vw, 108px);
-    gap: 4px;
+    flex: 0 1 clamp(50px, 16.6vw, 86px);
+    gap: 3px;
   }
 
   .mn-item__disc {
-    width: clamp(54px, 20vw, 94px);
+    width: clamp(46px, 15.8vw, 80px);
     box-shadow: 0 0 0 2px #00000018;
   }
 
   .mn-item__name {
-    font-size: clamp(9px, 2.5vw, 12px);
+    font-size: clamp(9px, 2.4vw, 11px);
   }
 
   .mn-item__price {
     gap: 4px;
-    font-size: clamp(11px, 3vw, 14px);
+    font-size: clamp(10.5px, 2.9vw, 13px);
   }
 
   .mn-item__add {
-    padding: 5px 10px;
-    font-size: clamp(9px, 2.5vw, 12px);
+    padding: 4px 8px;
+    font-size: clamp(9px, 2.25vw, 11px);
   }
 
   .mn-item__bar {
-    width: clamp(44px, 16vw, 76px);
-    height: 9px;
+    width: clamp(40px, 13vw, 70px);
+    height: 8px;
   }
 
   .mn-item__bar--short {
-    width: clamp(26px, 10vw, 46px);
+    width: clamp(24px, 8vw, 42px);
   }
 
   .mn-item__blank {
@@ -1194,12 +1250,12 @@
 
 /* 頂端那條在很窄的螢幕會擠：進度槽先收掉，字與購物車優先。 */
 @media (max-width: 560px) {
-  .mn-page {
+  :root {
     --mn-bar-h: 44px;
   }
 
   .mn-bar__meter {
-    flex-basis: 54px;
+    width: 54px;
   }
 
   .mn-bar__inner {
@@ -1207,8 +1263,37 @@
   }
 }
 
+/* 很窄的螢幕：進度槽收掉，邊距也收窄一點，盤面才有地方站。 */
 @media (max-width: 400px) {
+  :root {
+    --mn-pad: 10px;
+  }
+
   .mn-bar__meter {
     display: none;
+  }
+}
+
+/*
+ * 360 以下（還在賣的最小一檔是 iPhone SE 的 320）上面那組 clamp 會卡到
+ * 下限，三顆按鈕會頂到白盤面的邊。欄距、圓與按鈕再收一點就排得回去：
+ * 320 量到 108／117、360 量到 115／133，接回上面那一組（361 是 127／133）
+ * 時不會跳。
+ */
+@media (max-width: 360px) {
+  .mn-dish__row {
+    gap: clamp(4px, 1.35vw, 5px);
+  }
+
+  .mn-item {
+    flex: 0 1 clamp(46px, 14.4vw, 52px);
+  }
+
+  .mn-item__disc {
+    width: clamp(42px, 13.3vw, 48px);
+  }
+
+  .mn-item__add {
+    padding: 3px clamp(6px, 2.2vw, 8px);
   }
 }

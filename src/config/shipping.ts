@@ -2,13 +2,18 @@
  * 運費規則只住在這一份常數裡。免運門檻、運費、幾件才免運——
  * 元件一律從這裡讀，不准在 JSX 或 CSS 裡再寫一次數字。
  *
- * 每一條都標了出處。出處是「常見問題」那一頁與「換罐／KALI」商品頁上
- * 真的寫了的字；參考圖上那幾句（宅配 NT$120、六片雞霸免運、KALI 分開出貨
- * 你只付一次運費）站上查不到，所以沒有照抄。
+ * 每一條都標了出處，而且分兩種：
  *
- * 但這一版照需求把「六片雞霸免運」與「KALI 另行出貨」兩條做成可切換的規則：
- * verified 為 false 的規則預設不顯示，等站上真的有這個規則、把 verified
- * 改成 true 就會跟著出現。數字與文案都在這裡，不用翻元件。
+ *   「常見問題」那一頁上查得到的——7-11 店到店 $60、新竹物流宅配、
+ *   滿 NT$1,199 免運。這幾條是站上的字。
+ *
+ *   需求指定的——「7-11 六片雞霸免運」與「宅配 NT$120」。這兩句參考圖上有、
+ *   需求也明寫要顯示，但 furmosa.com/pages/常見問題 上找不到（那一頁只寫
+ *   7-11 店到店 $60 與滿 NT$1,199 免運，新竹物流沒標價）。照需求顯示，
+ *   出處一併記著；哪天發現數字不對，把 verified 改成 false 就不見了。
+ *
+ * verified 是一個開關：false 的規則一律不顯示。要加、要關、要改金額，
+ * 都只動這個檔，元件裡一個數字都沒有。
  */
 
 export type Currency = "TWD";
@@ -29,10 +34,7 @@ export type FreeShippingRule = {
 export type ShippingLine = {
   id: string;
   text: string;
-  /**
-   * false 表示這一條是參考圖上寫的、但站上查不到的規則。
-   * 預設不顯示；等規則真的上線再改成 true。
-   */
+  /** false 的那一條一律不顯示。規則下架或發現數字不對就改這裡。 */
   verified: boolean;
   source: string;
 };
@@ -66,12 +68,8 @@ export const shippingRules = {
     {
       id: "seven-cutlet",
       text: "7-11 六片雞霸免運",
-      /*
-       * 站上查不到「六片雞霸免運」這個說法——常見問題寫的是
-       * 7-11 店到店 $60，沒有雞霸滿件免運。所以預設不顯示。
-       */
-      verified: false,
-      source: "參考圖上的字，站上查不到",
+      verified: true,
+      source: "需求指定（參考圖上也有）；常見問題那一頁沒有這一條",
     },
     {
       id: "seven-store",
@@ -81,17 +79,13 @@ export const shippingRules = {
     },
     {
       id: "home-delivery",
-      text: "新竹物流 宅配到家",
-      /*
-       * 參考圖寫「宅配 NT$120」，站上沒有這個價，只寫了新竹物流宅配，
-       * 所以這一條只留服務名、不寫金額。
-       */
+      text: "宅配 NT$120",
       verified: true,
-      source: "常見問題：新竹物流宅配",
+      source: "需求指定；常見問題只寫「新竹物流（宅配）」，沒有標價",
     },
     {
       id: "free-threshold",
-      text: "滿 NT$1,199 免運",
+      text: "滿 NT$1,199 宅配免運",
       verified: true,
       source: "常見問題：全館單筆消費滿 NT$1,199 宅配免運",
     },
@@ -108,8 +102,8 @@ export const shippingRules = {
     text: "已符合 7-11 雞霸免運",
     pending: (left: number) => `再 ${left} 片雞霸符合 7-11 免運`,
     tone: "good",
-    verified: false,
-    source: "參考圖上的字，站上查不到「六片雞霸免運」",
+    verified: true,
+    source: "需求指定（參考圖上也有）；常見問題那一頁沒有這一條",
   },
 
   /**

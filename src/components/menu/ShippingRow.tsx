@@ -7,14 +7,13 @@ import { useCart } from "./CartProvider";
 /**
  * 中央大盤下面那一行運送資訊。
  *
- * 固定那幾格來自 shippingRules.lines，verified 為 false 的不排——
- * 參考圖上的「7-11 六片雞霸免運」站上查不到，所以預設不出現。
+ * 固定那幾格來自 shippingRules.lines，verified 為 false 的不排。
  *
- * 另外兩條是看車的內容才出現的：
- *   - 雞霸滿件：件數與文案都在 shippingRules.cutletFreeShipping 裡。
- *     同樣因為站上查不到這個規則，verified 是 false、預設不顯示；
- *     規則真的上線時把 verified 改成 true 就會跟著動。
- *   - KALI：車上有 KALI 就提醒另行出貨。這一條站上查得到，所以是 true。
+ * 另外兩條是看車的內容才出現的，兩條的門檻與文案都在 shippingRules 裡，
+ * 這裡一個數字都不寫：
+ *   - 雞霸滿件：車上雞霸夠 6 片就顯示已符合，還差幾片就顯示還差幾片。
+ *     件數照品名認（keyword），不是認商品 ID。
+ *   - KALI：現在這一盤上有 KALI、或車上已經有 KALI，就提醒另行出貨。
  */
 export function ShippingRow({ browsingKali }: { browsingKali: boolean }) {
   const { cutletQuantity, hasKali } = useCart();
