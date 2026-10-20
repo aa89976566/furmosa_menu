@@ -68,6 +68,12 @@ export const LOGIN_URL = `${SHOP_ORIGIN}/account/login`;
 export const SEARCH_URL = `${SHOP_ORIGIN}/search`;
 export const ABOUT_URL = `${SHOP_ORIGIN}/pages/關於匠寵`;
 export const FAQ_URL = `${SHOP_ORIGIN}/pages/常見問題`;
+/**
+ * 換罐計畫自己那一頁（換罐據點／批發／寄售）。
+ * 注意這個不是 works.ts 的 PARTNER_URL——那個指向 furmosa-collab 那個合作站，
+ * 這個是本店站上的頁。
+ */
+export const JAR_URL = `${SHOP_ORIGIN}/pages/partner`;
 export const PRIVACY_URL = `${SHOP_ORIGIN}/policies/privacy-policy`;
 
 /** 中秋尋家合作計畫（匠寵 × 巴克幫－浪犬之家）。活動已結單。 */
@@ -228,9 +234,12 @@ export const KALI_NOTE = {
  * 字高量到 29px，圖示 40–46px。
  *
  * 參考圖的四個項目是 DROP 檔案庫／真食堂 文章／配送與購物須知／換罐計畫。
- * 這四個站上都有對應的頁，所以名字按真的頁名寫：
- * 編號清單那一頁自己的標題是「匠寵凍乾目錄」，配送寫在常見問題裡，
- * 換罐計畫寫在關於匠寵裡。
+ * 後三個站上都有對應的頁，名字就按真的頁名寫。
+ *
+ * 第一個沒有。站上的 sitemap_pages 只有五頁（contact、關於匠寵、常見問題、
+ * found-object-001、partner），/pages/drop、/pages/drop-archive、
+ * /collections/drop 三個都是 404——「DROP 檔案庫」是參考圖自己編的。
+ * 所以這一格換成真的有的那一頁：編號清單自己的標題是「匠寵凍乾目錄」。
  */
 export type PosterFootItem = {
   label: string;
@@ -244,7 +253,7 @@ export const POSTER_FOOT: PosterFootItem[] = [
   { label: "凍乾目錄", href: "/", icon: "list" },
   { label: "真食堂 文章", href: "/real-food", icon: "book" },
   { label: "配送與購物須知", href: FAQ_URL, external: true, icon: "truck" },
-  { label: "換罐計畫", href: ABOUT_URL, external: true, icon: "jar" },
+  { label: "換罐計畫", href: JAR_URL, external: true, icon: "jar" },
 ];
 
 /* ---------------- 頭盤：雞霸 ---------------- */
