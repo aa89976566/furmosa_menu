@@ -19,8 +19,15 @@ import { useCart } from "./CartProvider";
  * 右邊是購物車，件數與金額也都是 Shopify 回的。
  */
 export function TopBar() {
-  const { subtotal, totalQuantity, currency, cart, openDrawer, loading } =
-    useCart();
+  const {
+    subtotal,
+    totalQuantity,
+    currency,
+    cart,
+    openDrawer,
+    loading,
+    drawerOpen,
+  } = useCart();
 
   const remaining = remainingForFreeShipping(subtotal);
   const reached = remaining === 0 && subtotal > 0;
@@ -65,7 +72,7 @@ export function TopBar() {
           className="mn-bar__cart"
           onClick={openDrawer}
           aria-haspopup="dialog"
-          aria-expanded={false}
+          aria-expanded={drawerOpen}
         >
           <CartGlyph />
           <span>購物車</span>
