@@ -1,4 +1,4 @@
-import { SHOP_ORIGIN } from "@/config/menu";
+import { SHOP_ORIGIN } from "@/config/shop";
 
 import { StorefrontError, storefront } from "./storefront";
 import type { Cart } from "./types";

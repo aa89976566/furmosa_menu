@@ -13,9 +13,9 @@ import { useCart } from "./CartProvider";
  * 這裡一個數字都不寫：
  *   - 雞霸滿件：車上雞霸夠 6 片就顯示已符合，還差幾片就顯示還差幾片。
  *     件數照品名認（keyword），不是認商品 ID。
- *   - KALI：現在這一盤上有 KALI、或車上已經有 KALI，就提醒另行出貨。
+ *   - KALI：車上有 KALI 就提醒另行出貨。
  */
-export function ShippingRow({ browsingKali }: { browsingKali: boolean }) {
+export function ShippingRow() {
   const { cutletQuantity, hasKali } = useCart();
 
   const cutlet = shippingRules.cutletFreeShipping;
@@ -26,8 +26,7 @@ export function ShippingRow({ browsingKali }: { browsingKali: boolean }) {
   const cutletPending =
     cutlet.verified && cutletQuantity > 0 && cutletLeft > 0;
 
-  // 看到 KALI 那只盤子、或車上已經有 KALI，都要提醒。
-  const showKali = kali.verified && (browsingKali || hasKali);
+  const showKali = kali.verified && hasKali;
 
   return (
     <div className="mn-ship">

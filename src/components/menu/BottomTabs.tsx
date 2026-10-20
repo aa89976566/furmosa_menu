@@ -1,4 +1,4 @@
-import { SHOP_ORIGIN } from "@/config/menu";
+import { SHOP_ORIGIN } from "@/config/shop";
 
 /**
  * 餐桌最下面那一排四張卡。
