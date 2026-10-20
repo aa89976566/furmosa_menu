@@ -91,6 +91,15 @@ JOBS = [
         neutral=(18, 190),
         note="藤編寵物碗。碗底那一圈中性灰的落影連著挖掉——藤是暖色、"
              "內裡是墨綠、織紋是黑，都不會被誤傷。"),
+    Job("kong-puppy.jpg", "kong-toys.webp", bg=(255, 255, 255),
+        lo=12, hi=38, crop=(0.10, 0.28, 0.96, 0.99),
+        note="KONG 幼犬玩具組，純白棚拍。原圖左上角壓了 KONG 的商標組合，"
+             "那是印上去的字、不是貨，所以上緣裁到 0.28 把它留在外面。"
+             "玩具是粉紅與水藍，離白底很遠，門檻一刀就切得開。"),
+    Job("drop-all-shampoo.jpg", "shampoo-bottle.webp", bg=(255, 255, 255),
+        lo=12, hi=40,
+        note="Earthbath 洗毛精。整瓶站在純白底上，瓶身是薰衣草紫、瓶蓋是白的，"
+             "白蓋被瓶身的深藍肩線圍在中間、連不到邊框，所以 connected 保得住它。"),
     Job("beef-cubes-loading.jpg", "beef-cubes.webp", bg=(129, 186, 201),
         lo=40, hi=78, crop=(0.135, 0.45, 0.865, 0.578),
         warm_only=22, patch_holes=4000, fill_holes=False, connected=False,
