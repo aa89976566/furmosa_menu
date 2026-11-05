@@ -1,30 +1,24 @@
 import type { Metadata } from "next";
+import { Newsreader, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
-import "./works-ui.css";
+
+const serif = Newsreader({
+  subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+});
+
+const sans = Source_Sans_3({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
-  title: "匠寵凍乾目錄",
-  description: "匠寵 — 以編號清單記錄每一次凍乾上架。把選擇還給牠。",
-  openGraph: {
-    title: "匠寵凍乾目錄",
-    description: "匠寵 — 以編號清單記錄每一次凍乾上架。把選擇還給牠。",
-    locale: "zh_TW",
-    type: "website",
-    images: [
-      {
-        url: "/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "嗷嗚計畫｜匠寵",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "匠寵凍乾目錄",
-    description: "匠寵 — 以編號清單記錄每一次凍乾上架。把選擇還給牠。",
-    images: ["/opengraph-image.png"],
-  },
+  title: "Earth Painting Project",
+  description:
+    "Earth Painting Project — paintings and a postcard edition by Jieshin Tseng. Placeholder site.",
 };
 
 export default function RootLayout({
@@ -33,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hant-TW">
-      <body className="antialiased">{children}</body>
+    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

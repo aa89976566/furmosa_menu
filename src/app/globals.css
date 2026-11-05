@@ -1,29 +1,81 @@
-@import url("https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans+TC:wght@400;700&display=swap");
-@import "tailwindcss";
-@import "./furmosa.css";
-
 :root {
-  --background: #000;
-  --foreground: #84898e;
+  --paper: #f3eee6;
+  --paper-deep: #e7dfd2;
+  --ink: #2c2824;
+  --ink-soft: #5c534a;
+  --clay: #7d4e38;
+  --line: #d4cbbd;
+  --header: 4.25rem;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
-  --font-mono: "IBM Plex Mono", "Courier New", ui-monospace, monospace;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-html,
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header) + 0.5rem);
+}
+
 body {
   margin: 0;
   min-height: 100%;
-  background: #000;
-  color: #84898e;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
 }
 
-body {
-  font-family: "IBM Plex Mono", "IBM Plex Sans TC", "Courier New", ui-monospace,
-    monospace, Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
+h1,
+h2,
+h3,
+p {
+  overflow-wrap: break-word;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: #e2c48a;
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --header: 7.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.pigment-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
